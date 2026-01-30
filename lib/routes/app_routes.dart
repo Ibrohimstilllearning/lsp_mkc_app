@@ -7,7 +7,7 @@ class AppRoutes {
   static getRoutes() => [
     GetPage(
       name: AppPages.onboarding, 
-      page: () => const OnboardingPage(),
+      page: () =>  OnboardingPage(),
       binding: BindingsBuilder(() {
         Get.put(OnboardingController());
       }), 
