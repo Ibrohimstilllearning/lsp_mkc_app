@@ -1,6 +1,7 @@
 import 'dart:convert';
+
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart' as kIsWeb;
 
 class ApiService {
   static String get baseUrl {
@@ -13,8 +14,8 @@ class ApiService {
     String username,
     String email,
     String password,
-    String identity_type,
-    String identity_number,
+    String identityType,
+    String identityNumber,
   ) async {
     final url = Uri.parse('$baseUrl/register');
     try {
@@ -25,8 +26,8 @@ class ApiService {
           'name': name,
           'username': username,
           'email': email,
-          'identity_type': identity_type,
-          'identity_number': identity_number,
+          'identity_type': identityType,
+          'identity_number': identityNumber,
           'password': password,
         }),
       );
@@ -43,6 +44,8 @@ class ApiService {
       throw Exception('Registration corrupted: $e');
     }
   }
+
+ 
 
   /// login user
   static Future<Map<String, dynamic>> login(
@@ -67,5 +70,47 @@ class ApiService {
     }
   }
 
-  ///logout user 
+   /// Get user info
+  
+   static Future<Map<String, dynamic>> getUserInfo(String token) async {
+    final url = Uri.parse('$baseUrl/users');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type' : 'application/json',
+          'Authorization' : 'Bearer $token',
+        }
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to get User information');
+      }
+
+    } catch (e) {
+      throw Exception('Data Corrupted: $e');
+    }
+   }
+
+
+  ///logout user
+  static Future<void> logout(String token) async {
+    final url = Uri.parse('$baseUrl/logout');
+    try {
+      final response =  await http.post(
+        url,
+        headers: {
+          'Content-Type' : 'application/json',
+          'Authorization' : 'Bearer $token'
+        }
+      );
+      if (response.statusCode != 200) {
+        throw Exception('failed to logout');
+      } 
+    } catch (e) {
+      throw Exception('Session Corrupted: $e');
+    }
+  }
+  
 }
