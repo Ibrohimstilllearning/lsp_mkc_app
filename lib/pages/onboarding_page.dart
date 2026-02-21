@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lsp_mkc_app/pages/onboarding_controller.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+// ignore: must_be_immutable
 class OnboardingPage extends GetView<OnboardingController> {
   OnboardingPage({super.key});
 
@@ -144,15 +145,15 @@ class OnboardingPage extends GetView<OnboardingController> {
         ),
       ),
       bottomSheet: Obx(() {
-  return controller.isLastPage.value
-      ? Container(
-          padding: EdgeInsets.all(40),
-          height: 200,
-          width: double.infinity,
-          decoration: BoxDecoration(color: Color(0xFF009447)),
-          child: Column(
-            children: [
-/*               SmoothPageIndicator(
+        return controller.isLastPage.value
+            ? Container(
+                padding: EdgeInsets.all(40),
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(color: Color(0xFF009447)),
+                child: Column(
+                  children: [
+                    /*               SmoothPageIndicator(
                 controller: pageController,
                 count: 3,
                 effect: WormEffect(
@@ -160,72 +161,77 @@ class OnboardingPage extends GetView<OnboardingController> {
                   activeDotColor: Colors.white,
                 ),
               ), */
-              SizedBox(height: 30),
-              TextButton(
-                onPressed: controller.loadingScreen,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Text(
-                    'Bersiap!',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF009447),
+                    SizedBox(height: 30),
+                    TextButton(
+                      onPressed: controller.loadingScreen,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 100,
+                          vertical: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Text(
+                          'Bersiap!',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF009447),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        )
-      : Container(
-          padding: EdgeInsets.all(40),
-          height: 200,
-          width: double.infinity,
-          decoration: BoxDecoration(color: Color(0xFF009447)),
-          child: Column(
-            children: [
-              SmoothPageIndicator(
-                controller: pageController,
-                count: 3,
-                effect: WormEffect(
-                  dotColor: Colors.white70,
-                  activeDotColor: Colors.white,
-                ),
-              ), 
-              SizedBox(height: 30),
-              TextButton(
-                onPressed: () {
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Text(
-                    'Berikutnya',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF009447),
+              )
+            : Container(
+                padding: EdgeInsets.all(40),
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(color: Color(0xFF009447)),
+                child: Column(
+                  children: [
+                    SmoothPageIndicator(
+                      controller: pageController,
+                      count: 3,
+                      effect: WormEffect(
+                        dotColor: Colors.white70,
+                        activeDotColor: Colors.white,
+                      ),
                     ),
-                  ),
+                    SizedBox(height: 30),
+                    TextButton(
+                      onPressed: () {
+                        pageController.nextPage(
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 100,
+                          vertical: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Text(
+                          'Berikutnya',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF009447),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        );
-}),
-
+              );
+      }),
     );
   }
 }
