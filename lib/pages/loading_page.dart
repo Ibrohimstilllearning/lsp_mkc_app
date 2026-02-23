@@ -18,14 +18,14 @@ class LoadingPage extends GetView<LoadingController> {
           Center(
             child: LoadingAnimationWidget.waveDots(
               color: Colors.white,
-              size: 200  ,
+              size: 160  ,
             ),
           ),
           Text(
               'Tunggu sebentar ya...',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 30,
+                fontSize: 20,
                 fontWeight: FontWeight.bold
               ),
             ),

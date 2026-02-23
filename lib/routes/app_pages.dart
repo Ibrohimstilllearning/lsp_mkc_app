@@ -1,7 +1,6 @@
 class AppPages {
-  static const String onboarding = '/onboarding',
-      loading = '/loading',
-      login = '/login',
-      register = '/register';
-
+  static const onboarding = '/onboarding';
+  static const loading = '/loading';
+  static const login = '/LoginPage'; // Sesuaikan dengan Get.offAllNamed('/LoginPage')
+  static const register = '/register';
 }
