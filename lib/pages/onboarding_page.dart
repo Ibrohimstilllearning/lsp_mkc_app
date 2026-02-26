@@ -23,7 +23,7 @@ class OnboardingPage extends GetView<OnboardingController> {
           },
           children: [
             Container(
-              color: Color(0xFF009447),
+              color: Color(0xFF068C54),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
