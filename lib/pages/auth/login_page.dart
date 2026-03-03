@@ -10,22 +10,19 @@ class LoginPage extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF009447), // Warna hijau sesuai desain
+      backgroundColor: const Color(0xFF009447),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
               const SizedBox(height: 40),
-              // Ilustrasi Gambar
               Image.asset(
-                'assets/onboarding1.png', 
+                'assets/onboarding1.png',
                 height: 180,
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 30),
-              
-              // Judul
               Text(
                 'Masuk Kembali Ke\nLSP MKC',
                 textAlign: TextAlign.center,
@@ -36,33 +33,27 @@ class LoginPage extends GetView<LoginController> {
                 ),
               ),
               const SizedBox(height: 10),
-              
-              // Subtitle
               Text(
                 'Masuk untuk mengelola sertifikasi dan kompetensi profesional Anda.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
+                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
               ),
               const SizedBox(height: 30),
 
-              // Input Email
+              // ← sambungkan controller
               _buildInputField(
                 label: 'Email',
                 hint: 'Masukkan email Anda',
+                controller: controller.emailController,
               ),
               const SizedBox(height: 20),
-
-              // Input Kata Sandi
               _buildInputField(
                 label: 'Kata Sandi',
                 hint: 'Masukkan kata sandi Anda',
                 isPassword: true,
+                controller: controller.passwordController,
               ),
 
-              // Lupa Kata Sandi
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -79,7 +70,6 @@ class LoginPage extends GetView<LoginController> {
               ),
               const SizedBox(height: 20),
 
-              // Tombol Masuk
               SizedBox(
                 width: double.infinity,
                 height: 55,
@@ -92,9 +82,7 @@ class LoginPage extends GetView<LoginController> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    // Logika login
-                  },
+                  onPressed: () => controller.loginMethod(), // ← sambungkan
                   child: Text(
                     'Masuk',
                     style: GoogleFonts.plusJakartaSans(
@@ -106,7 +94,6 @@ class LoginPage extends GetView<LoginController> {
               ),
               const SizedBox(height: 25),
 
-              // Link Daftar
               GestureDetector(
                 onTap: () => Get.toNamed(AppPages.register),
                 child: RichText(
@@ -130,11 +117,11 @@ class LoginPage extends GetView<LoginController> {
     );
   }
 
-  // Widget Helper untuk Input Field agar rapi dan reusable
   Widget _buildInputField({
-    required String label, 
-    required String hint, 
-    bool isPassword = false
+    required String label,
+    required String hint,
+    bool isPassword = false,
+    TextEditingController? controller, // ← tambah parameter
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,6 +136,7 @@ class LoginPage extends GetView<LoginController> {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: controller, // ← sambungkan
           obscureText: isPassword,
           decoration: InputDecoration(
             filled: true,

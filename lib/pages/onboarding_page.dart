@@ -23,7 +23,7 @@ class OnboardingPage extends GetView<OnboardingController> {
           },
           children: [
             Container(
-              color: Color(0xFF068C54),
+              color: Color(0xFF009447),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -212,7 +212,7 @@ class OnboardingPage extends GetView<OnboardingController> {
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 100,
-                          vertical: 20,
+                          vertical: 14,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,

@@ -1,12 +1,15 @@
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/auth/login_controller.dart';
 import 'package:lsp_mkc_app/pages/auth/login_page.dart';
+import 'package:lsp_mkc_app/pages/home_controller.dart';
+import 'package:lsp_mkc_app/pages/home_page.dart';
 import 'package:lsp_mkc_app/pages/loading_controller.dart';
 import 'package:lsp_mkc_app/pages/loading_page.dart';
 import 'package:lsp_mkc_app/pages/onboarding_controller.dart';
 import 'package:lsp_mkc_app/pages/onboarding_page.dart';
-import 'package:lsp_mkc_app/pages/register_page.dart';
+import 'package:lsp_mkc_app/pages/auth/register_page.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
+import 'package:lsp_mkc_app/pages/home_page.dart';
 
 class AppRoutes {
   static List<GetPage<dynamic>> getRoutes() => [
@@ -31,8 +34,19 @@ class AppRoutes {
         Get.put(LoginController());
       }), 
     ),
+    GetPage(
+      name: AppPages.home, 
+      page: () =>  HomePage(),
+      binding: BindingsBuilder(() {
+        Get.put(HomeController());
+      }), 
+    ),
     GetPage(name: AppPages.register,
     page: () => const RegisterPage(),
+    ),
+    GetPage(
+    name: AppPages.home,
+    page: () => const HomePage(),
     ),
   ];
 }
