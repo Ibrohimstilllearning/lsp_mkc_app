@@ -6,7 +6,7 @@ class LoadingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       _checkStatus();
     });
   }
@@ -17,13 +17,10 @@ class LoadingController extends GetxController {
     final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
     if (token != null && token.isNotEmpty) {
-      // sudah login → langsung home
       Get.offAllNamed(AppPages.home);
     } else if (!hasSeenOnboarding) {
-      // belum pernah buka app → onboarding
       Get.offAllNamed(AppPages.onboarding);
     } else {
-      // sudah lihat onboarding tapi belum login → login
       Get.offAllNamed(AppPages.login);
     }
   }

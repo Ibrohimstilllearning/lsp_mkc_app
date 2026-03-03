@@ -11,21 +11,14 @@ class HomeController extends GetxController {
       final token = prefs.getString('token');
 
       if (token != null) {
-        var headers = {
-          ...ApiEndpoints.headers,
-          'Authorization': 'Bearer $token',
-        };
         var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.logoutPoint);
-        final response = await http.post(url, headers: headers);
-        print('Logout status: ${response.statusCode}');
-        print('Logout body: ${response.body}');
+        await http.post(url, headers: ApiEndpoints.authHeaders(token));
       }
 
       await prefs.remove('token');
       Get.offAllNamed(AppPages.login);
     } catch (e) {
       print('Logout error: $e');
-      // tetap logout meski API gagal
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('token');
       Get.offAllNamed(AppPages.login);

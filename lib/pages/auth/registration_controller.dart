@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,8 +15,6 @@ class RegistrationController extends GetxController {
   TextEditingController passwordController = TextEditingController();
   TextEditingController passwordConfController = TextEditingController();
 
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
   String? _validateInputs() {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
@@ -26,21 +25,16 @@ class RegistrationController extends GetxController {
 
     if (name.isEmpty) return 'Nama lengkap tidak boleh kosong';
     if (name.length < 3) return 'Nama minimal 3 karakter';
-
     if (email.isEmpty) return 'Email tidak boleh kosong';
     if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       return 'Format email tidak valid';
     }
-
     if (identityType.isEmpty) return 'Jenis identitas tidak boleh kosong';
-
     if (identityNumber.isEmpty) return 'Nomor identitas tidak boleh kosong';
     if (identityNumber.length != 16) return 'NIK harus 16 digit';
     if (!RegExp(r'^\d+$').hasMatch(identityNumber)) return 'NIK hanya boleh angka';
-
     if (password.isEmpty) return 'Kata sandi tidak boleh kosong';
     if (password.length < 6) return 'Kata sandi minimal 6 karakter';
-
     if (passwordConf.isEmpty) return 'Konfirmasi kata sandi tidak boleh kosong';
     if (password != passwordConf) return 'Kata sandi tidak cocok';
 
@@ -49,37 +43,55 @@ class RegistrationController extends GetxController {
 
   void _showError(String message) {
     Get.snackbar(
-      'Gagal',
-      message,
+      'Gagal', message,
       backgroundColor: Colors.red,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(16),
       borderRadius: 10,
-      duration: const Duration(seconds: 3),
-    );
-  }
-
-  void _showSuccess(String message) {
-    Get.snackbar(
-      'Berhasil',
-      message,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 10,
-      duration: const Duration(seconds: 3),
     );
   }
 
   Future<void> registerMethod() async {
-    // validasi dulu sebelum hit API
     final validationError = _validateInputs();
     if (validationError != null) {
       _showError(validationError);
       return;
     }
+
+    Future<void> _autoLogin(String email, String password) async {
+  try {
+    var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint);
+    Map body = {
+      'email': email,
+      'password': password,
+    };
+    final response = await http.post(
+      url,
+      body: jsonEncode(body),
+      headers: ApiEndpoints.headers,
+    );
+
+    print('Auto login status: ${response.statusCode}');
+    print('Auto login body: ${response.body}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      var bodyStr = response.body.trim();
+      if (bodyStr.startsWith('"') && bodyStr.endsWith('"')) {
+        bodyStr = jsonDecode(bodyStr);
+      }
+      final json = jsonDecode(bodyStr);
+      final token = json['token'];
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        print('Auto login token saved: $token');
+      }
+    }
+  } catch (e) {
+    print('Auto login error: $e');
+  }
+}
 
     try {
       var headers = ApiEndpoints.headers;
@@ -109,39 +121,38 @@ class RegistrationController extends GetxController {
       final json = jsonDecode(bodyStr);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        roleController.clear();
-        identityTypeController.clear();
-        identityNumberController.clear();
-        nameController.clear();
-        emailController.clear();
-        passwordController.clear();
-        passwordConfController.clear();
+      final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('temp_email', emailController.text.trim());
+  await prefs.setString('temp_password', passwordController.text);
 
-        Get.back();
-        _showSuccess('Akun berhasil dibuat! Cek email Anda untuk verifikasi');
-      } else if (response.statusCode == 422) {
+      roleController.clear();
+      identityTypeController.clear();
+      identityNumberController.clear();
+      nameController.clear();
+      emailController.clear();
+      passwordController.clear();
+      passwordConfController.clear();
+
+      Get.offAllNamed(AppPages.verify);
+} else if (response.statusCode == 422) {
         final errors = json['errors'];
         if (errors != null) {
           final firstError = (errors as Map).values.first;
           _showError(firstError is List ? firstError.first : firstError.toString());
         } else {
-          _showError(json['metadata']?['message'] ?? json['message'] ?? 'Data tidak valid');
+          _showError(json['metadata']?['message'] ?? 'Data tidak valid');
         }
       } else if (response.statusCode == 409) {
         _showError('Email sudah terdaftar, gunakan email lain');
       } else if (response.statusCode == 500) {
         _showError('Server sedang bermasalah, coba lagi nanti');
       } else {
-        _showError(json['metadata']?['message'] ?? json['message'] ?? 'Terjadi kesalahan');
+        _showError(json['metadata']?['message'] ?? 'Terjadi kesalahan');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error: $e');
-      if (e.toString().contains('SocketException') ||
-          e.toString().contains('NetworkException')) {
-        _showError('Tidak ada koneksi internet');
-      } else {
-        _showError('Terjadi kesalahan, coba lagi');
-      }
+      print('StackTrace: $stackTrace');
+      _showError('Terjadi kesalahan, coba lagi');
     }
   }
 }

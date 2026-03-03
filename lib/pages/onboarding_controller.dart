@@ -11,7 +11,7 @@ class OnboardingController extends GetxController {
 
   Future<void> loadingScreen() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenOnboarding', true); // ← simpan flag
+    await prefs.setBool('hasSeenOnboarding', true);
     Get.offAllNamed(AppPages.loading);
   }
 }
