@@ -5,4 +5,5 @@ class AppPages {
   static const register = '/register';
   static const verify = '/verify'; // ← tambah ini
   static const home = '/home';
+  static const reset = '/reset';
 }

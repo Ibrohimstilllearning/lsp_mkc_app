@@ -7,8 +7,9 @@ import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationController extends GetxController {
+  String identityType = 'id';
+
   TextEditingController roleController = TextEditingController();
-  TextEditingController identityTypeController = TextEditingController();
   TextEditingController identityNumberController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -18,7 +19,6 @@ class RegistrationController extends GetxController {
   String? _validateInputs() {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
-    final identityType = identityTypeController.text.trim();
     final identityNumber = identityNumberController.text.trim();
     final password = passwordController.text;
     final passwordConf = passwordConfController.text;
@@ -29,10 +29,17 @@ class RegistrationController extends GetxController {
     if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       return 'Format email tidak valid';
     }
-    if (identityType.isEmpty) return 'Jenis identitas tidak boleh kosong';
+ // Validasi berbeda tergantung jenis identitas
     if (identityNumber.isEmpty) return 'Nomor identitas tidak boleh kosong';
-    if (identityNumber.length != 16) return 'NIK harus 16 digit';
-    if (!RegExp(r'^\d+$').hasMatch(identityNumber)) return 'NIK hanya boleh angka';
+    if (identityType == 'id') {
+      // KTP: harus 16 digit angka
+      if (identityNumber.length != 16) return 'NIK harus 16 digit';
+      if (!RegExp(r'^\d+$').hasMatch(identityNumber)) return 'NIK hanya boleh angka';
+    } else {
+      // Passport: minimal 6 karakter, boleh huruf dan angka
+      if (identityNumber.length < 6) return 'Nomor passport minimal 6 karakter';
+    }
+
     if (password.isEmpty) return 'Kata sandi tidak boleh kosong';
     if (password.length < 6) return 'Kata sandi minimal 6 karakter';
     if (passwordConf.isEmpty) return 'Konfirmasi kata sandi tidak boleh kosong';
@@ -99,7 +106,7 @@ class RegistrationController extends GetxController {
 
       Map body = {
         'role': 'asesi',
-        'identity_type': identityTypeController.text.trim(),
+        'identity_type': identityType,
         'identity_number': identityNumberController.text.trim(),
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
@@ -126,7 +133,7 @@ class RegistrationController extends GetxController {
   await prefs.setString('temp_password', passwordController.text);
 
       roleController.clear();
-      identityTypeController.clear();
+      identityType = 'id';
       identityNumberController.clear();
       nameController.clear();
       emailController.clear();

@@ -57,7 +57,7 @@ class LoginPage extends GetView<LoginController> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppPages.reset),
                   child: Text(
                     'Lupa Kata Sandi?',
                     style: GoogleFonts.plusJakartaSans(

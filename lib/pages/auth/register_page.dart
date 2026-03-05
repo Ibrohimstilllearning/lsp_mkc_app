@@ -12,6 +12,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   bool _isChecked = false;
+  String _selectedIdentityType = 'id';
   final RegistrationController _controller = Get.put(RegistrationController());
 
   @override
@@ -39,8 +40,74 @@ class _RegisterPageState extends State<RegisterPage> {
               style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
             ),
             const SizedBox(height: 40),
-            _buildField('Jenis Identitas', controller: _controller.identityTypeController),
-            _buildField('NIK', controller: _controller.identityNumberController),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Jenis Identitas',
+                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  // Radio KTP
+                  Radio<String>(
+                    value: 'id',
+                    groupValue: _selectedIdentityType,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedIdentityType = val!;
+                        _controller.identityType = val;
+                      });
+                    },
+                    fillColor: WidgetStateProperty.all(Colors.white),
+                  ),
+                  Text(
+                    'KTP',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontWeight: _selectedIdentityType == 'id'
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+
+                  const SizedBox(width: 20),
+
+                  // Radio Passport
+                  Radio<String>(
+                    value: 'passport',
+                    groupValue: _selectedIdentityType,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedIdentityType = val!;
+                        _controller.identityType = val;
+                      });
+                    },
+                    fillColor: WidgetStateProperty.all(Colors.white),
+                  ),
+                  Text(
+                    'Passport',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontWeight: _selectedIdentityType == 'passport'
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            _buildField('No Identitas', controller: _controller.identityNumberController),
             _buildField('Nama Lengkap', controller: _controller.nameController),
             _buildField('Email', controller: _controller.emailController),
             _buildField('Kata Sandi', isPassword: true, controller: _controller.passwordController),

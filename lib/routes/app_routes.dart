@@ -3,6 +3,8 @@ import 'package:lsp_mkc_app/pages/auth/login_controller.dart';
 import 'package:lsp_mkc_app/pages/auth/login_page.dart';
 import 'package:lsp_mkc_app/pages/auth/register_page.dart';
 import 'package:lsp_mkc_app/pages/auth/registration_controller.dart';
+import 'package:lsp_mkc_app/pages/auth/reset_controller.dart';
+import 'package:lsp_mkc_app/pages/auth/reset_page.dart';
 import 'package:lsp_mkc_app/pages/auth/verify_controller.dart';
 import 'package:lsp_mkc_app/pages/auth/verify_page.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
@@ -55,6 +57,13 @@ class AppRoutes {
       page: () => HomePage(),
       binding: BindingsBuilder(() {
         Get.put(HomeController());
+      }),
+    ),
+    GetPage(
+      name: AppPages.reset,
+      page: () => ResetPage(),
+      binding: BindingsBuilder(() {
+        Get.put(ResetController());
       }),
     ),
   ];
