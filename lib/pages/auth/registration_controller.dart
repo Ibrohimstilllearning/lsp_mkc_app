@@ -99,7 +99,7 @@ class RegistrationController extends GetxController {
     try {
       var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.registerPoint);
 
-      Map body = {
+      Map<String, dynamic> body = {  // Add <String, dynamic> 
         'identity_type': identityType,
         'identity_number': identityNumberController.text.trim(),
         'name': nameController.text.trim(),
