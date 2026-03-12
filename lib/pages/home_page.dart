@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/controller/bottom_nav_controller.dart';
-import 'package:lsp_mkc_app/pages/forms/form_apl01.dart';
+import 'package:lsp_mkc_app/pages/forms/apl01/form_apl01.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
 import 'package:lsp_mkc_app/pages/profil_page.dart';

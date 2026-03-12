@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controller/form_controller.dart';
+import '../../../../controller/forms/form_controller.dart';
+import 'form_apl01pt4.dart';
 
 class FormApl01Bagian3 extends StatelessWidget {
   final FormController c = Get.find();
@@ -338,16 +339,9 @@ class FormApl01Bagian3 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12)),
                       padding: EdgeInsets.symmetric(vertical: 14),
                     ),
-                    onPressed: () {
-                      Get.snackbar(
-                        "Berhasil",
-                        "Form berhasil dikirim!",
-                        backgroundColor: Color(0xFF4CAF50),
-                        colorText: Colors.white,
-                      );
-                    },
-                    child:
-                        Text("Kirim", style: TextStyle(color: Colors.white)),
+                    onPressed: () => Get.to(() => FormApl01Bagian4()),
+                    child: Text("Selanjutnya",
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],

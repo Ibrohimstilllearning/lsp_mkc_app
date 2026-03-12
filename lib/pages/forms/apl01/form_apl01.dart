@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controller/form_controller.dart';
-import 'package:lsp_mkc_app/pages/home_page.dart';
+import '../../../controller/forms/form_controller.dart';
+import 'package:lsp_mkc_app/pages/home/home_page.dart';
 import 'form_apl01pt2.dart';
 
 class FormApl01 extends StatelessWidget {

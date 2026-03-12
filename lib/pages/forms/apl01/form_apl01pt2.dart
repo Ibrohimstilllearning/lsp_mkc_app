@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controller/form_controller.dart';
+import '../../../controller/forms/form_controller.dart';
 import 'form_apl01pt3.dart';
 
 class FormApl01Bagian2 extends StatelessWidget {
