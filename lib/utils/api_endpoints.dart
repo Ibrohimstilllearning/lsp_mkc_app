@@ -1,11 +1,15 @@
 class ApiEndpoints {
-  static String baseUrl = 'https://ujikomp.lspmkc.or.id/api';
+  static const bool _useLocal = true;
+  static String baseUrl = _useLocal
+      ? 'https://maverick-unaccessional-salutatorily.ngrok-free.dev/api'
+      : 'http://lsp-mkc-backend.test/api';
   static _AuthEndPoints authEndPoints = _AuthEndPoints();
 
   static Map<String, String> headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'X-API-KEY': 'opalOAaIUNGiyzmN0DgY8g4u7ac72q3H',
+    'ngrok-skip-browser-warning': 'true',
   };
 
   static Map<String, String> authHeaders(String token) => {

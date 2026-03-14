@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class HomeApp extends StatelessWidget {
   const HomeApp({super.key});
@@ -53,7 +54,7 @@ class HomePage extends GetView<HomeController> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppPages.apl01),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3E8E41),
                     shape: RoundedRectangleBorder(
