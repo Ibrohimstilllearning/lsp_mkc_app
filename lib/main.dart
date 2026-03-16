@@ -15,12 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      defaultDevice: Devices.ios.iPhone11ProMax,
-      devices: [Devices.ios.iPhone11ProMax],
-      builder: (context) => const MyApp(),
-    ),
+    MyApp(),
   );
 }
 

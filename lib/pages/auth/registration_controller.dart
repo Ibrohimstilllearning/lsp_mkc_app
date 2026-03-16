@@ -102,7 +102,7 @@ class RegistrationController extends GetxController {
     try {
       var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.registerPoint);
 
-      Map body = {
+      Map<String, dynamic> body = {  // Add <String, dynamic> 
         'identity_type': identityType,
         'identity_number': identityNumberController.text.trim(),
         'name': nameController.text.trim(),
@@ -111,7 +111,9 @@ class RegistrationController extends GetxController {
         'password_confirmation': passwordConfController.text,
       };
 
+      print('=== REQUEST ===');
       print('URL: $url');
+      print('Headers: ${ApiEndpoints.headers}');
       print('Body: ${jsonEncode(body)}');
 
       http.Response response = await http.post(
@@ -120,8 +122,10 @@ class RegistrationController extends GetxController {
         headers: ApiEndpoints.headers,
       );
 
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
+      print('=== RESPONSE ===');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+      print('Response Headers: ${response.headers}');
 
       var bodyStr = response.body.trim();
 
@@ -153,32 +157,46 @@ final json = jsonDecode(bodyStr);
         Get.offAllNamed(AppPages.verify);
 
       } else if (response.statusCode == 422) {
+        final metadata = json['metadata'] as Map?;
         final errors = json['errors'] as Map?;
 
-        if (errors != null) {
-          final emailErr = errors['email'];
-          final nikErr = errors['identity_number'];
-          final emailCode = emailErr is List ? emailErr.first : emailErr?.toString();
-          final nikCode = nikErr is List ? nikErr.first : nikErr?.toString();
+        if (metadata != null) {
+          final code = metadata['code']?.toString() ?? '';
+          final message = metadata['message']?.toString() ?? 'Data Invalid';
 
-          if (emailCode == 'E2001' && nikCode == 'E2002') {
-            _showWarning('Email dan ${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
-            return;
-          }
-          if (emailCode == 'E2001') {
-            _showWarning('Email sudah terdaftar, gunakan email lain');
-            return;
-          }
-          if (nikCode == 'E2002') {
+          if (code == 'E2001') {
+            _showWarning('Email Sudah Terdaftar, Silahkan Gunakan Email yang Lain.');
+          } else if (code == 'E2002') {
             _showWarning('${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
-            return;
+          } else if (code == 'E2003') {
+            _showWarning('Email dan ${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
+          } else {
+            _showError(message);
           }
+        } else if (errors != null) {
+            final emailErr = errors['email'];
+            final nikErr = errors['identity_number'];
+            final emailCode = emailErr is List ? emailErr.first : emailErr?.toString();
+            final nikCode = nikErr is List ? nikErr.first : nikErr?.toString();
 
-          final firstError = errors.values.first;
-          final msg = firstError is List ? firstError.first : firstError.toString();
-          _showError(msg);
-        } else {
-          _showError(json['message'] ?? 'Data tidak valid');
+            if (emailCode == 'E2001' && nikCode == 'E2002') {
+              _showWarning('Email dan ${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
+              return;
+            }
+            if (emailCode == 'E2001') {
+              _showWarning('Email sudah terdaftar, gunakan email lain');
+              return;
+            }
+            if (nikCode == 'E2002') {
+              _showWarning('${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
+              return;
+            }
+
+            final firstError = errors.values.first;
+            final msg = firstError is List ? firstError.first : firstError.toString();
+            _showError(msg);
+          } else {
+            _showError('Data tidak valid');
         }
 
       } else if (response.statusCode == 409) {
@@ -193,7 +211,11 @@ final json = jsonDecode(bodyStr);
         Get.offAllNamed(AppPages.verify);
 
       } else {
-        _showError(json['message'] ?? json['metadata']?['message'] ?? 'Terjadi kesalahan');
+        // Ambil pesan dari metadata atau message
+        final message = json['metadata']?['message'] 
+            ?? json['message'] 
+            ?? 'Terjadi kesalahan';
+        _showError(message);
       }
 
     } catch (e, stackTrace) {

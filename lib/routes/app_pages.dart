@@ -6,6 +6,9 @@ class AppPages {
   static const verify = '/verify'; // ← tambah ini
   static const home = '/home';
   static const reset = '/reset';
-
-  static const apl01 = '/apl01';
+   static const apl01 = '/apl01';
+  //Nested routes (inside homepage)
+  static const pengajuan = '/pengajuan';
+  static const riwayat = '/riwayat';
+  static const profil = '/profil';
 }
