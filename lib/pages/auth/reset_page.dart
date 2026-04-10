@@ -6,123 +6,309 @@ import 'package:lsp_mkc_app/pages/auth/reset_controller.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class ResetPage extends GetView<ResetController> {
-   ResetPage({super.key});
+  const ResetPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF009447),
-      body: SafeArea(
-        child: Column(
-          children: [
-             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row( 
-                children: [ 
-                  IconButton(
-                    onPressed: () => Get.back(), 
-                    icon: Icon(Icons.arrow_back, color: Colors.white,)
-                    )
-                ],
-              ),
-            ),
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF5F5F5),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Get.back(),
+        ),
+      ),
+      body: Obx(() {
+        switch (controller.step.value) {
+          case 1:
+            return _StepEmail(controller: controller);
+          case 2:
+            return _StepOtp(controller: controller);
+          case 3:
+            return _StepNewPassword(controller: controller);
+          default:
+            return _StepEmail(controller: controller);
+        }
+      }),
+    );
+  }
+}
 
-              Padding(padding: EdgeInsets.symmetric(),
-              child: Column(
-                children: [
-                  Image.asset(
-                    'assets/reset.png',
-                    height: 240,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 20),
-              Text(
-                'Lupa Kata Sandi',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+// ─────────────────────────────────────
+// Step 1 - Input Email
+// ─────────────────────────────────────
+class _StepEmail extends StatelessWidget {
+  final ResetController controller;
+  const _StepEmail({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final emailCtrl = TextEditingController();
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          const Text("Lupa Password",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text("Masukkan email kamu, kami akan kirimkan kode OTP.",
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+          const SizedBox(height: 32),
+
+          // Input Email
+          TextField(
+            controller: emailCtrl,
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(
+              hintText: 'Email',
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
               ),
-              const SizedBox(height: 10),
-              Text(
-                'Ganti kata sandi anda dan gunakan akun yang sama.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
-              ),
-              const SizedBox(height: 40),
-                ],
-              ),
+              prefixIcon: const Icon(Icons.email_outlined),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-            
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
-              child: Column(
-              children: [
-                _buildPasswordField("Kata Sandi Saat Ini"),
-                _buildPasswordField("Kata Sandi Baru"),
-                _buildPasswordField("Konfirmasi Kata Sandi Baru")
-              ],
-            ), 
           ),
 
-          const SizedBox(height: 20,),
+          const SizedBox(height: 24),
 
-          Padding(padding: EdgeInsets.symmetric(horizontal: 30),
-          child: SizedBox(
+          // Tombol Kirim
+          Obx(() => SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: 50,
                 child: ElevatedButton(
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () => controller.sendForgotPassword(emailCtrl.text.trim()),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF009447),
-                    elevation: 0,
+                    backgroundColor: const Color(0xFF3E8E41),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: () {}, // ← sambungkan
-                  child: Text(
-                    'Ganti Kata Sandi',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                      : const Text('Kirim Kode OTP',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
                 ),
-              ),
-          )
-
-          ],
-        )
+              )),
+        ],
       ),
     );
   }
 }
 
-Widget _buildPasswordField(String label, {TextEditingController? controller}) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 15),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14)),
-        const SizedBox(height: 5),
-        TextField(
-          controller: controller,
-          obscureText: true,
-          decoration: InputDecoration(
-            fillColor: Colors.white,
-            filled: true,
-            isDense: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+// ─────────────────────────────────────
+// Step 2 - Input OTP
+// ─────────────────────────────────────
+class _StepOtp extends StatelessWidget {
+  final ResetController controller;
+  const _StepOtp({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final otpCtrl = TextEditingController();
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          const Text("Verifikasi OTP",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Obx(() => Text(
+                "Kode OTP telah dikirim ke ${controller.email.value}",
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              )),
+          const SizedBox(height: 32),
+
+          // Input OTP
+          TextField(
+            controller: otpCtrl,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 24, letterSpacing: 8),
+            decoration: InputDecoration(
+              hintText: '------',
+              counterText: '',
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+
+          const SizedBox(height: 24),
+
+          // Tombol Verifikasi
+          Obx(() => SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () => controller.verifyOtp(otpCtrl.text.trim()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3E8E41),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                      : const Text('Verifikasi OTP',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
+                ),
+              )),
+
+          const SizedBox(height: 16),
+
+          // Kirim Ulang OTP
+          Center(
+            child: TextButton(
+              onPressed: () =>
+                  controller.sendForgotPassword(controller.email.value),
+              child: Text('Kirim Ulang OTP',
+                  style: TextStyle(color: Colors.grey.shade600)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────
+// Step 3 - Input Password Baru
+// ─────────────────────────────────────
+class _StepNewPassword extends StatelessWidget {
+  final ResetController controller;
+  const _StepNewPassword({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final newPassCtrl = TextEditingController();
+    final confirmPassCtrl = TextEditingController();
+    final hideNew = true.obs;
+    final hideConfirm = true.obs;
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          const Text("Password Baru",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text("Masukkan password baru kamu.",
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+          const SizedBox(height: 32),
+
+          // Input Password Baru
+          Obx(() => TextField(
+                controller: newPassCtrl,
+                obscureText: hideNew.value,
+                decoration: InputDecoration(
+                  hintText: 'Password Baru (min. 8 karakter)',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(hideNew.value
+                        ? Icons.visibility_off
+                        : Icons.visibility),
+                    onPressed: () => hideNew.value = !hideNew.value,
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
+              )),
+
+          const SizedBox(height: 16),
+
+          // Input Konfirmasi Password
+          Obx(() => TextField(
+                controller: confirmPassCtrl,
+                obscureText: hideConfirm.value,
+                decoration: InputDecoration(
+                  hintText: 'Konfirmasi Password Baru',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(hideConfirm.value
+                        ? Icons.visibility_off
+                        : Icons.visibility),
+                    onPressed: () => hideConfirm.value = !hideConfirm.value,
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
+              )),
+
+          const SizedBox(height: 24),
+
+          // Tombol Reset
+          Obx(() => SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () => controller.resetPassword(
+                            newPassword: newPassCtrl.text.trim(),
+                            confirmPassword: confirmPassCtrl.text.trim(),
+                          ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3E8E41),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                      : const Text('Ubah Password',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
 }
