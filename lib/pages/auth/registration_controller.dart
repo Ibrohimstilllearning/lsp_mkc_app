@@ -16,6 +16,8 @@ class RegistrationController extends GetxController {
   TextEditingController passwordController = TextEditingController();
   TextEditingController passwordConfController = TextEditingController();
 
+  final isLoading = false.obs;
+
   String? _validateInputs() {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
@@ -96,6 +98,7 @@ class RegistrationController extends GetxController {
       return;
     }
 
+    isLoading.value = true;
     try {
       var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.registerPoint);
 
@@ -125,10 +128,25 @@ class RegistrationController extends GetxController {
       print('Response Headers: ${response.headers}');
 
       var bodyStr = response.body.trim();
-      if (bodyStr.startsWith('"') && bodyStr.endsWith('"')) {
-        bodyStr = jsonDecode(bodyStr);
-      }
-      final json = jsonDecode(bodyStr);
+
+// Guard body kosong
+if (bodyStr.isEmpty) {
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('temp_email', emailController.text.trim());
+    await prefs.setString('temp_password', passwordController.text);
+    _clearForm();
+    Get.offAllNamed(AppPages.verify);
+  } else {
+    _showError('Server error (${response.statusCode}), coba lagi nanti');
+  }
+  return;
+}
+
+if (bodyStr.startsWith('"') && bodyStr.endsWith('"')) {
+  bodyStr = jsonDecode(bodyStr);
+}
+final json = jsonDecode(bodyStr);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final prefs = await SharedPreferences.getInstance();
@@ -204,6 +222,8 @@ class RegistrationController extends GetxController {
       print('Error: $e');
       print('StackTrace: $stackTrace');
       _showError('Terjadi kesalahan koneksi, coba lagi');
+    } finally {
+      isLoading.value = false;
     }
   }
 

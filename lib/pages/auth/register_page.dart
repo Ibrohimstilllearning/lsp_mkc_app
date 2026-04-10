@@ -139,40 +139,52 @@ class _RegisterPageState extends State<RegisterPage> {
               ],
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  if (!_isChecked) {
-                    Get.snackbar(
-                      'Perhatian',
-                      'Anda harus menyetujui Syarat & Ketentuan terlebih dahulu',
-                      backgroundColor: Colors.red,
-                      colorText: Colors.white,
-                      snackPosition: SnackPosition.BOTTOM,
-                      margin: const EdgeInsets.all(20),
-                      borderRadius: 10,
-                    );
-                    return;
-                  }
-                  _controller.registerMethod();
-                },
-                child: Text(
-                  'Daftar',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: const Color(0xFF009447),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            // Ganti bagian ElevatedButton "Daftar" dengan ini:
+Obx(() => SizedBox(
+  width: double.infinity,
+  height: 50,
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+    onPressed: _controller.isLoading.value
+        ? null
+        : () {
+            if (!_isChecked) {
+              Get.snackbar(
+                'Perhatian',
+                'Anda harus menyetujui Syarat & Ketentuan terlebih dahulu',
+                backgroundColor: Colors.red,
+                colorText: Colors.white,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(20),
+                borderRadius: 10,
+              );
+              return;
+            }
+            _controller.registerMethod();
+          },
+    child: _controller.isLoading.value
+        ? const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              color: Color(0xFF009447),
+              strokeWidth: 2,
             ),
+          )
+        : Text(
+            'Daftar',
+            style: GoogleFonts.plusJakartaSans(
+              color: const Color(0xFF009447),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+  ),
+)),
             const SizedBox(height: 20),
             TextButton(
               onPressed: () => Get.back(),

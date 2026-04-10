@@ -42,7 +42,10 @@ dependencies:
   http: ^1.6.0
   shared_preferences: ^2.5.4
   app_links: ^6.0.0
+  image_picker: ^1.1.2
+  file_picker: ^8.1.2
   get_storage: ^2.1.1
+  file_picker: ^10.3.10
 
 dev_dependencies:
   flutter_test:
