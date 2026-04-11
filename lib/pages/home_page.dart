@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:lsp_mkc_app/controller/bottom_nav_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl01/form_apl01.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
+import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
+import 'package:lsp_mkc_app/pages/profil_page.dart';
+import 'package:lsp_mkc_app/pages/riwayat_page.dart';
 
 class HomeApp extends StatelessWidget {
   const HomeApp({super.key});

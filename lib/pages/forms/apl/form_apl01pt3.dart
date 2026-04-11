@@ -17,6 +17,7 @@ class FormApl01Bagian3 extends StatefulWidget {
   State<FormApl01Bagian3> createState() => _FormApl01Bagian3State();
 }
 
+
 class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
   final ImagePicker _picker = ImagePicker();
@@ -77,7 +78,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
           setState(() => _files[requirementId] = File(picked.path));
         }
       } else if (source == 'file') {
-        final result = await FilePicker.platform.pickFiles(
+        final result = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: accept,
         );
