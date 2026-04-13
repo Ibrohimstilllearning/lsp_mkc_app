@@ -33,6 +33,11 @@ class ResetController extends GetxController {
       );
 
       final data = jsonDecode(response.body);
+      print('=== STATUS: ${response.statusCode}');
+      print('=== BODY: ${response.body}');
+      print('=== URL: ${ApiEndpoints.baseUrl}/forgot-password');
+      print('=== HEADERS: ${ApiEndpoints.headers}');
+      print('SENT: ${jsonEncode({'email': emailInput})}');
       print('=== FORGOT PASSWORD: ${response.statusCode} ${response.body}');
 
       if (response.statusCode == 200) {
