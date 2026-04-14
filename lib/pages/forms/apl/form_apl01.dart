@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
-import 'form_apl01pt2.dart';
+import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt2.dart';
 
 class FormApl01 extends StatelessWidget {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
@@ -258,9 +258,11 @@ class FormApl01 extends StatelessWidget {
                     _stepDot(2),
                     _stepLine(),
                     _stepDot(3),
+                    _stepLine(),
+                    _stepDot(4),
                   ]),
                   const SizedBox(height: 12),
-                  const Text('Bagian 1 dari 3',
+                  const Text('Bagian 1 dari 4',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,

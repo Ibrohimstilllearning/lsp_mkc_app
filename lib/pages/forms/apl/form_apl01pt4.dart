@@ -6,39 +6,39 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
-import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt4.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FormApl01Bagian3 extends StatefulWidget {
-  const FormApl01Bagian3({super.key});
+class FormApl01Bagian4 extends StatefulWidget {
+  const FormApl01Bagian4({super.key});
 
   @override
-  State<FormApl01Bagian3> createState() => _FormApl01Bagian3State();
+  State<FormApl01Bagian4> createState() => _FormApl01Bagian4State();
 }
 
-class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
+class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
   final ImagePicker _picker = ImagePicker();
 
-  // requirement_id 1 & 2 saja
-  final Map<int, File?> _files = {1: null, 2: null};
+  // requirement_id 3 & 4 saja
+  final Map<int, File?> _files = {3: null, 4: null};
   bool _isLoading = false;
 
-  final List<Map<String, dynamic>> _buktiDasar = [
+  final List<Map<String, dynamic>> _buktiAdmin = [
     {
-      'requirementId': 1,
-      'label': 'Ijazah / Sertifikat Pelatihan',
-      'desc': 'Pendidikan minimal SMA/SMK atau sertifikat pelatihan berbasis Kompetensi Tenaga Administrasi Kewirausahaan.',
-      'accept': ['jpg', 'jpeg', 'png', 'pdf'],
-      'icon': Icons.school_outlined,
+      'requirementId': 3,
+      'label': 'Pas Foto 3×4',
+      'desc': 'Background merah, format JPG/PNG.',
+      'accept': ['jpg', 'jpeg', 'png'],
+      'icon': Icons.portrait_outlined,
     },
     {
-      'requirementId': 2,
-      'label': 'Surat Pengalaman Kerja',
-      'desc': 'Pengalaman kerja minimal 2 tahun di bidang Tenaga Administrasi.',
+      'requirementId': 4,
+      'label': 'KTP',
+      'desc': 'Kartu Tanda Penduduk yang masih berlaku.',
       'accept': ['jpg', 'jpeg', 'png', 'pdf'],
-      'icon': Icons.work_outline_rounded,
+      'icon': Icons.badge_outlined,
     },
   ];
 
@@ -49,29 +49,21 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
 
     try {
       if (source == 'camera') {
-        final picked = await _picker.pickImage(
-            source: ImageSource.camera, imageQuality: 80);
+        final picked = await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
         if (picked != null) setState(() => _files[requirementId] = File(picked.path));
       } else if (source == 'gallery') {
-        final picked = await _picker.pickImage(
-            source: ImageSource.gallery, imageQuality: 80);
+        final picked = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
         if (picked != null) setState(() => _files[requirementId] = File(picked.path));
       } else if (source == 'file') {
-        final result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: accept,
-        );
+        final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: accept);
         if (result != null && result.files.single.path != null) {
           setState(() => _files[requirementId] = File(result.files.single.path!));
         }
       }
     } catch (e) {
       Get.snackbar('Error', 'Gagal memilih file: $e',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(16),
-          borderRadius: 10);
+          backgroundColor: Colors.red, colorText: Colors.white,
+          snackPosition: SnackPosition.TOP, margin: const EdgeInsets.all(16), borderRadius: 10);
     }
   }
 
@@ -79,8 +71,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
     final hasPdf = accept.contains('pdf');
     return showModalBottomSheet<String>(
       context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -90,10 +81,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
               Container(
                 width: 40, height: 4,
                 margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+                decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2)),
               ),
               const Padding(
                 padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -159,7 +147,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
 
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/apl01/bukti-persyaratan-dasar');
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/apl01/bukti-administratif');
       final request = http.MultipartRequest('POST', url);
 
       final headers = token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers;
@@ -175,17 +163,20 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
         index++;
       }
 
-      print('[APL01 Bagian 3] URL: $url');
-      print('[APL01 Bagian 3] Fields: ${request.fields}');
+      print('[APL01 Bagian 4] URL: $url');
+      print('[APL01 Bagian 4] Fields: ${request.fields}');
 
       final streamed = await request.send();
       final response = await http.Response.fromStream(streamed);
 
-      print('[APL01 Bagian 3] Status: ${response.statusCode}');
-      print('[APL01 Bagian 3] Body: ${response.body}');
+      print('[APL01 Bagian 4] Status: ${response.statusCode}');
+      print('[APL01 Bagian 4] Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.to(() => const FormApl01Bagian4());
+        Get.snackbar('Berhasil', 'Form APL-01 berhasil dikirim!',
+            backgroundColor: const Color(0xFF4CAF50), colorText: Colors.white,
+            snackPosition: SnackPosition.TOP, margin: const EdgeInsets.all(16), borderRadius: 10);
+        Get.offAllNamed(AppPages.home);
       } else {
         final bodyStr = response.body.trim();
         String msg = 'Terjadi kesalahan (${response.statusCode})';
@@ -197,7 +188,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
             snackPosition: SnackPosition.TOP, margin: const EdgeInsets.all(16), borderRadius: 10);
       }
     } catch (e) {
-      print('[APL01 Bagian 3] Error: $e');
+      print('[APL01 Bagian 4] Error: $e');
       Get.snackbar('Gagal', 'Terjadi kesalahan koneksi, coba lagi',
           backgroundColor: Colors.red, colorText: Colors.white,
           snackPosition: SnackPosition.TOP, margin: const EdgeInsets.all(16), borderRadius: 10);
@@ -432,18 +423,18 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                     _stepLine(active: true),
                     _stepDot(2, done: true),
                     _stepLine(active: true),
-                    _stepDot(3, active: true),
-                    _stepLine(),
-                    _stepDot(4),
+                    _stepDot(3, done: true),
+                    _stepLine(active: true),
+                    _stepDot(4, active: true),
                   ]),
                   const SizedBox(height: 12),
-                  const Text('Bagian 3 dari 4',
+                  const Text('Bagian 4 dari 4',
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF4CAF50))),
                   const SizedBox(height: 2),
-                  const Text('Bukti Persyaratan Dasar',
+                  const Text('Bukti Administratif',
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
                   const SizedBox(height: 4),
-                  const Text('Unggah dokumen persyaratan dasar untuk melengkapi pengajuan sertifikasi.',
+                  const Text('Unggah dokumen administratif untuk melengkapi pengajuan sertifikasi.',
                       style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), height: 1.5)),
                   const SizedBox(height: 12),
                   Row(
@@ -473,8 +464,8 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionHeader('Persyaratan Dasar', 'Ijazah & pengalaman kerja', Icons.school_outlined),
-                  ..._buktiDasar.map((item) => _uploadItem(item)),
+                  _sectionHeader('Bukti Administratif', 'Foto & identitas diri', Icons.folder_open_outlined),
+                  ..._buktiAdmin.map((item) => _uploadItem(item)),
                 ],
               ),
             ),
@@ -495,7 +486,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Setelah ini Anda akan melanjutkan ke unggah bukti administratif.',
+                      'Rekomendasi dan tanda tangan akan dilengkapi oleh petugas LSP setelah pengajuan diterima.',
                       style: TextStyle(fontSize: 12, color: Color(0xFF92400E), height: 1.5),
                     ),
                   ),
@@ -539,10 +530,10 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
+                              const Icon(Icons.send_rounded, color: Colors.white, size: 16),
                               const SizedBox(width: 8),
                               Text(
-                                uploadedCount == totalCount ? 'Selanjutnya' : 'Lengkapi ($uploadedCount/$totalCount)',
+                                uploadedCount == totalCount ? 'Kirim Form' : 'Lengkapi ($uploadedCount/$totalCount)',
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
                               ),
                             ],

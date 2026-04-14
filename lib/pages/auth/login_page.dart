@@ -70,28 +70,40 @@ class LoginPage extends GetView<LoginController> {
               ),
               const SizedBox(height: 20),
 
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF009447),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () => controller.loginMethod(), // ← sambungkan
-                  child: Text(
-                    'Masuk',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+             // Ganti ElevatedButton "Masuk" dengan:
+Obx(() => SizedBox(
+  width: double.infinity,
+  height: 55,
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.white,
+      foregroundColor: const Color(0xFF009447),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    onPressed: controller.isLoading.value
+        ? null
+        : () => controller.loginMethod(),
+    child: controller.isLoading.value
+        ? const SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              color: Color(0xFF009447),
+              strokeWidth: 2.5,
+            ),
+          )
+        : Text(
+            'Masuk',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+  ),
+)),
               const SizedBox(height: 25),
 
               GestureDetector(

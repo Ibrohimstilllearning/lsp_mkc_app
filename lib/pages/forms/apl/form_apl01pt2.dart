@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
-import 'form_apl01pt3.dart';
+import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt3.dart';
 
 class FormApl01Bagian2 extends StatelessWidget {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
@@ -114,17 +114,17 @@ class FormApl01Bagian2 extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      _stepDot(1, done: true),
-                      _stepLine(active: true),
-                      _stepDot(2, active: true),
-                      _stepLine(),
-                      _stepDot(3),
-                    ],
-                  ),
+                  Row(children: [
+                    _stepDot(1,done: true),
+                    _stepLine(active: true),
+                    _stepDot(2, active: true),
+                    _stepLine(active: true),
+                    _stepDot(3),
+                    _stepLine(),
+                    _stepDot(4),
+                  ]),
                   const SizedBox(height: 12),
-                  const Text("Bagian 2 dari 3",
+                  const Text('Bagian 2 dari 4',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,

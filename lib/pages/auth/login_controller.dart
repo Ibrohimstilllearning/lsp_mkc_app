@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final isLoading = false.obs;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   // validasi input sebelum hit API
@@ -60,6 +61,7 @@ class LoginController extends GetxController {
       return;
     }
 
+    isLoading.value = true;
     try {
       var headers = ApiEndpoints.headers;
       var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint);
@@ -130,6 +132,8 @@ class LoginController extends GetxController {
       } else {
         _showError('Terjadi kesalahan, coba lagi');
       }
+    } finally {
+      isLoading.value = false;
     }
   }
 }
