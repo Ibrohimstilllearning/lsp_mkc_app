@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/profil_controller.dart';
+import 'package:lsp_mkc_app/pages/profile_document_section.dart';
 
 class ProfilPage extends GetView<ProfilController> {
   const ProfilPage({super.key});
@@ -161,6 +162,7 @@ class ProfilPage extends GetView<ProfilController> {
                       label: 'Info Akun',
                       subtitleObs: controller.role,
                     ),
+                    ProfileDocumentSection()
                   ],
                 ),
               ),
