@@ -62,7 +62,9 @@ class LoginController extends GetxController {
 
     try {
       var headers = ApiEndpoints.headers;
-      var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint);
+      var url = Uri.parse(
+        ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint,
+      );
 
       Map body = {
         'email': emailController.text.trim(),
@@ -72,7 +74,11 @@ class LoginController extends GetxController {
       print('URL: $url');
       print('Body: ${jsonEncode(body)}');
 
-      http.Response response = await http.post(url, body: jsonEncode(body), headers: headers);
+      http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: headers,
+      );
       print('Status: ${response.statusCode}');
       print('Body: ${response.body}');
 
@@ -102,7 +108,8 @@ class LoginController extends GetxController {
         _showError('Email atau kata sandi salah');
       } else if (response.statusCode == 403) {
         final message = json['metadata']?['message'] ?? '';
-        if (message.toLowerCase().contains('aktivasi') || message.toLowerCase().contains('verified')) {
+        if (message.toLowerCase().contains('aktivasi') ||
+            message.toLowerCase().contains('verified')) {
           _showError('Akun belum diaktivasi, cek email Anda');
         } else {
           _showError(message.isNotEmpty ? message : 'Akses ditolak');
@@ -113,7 +120,9 @@ class LoginController extends GetxController {
         final errors = json['errors'];
         if (errors != null) {
           final firstError = (errors as Map).values.first;
-          _showError(firstError is List ? firstError.first : firstError.toString());
+          _showError(
+            firstError is List ? firstError.first : firstError.toString(),
+          );
         } else {
           _showError(json['metadata']?['message'] ?? 'Data tidak valid');
         }
@@ -124,7 +133,7 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       print('Error: $e');
-      if (e.toString().contains('SocketException') || 
+      if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         _showError('Tidak ada koneksi internet');
       } else {

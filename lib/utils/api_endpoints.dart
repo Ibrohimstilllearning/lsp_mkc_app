@@ -2,7 +2,7 @@ class ApiEndpoints {
   static const bool _useLocal = true;
   static String baseUrl = _useLocal
       ? 'https://maverick-unaccessional-salutatorily.ngrok-free.dev/api'
-      : 'http://lsp-mkc-backend.test/api';
+      : 'https://ujikomp.lspmkc.or.id/api';
   static _AuthEndPoints authEndPoints = _AuthEndPoints();
 
   static Map<String, String> headers = {

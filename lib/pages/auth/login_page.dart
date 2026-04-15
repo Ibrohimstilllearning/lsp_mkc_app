@@ -36,7 +36,10 @@ class LoginPage extends GetView<LoginController> {
               Text(
                 'Masuk untuk mengelola sertifikasi dan kompetensi profesional Anda.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 30),
 
@@ -98,7 +101,10 @@ class LoginPage extends GetView<LoginController> {
                 onTap: () => Get.toNamed(AppPages.register),
                 child: RichText(
                   text: TextSpan(
-                    style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
                     children: const [
                       TextSpan(text: 'Belum Punya Akun? '),
                       TextSpan(
@@ -142,8 +148,14 @@ class LoginPage extends GetView<LoginController> {
             filled: true,
             fillColor: Colors.white,
             hintText: hint,
-            hintStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[400], fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            hintStyle: GoogleFonts.plusJakartaSans(
+              color: Colors.grey[400],
+              fontSize: 14,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
