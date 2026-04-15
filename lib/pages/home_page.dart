@@ -6,6 +6,7 @@ import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
 import 'package:lsp_mkc_app/pages/profil_page.dart';
 import 'package:lsp_mkc_app/pages/riwayat_page.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class HomeApp extends StatelessWidget {
   const HomeApp({super.key});
@@ -35,61 +36,7 @@ class HomePage extends GetView<HomeController> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/serviceunavailable.png',
-                    width: 250,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    "Belum ada pengajuan\npending, buat satu?",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3E8E41),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    "Mulai Proses Sertifikasi",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-
+      body: Obx(() => _pages[navController.currentIndex.value]),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         child: Container(
@@ -184,10 +131,7 @@ class _HomeTab extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
            onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => FormApl01()),
-                      );
+                        Get.toNamed(AppPages.apl01);
                     },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF3E8E41),

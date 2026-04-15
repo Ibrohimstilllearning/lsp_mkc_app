@@ -7,23 +7,28 @@ import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 
 class FormApl01Controller extends GetxController {
   // ─── BAGIAN 1: Data Pribadi ───────────────────────────────────────────────
-  final namaController          = TextEditingController();
-  final tempatLahirController   = TextEditingController(); // place_of_birth
-  final tanggalLahirController  = TextEditingController(); // date_of_birth (YYYY-MM-DD)
-  final alamatController        = TextEditingController();
-  final kodePosController       = TextEditingController(); // home_postal_code
-  final noHpController          = TextEditingController(); // phone_number
-  final pendidikanController    = TextEditingController(); // education_qualifications
+  final namaController = TextEditingController();
+  final tempatLahirController = TextEditingController(); // place_of_birth
+  final tanggalLahirController =
+      TextEditingController(); // date_of_birth (YYYY-MM-DD)
+  final alamatController = TextEditingController();
+  final kodePosController = TextEditingController(); // home_postal_code
+  final noHpController = TextEditingController(); // phone_number
+  final pendidikanController =
+      TextEditingController(); // education_qualifications
 
   // Data Pekerjaan (masih bagian 1)
-  final institusiController     = TextEditingController(); // company_name
-  final jabatanController       = TextEditingController(); // job_title
-  final alamatKantorController  = TextEditingController(); // company_address
-  final kodePosKantorController = TextEditingController(); // company_postal_code
-  final noTelpController        = TextEditingController(); // company_contact
+  final institusiController = TextEditingController(); // company_name
+  final jabatanController = TextEditingController(); // job_title
+  final alamatKantorController = TextEditingController(); // company_address
+  final kodePosKantorController =
+      TextEditingController(); // company_postal_code
+  final noTelpController = TextEditingController(); // company_contact
 
   // gender: "male" | "female"
   final jenisKelamin = 'male'.obs;
+  // asesi_type: "pribadi" | "rekomendasi" | "perusahaan"
+  final asesiType = 'pribadi'.obs;
 
   // ─── Dari response bagian 1 ───────────────────────────────────────────────
   int? registrationId; // disimpan setelah bagian 1 berhasil
@@ -67,7 +72,8 @@ class FormApl01Controller extends GetxController {
   // ─── Helper snackbar ──────────────────────────────────────────────────────
   void _showError(String message) {
     Get.snackbar(
-      'Gagal', message,
+      'Gagal',
+      message,
       backgroundColor: Colors.red,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
@@ -79,7 +85,8 @@ class FormApl01Controller extends GetxController {
 
   void _showSuccess(String message) {
     Get.snackbar(
-      'Berhasil', message,
+      'Berhasil',
+      message,
       backgroundColor: const Color(0xFF4CAF50),
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
@@ -91,15 +98,24 @@ class FormApl01Controller extends GetxController {
 
   // ─── Validasi Bagian 1 ────────────────────────────────────────────────────
   String? _validateBagian1() {
-    if (namaController.text.trim().isEmpty)          return 'Nama lengkap tidak boleh kosong';
-    if (tempatLahirController.text.trim().isEmpty)   return 'Tempat lahir tidak boleh kosong';
-    if (tanggalLahirController.text.trim().isEmpty)  return 'Tanggal lahir tidak boleh kosong';
-    if (alamatController.text.trim().isEmpty)        return 'Alamat tidak boleh kosong';
-    if (noHpController.text.trim().isEmpty)          return 'Nomor HP tidak boleh kosong';
-    if (pendidikanController.text.trim().isEmpty)    return 'Kualifikasi pendidikan tidak boleh kosong';
-    if (institusiController.text.trim().isEmpty)     return 'Nama institusi/perusahaan tidak boleh kosong';
-    if (jabatanController.text.trim().isEmpty)       return 'Jabatan tidak boleh kosong';
-    if (alamatKantorController.text.trim().isEmpty)  return 'Alamat kantor tidak boleh kosong';
+    if (namaController.text.trim().isEmpty)
+      return 'Nama lengkap tidak boleh kosong';
+    if (tempatLahirController.text.trim().isEmpty)
+      return 'Tempat lahir tidak boleh kosong';
+    if (tanggalLahirController.text.trim().isEmpty)
+      return 'Tanggal lahir tidak boleh kosong';
+    if (alamatController.text.trim().isEmpty)
+      return 'Alamat tidak boleh kosong';
+    if (noHpController.text.trim().isEmpty)
+      return 'Nomor HP tidak boleh kosong';
+    if (pendidikanController.text.trim().isEmpty)
+      return 'Kualifikasi pendidikan tidak boleh kosong';
+    if (institusiController.text.trim().isEmpty)
+      return 'Nama institusi/perusahaan tidak boleh kosong';
+    if (jabatanController.text.trim().isEmpty)
+      return 'Jabatan tidak boleh kosong';
+    if (alamatKantorController.text.trim().isEmpty)
+      return 'Alamat kantor tidak boleh kosong';
     return null;
   }
 
@@ -119,18 +135,20 @@ class FormApl01Controller extends GetxController {
       );
 
       final body = {
-        'gender'                  : jenisKelamin.value,           // "male" | "female"
-        'place_of_birth'          : tempatLahirController.text.trim(),
-        'date_of_birth'           : tanggalLahirController.text.trim(), // format: YYYY-MM-DD
-        'address'                 : alamatController.text.trim(),
-        'home_postal_code'        : kodePosController.text.trim(),
-        'phone_number'            : noHpController.text.trim(),
+        "asesi_type": 'pribadi',
+        'gender': jenisKelamin.value, // "male" | "female"
+        'place_of_birth': tempatLahirController.text.trim(),
+        'date_of_birth': tanggalLahirController.text
+            .trim(), // format: YYYY-MM-DD
+        'address': alamatController.text.trim(),
+        'home_postal_code': kodePosController.text.trim(),
+        'phone_number': noHpController.text.trim(),
         'education_qualifications': pendidikanController.text.trim(),
-        'company_name'            : institusiController.text.trim(),
-        'job_title'               : jabatanController.text.trim(),
-        'company_address'         : alamatKantorController.text.trim(),
-        'company_postal_code'     : kodePosKantorController.text.trim(),
-        'company_contact'         : noTelpController.text.trim(),
+        'company_name': institusiController.text.trim(),
+        'job_title': jabatanController.text.trim(),
+        'company_address': alamatKantorController.text.trim(),
+        'company_postal_code': kodePosKantorController.text.trim(),
+        'company_contact': noTelpController.text.trim(),
       };
 
       print('[APL01 Bagian 1] URL  : $url');
@@ -163,7 +181,11 @@ class FormApl01Controller extends GetxController {
         return false;
       }
       final json1 = jsonDecode(bodyStr1);
-      _showError(json1['message'] ?? json1['metadata']?['message'] ?? 'Terjadi kesalahan');
+      _showError(
+        json1['message'] ??
+            json1['metadata']?['message'] ??
+            'Terjadi kesalahan',
+      );
       return false;
     } catch (e) {
       print('[APL01 Bagian 1] Error: $e');
@@ -191,9 +213,7 @@ class FormApl01Controller extends GetxController {
     isLoadingBagian2.value = true;
     try {
       final token = await _getToken();
-      final url = Uri.parse(
-        '${ApiEndpoints.baseUrl}/apl01/data-sertifikasi',
-      );
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/apl01/data-sertifikasi');
 
       print('[APL01 Bagian 2] tujuanAsesmen: $tujuanAsesmen');
       print('[APL01 Bagian 2] registrationId: $registrationId');
@@ -204,9 +224,9 @@ class FormApl01Controller extends GetxController {
       }
 
       final body = {
-        'registration_id'      : registrationId,
-        'certification_purpose' : tujuanAsesmen.first,
-        'scheme_id'            : 1,
+        'registration_id': registrationId,
+        'certification_purpose': tujuanAsesmen.first,
+        'scheme_id': 1,
       };
 
       print('[APL01 Bagian 2] URL  : $url');
@@ -233,7 +253,11 @@ class FormApl01Controller extends GetxController {
         return false;
       }
       final json2 = jsonDecode(bodyStr2);
-      _showError(json2['message'] ?? json2['metadata']?['message'] ?? 'Terjadi kesalahan');
+      _showError(
+        json2['message'] ??
+            json2['metadata']?['message'] ??
+            'Terjadi kesalahan',
+      );
       return false;
     } catch (e) {
       print('[APL01 Bagian 2] Error: $e');
@@ -296,7 +320,11 @@ class FormApl01Controller extends GetxController {
         return false;
       }
       final json3 = jsonDecode(bodyStr3);
-      _showError(json3['message'] ?? json3['metadata']?['message'] ?? 'Terjadi kesalahan');
+      _showError(
+        json3['message'] ??
+            json3['metadata']?['message'] ??
+            'Terjadi kesalahan',
+      );
       return false;
     } catch (e) {
       print('[APL01 Bagian 3] Error: $e');
