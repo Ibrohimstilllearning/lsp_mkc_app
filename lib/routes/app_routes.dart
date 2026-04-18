@@ -16,6 +16,8 @@ import 'package:lsp_mkc_app/pages/forms/ak/form_ak04.dart';
 import 'package:lsp_mkc_app/pages/forms/ak/form_ak04_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/ak/form_ak07.dart';
 import 'package:lsp_mkc_app/pages/forms/ak/form_ak07_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl02_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl_02.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/home_page.dart';
 import 'package:lsp_mkc_app/pages/loading_controller.dart';
@@ -89,30 +91,6 @@ class AppRoutes {
         Get.put(FormApl01Controller());
       }),
     ),
-    GetPage(
-  name: AppPages.ak01,
-  page: () {
-    final args = Get.arguments as Map<String, dynamic>? ?? {};
-    final registrationId = args['registrationId'] as int? ?? 0;
-    return FormAk01(registrationId: registrationId);
-  },
-  binding: BindingsBuilder(() {
-    Get.put(FormAk01Controller());
-  }),
-),
-    GetPage(
-      name: AppPages.ak04,
-      page: () => const FormAk04(),
-      binding: BindingsBuilder(() {
-        Get.put(FormAk04Controller());
-      }),
-    ),
-    GetPage(
-  name: AppPages.ak07,
-  page: () => const FormAk07(),
-  binding: BindingsBuilder(() {
-    Get.put(FormAk07Controller());
-  }),
-),
+    
   ];
 }

@@ -29,7 +29,8 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
     {
       'requirementId': 1,
       'label': 'Ijazah / Sertifikat Pelatihan',
-      'desc': 'Pendidikan minimal SMA/SMK atau sertifikat pelatihan berbasis Kompetensi Tenaga Administrasi Kewirausahaan.',
+      'desc':
+          'Pendidikan minimal SMA/SMK atau sertifikat pelatihan berbasis Kompetensi Tenaga Administrasi Kewirausahaan.',
       'accept': ['jpg', 'jpeg', 'png', 'pdf'],
       'icon': Icons.school_outlined,
     },
@@ -66,12 +67,15 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
         }
       }
     } catch (e) {
-      Get.snackbar('Error', 'Gagal memilih file: $e',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(16),
-          borderRadius: 10);
+      Get.snackbar(
+        'Error',
+        'Gagal memilih file: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+      );
     }
   }
 
@@ -80,7 +84,8 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
     return showModalBottomSheet<String>(
       context: context,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -166,6 +171,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
       headers.remove('Content-Type');
       request.headers.addAll(headers);
 
+      request.fields['registration_id'] = (c.registrationId ?? '').toString();
       request.fields['registration_id'] = (c.registrationId ?? '').toString();
 
       int index = 0;

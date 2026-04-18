@@ -8,15 +8,14 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:lsp_mkc_app/pages/auth/verify_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl_02.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
 import 'package:lsp_mkc_app/routes/app_routes.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(
-    MyApp(),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -102,7 +101,9 @@ class _MyAppState extends State<MyApp> {
         return;
       }
 
-      final url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint);
+      final url = Uri.parse(
+        ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint,
+      );
       final loginResponse = await http.post(
         url,
         headers: ApiEndpoints.headers,

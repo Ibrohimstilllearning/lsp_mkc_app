@@ -37,7 +37,10 @@ class _RegisterPageState extends State<RegisterPage> {
             Text(
               'Lengkapi data diri Anda untuk memulai proses sertifikasi BNSP',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 40),
 
@@ -45,7 +48,10 @@ class _RegisterPageState extends State<RegisterPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Jenis Identitas',
-                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -107,11 +113,22 @@ class _RegisterPageState extends State<RegisterPage> {
 
             const SizedBox(height: 15),
 
-            _buildField('No Identitas', controller: _controller.identityNumberController),
+            _buildField(
+              'No Identitas',
+              controller: _controller.identityNumberController,
+            ),
             _buildField('Nama Lengkap', controller: _controller.nameController),
             _buildField('Email', controller: _controller.emailController),
-            _buildField('Kata Sandi', isPassword: true, controller: _controller.passwordController),
-            _buildField('Konfirmasi Kata Sandi', isPassword: true, controller: _controller.passwordConfController),
+            _buildField(
+              'Kata Sandi',
+              isPassword: true,
+              controller: _controller.passwordController,
+            ),
+            _buildField(
+              'Konfirmasi Kata Sandi',
+              isPassword: true,
+              controller: _controller.passwordConfController,
+            ),
             Row(
               children: [
                 Checkbox(
@@ -133,58 +150,63 @@ class _RegisterPageState extends State<RegisterPage> {
                 Expanded(
                   child: Text(
                     'Saya menyetujui Syarat & Ketentuan serta Kebijakan Privasi',
-                    style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 11),
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
             // Ganti bagian ElevatedButton "Daftar" dengan ini:
-Obx(() => SizedBox(
-  width: double.infinity,
-  height: 50,
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-    onPressed: _controller.isLoading.value
-        ? null
-        : () {
-            if (!_isChecked) {
-              Get.snackbar(
-                'Perhatian',
-                'Anda harus menyetujui Syarat & Ketentuan terlebih dahulu',
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-                snackPosition: SnackPosition.BOTTOM,
-                margin: const EdgeInsets.all(20),
-                borderRadius: 10,
-              );
-              return;
-            }
-            _controller.registerMethod();
-          },
-    child: _controller.isLoading.value
-        ? const SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              color: Color(0xFF009447),
-              strokeWidth: 2,
+            Obx(
+              () => SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: _controller.isLoading.value
+                      ? null
+                      : () {
+                          if (!_isChecked) {
+                            Get.snackbar(
+                              'Perhatian',
+                              'Anda harus menyetujui Syarat & Ketentuan terlebih dahulu',
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                              snackPosition: SnackPosition.BOTTOM,
+                              margin: const EdgeInsets.all(20),
+                              borderRadius: 10,
+                            );
+                            return;
+                          }
+                          _controller.registerMethod();
+                        },
+                  child: _controller.isLoading.value
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF009447),
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          'Daftar',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFF009447),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ),
             ),
-          )
-        : Text(
-            'Daftar',
-            style: GoogleFonts.plusJakartaSans(
-              color: const Color(0xFF009447),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-  ),
-)),
             const SizedBox(height: 20),
             TextButton(
               onPressed: () => Get.back(),
@@ -199,13 +221,23 @@ Obx(() => SizedBox(
     );
   }
 
-  Widget _buildField(String label, {bool isPassword = false, TextEditingController? controller}) {
+  Widget _buildField(
+    String label, {
+    bool isPassword = false,
+    TextEditingController? controller,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14)),
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
           const SizedBox(height: 5),
           TextField(
             controller: controller,

@@ -38,7 +38,9 @@ class VerifyController extends GetxController {
 
       if (email == null || password == null) return;
 
-      final url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint);
+      final url = Uri.parse(
+        ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.loginPoint,
+      );
       final response = await http.post(
         url,
         headers: ApiEndpoints.headers,
@@ -90,8 +92,13 @@ class VerifyController extends GetxController {
   Future<void> _checkVerificationStatus() async {
     if (_token == null) return;
     try {
-      final url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.userPoint);
-      final response = await http.get(url, headers: ApiEndpoints.authHeaders(_token!));
+      final url = Uri.parse(
+        ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.userPoint,
+      );
+      final response = await http.get(
+        url,
+        headers: ApiEndpoints.authHeaders(_token!),
+      );
       print('Check verify status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
@@ -148,7 +155,8 @@ class VerifyController extends GetxController {
 
     if (_token == null) {
       Get.snackbar(
-        'Gagal', 'Tidak dapat mengirim ulang, coba lagi nanti',
+        'Gagal',
+        'Tidak dapat mengirim ulang, coba lagi nanti',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -159,14 +167,20 @@ class VerifyController extends GetxController {
     }
 
     try {
-      final url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.resendVerifyPoint);
-      final response = await http.post(url, headers: ApiEndpoints.authHeaders(_token!));
+      final url = Uri.parse(
+        ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.resendVerifyPoint,
+      );
+      final response = await http.post(
+        url,
+        headers: ApiEndpoints.authHeaders(_token!),
+      );
       print('Resend status: ${response.statusCode}');
       print('Resend body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar(
-          'Berhasil', 'Link verifikasi telah dikirim ulang, cek email Anda',
+          'Berhasil',
+          'Link verifikasi telah dikirim ulang, cek email Anda',
           backgroundColor: Colors.green,
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -176,7 +190,8 @@ class VerifyController extends GetxController {
         _startCountdown();
       } else {
         Get.snackbar(
-          'Gagal', 'Gagal mengirim ulang, coba lagi',
+          'Gagal',
+          'Gagal mengirim ulang, coba lagi',
           backgroundColor: Colors.red,
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -186,7 +201,8 @@ class VerifyController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Gagal', 'Tidak ada koneksi internet',
+        'Gagal',
+        'Tidak ada koneksi internet',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,

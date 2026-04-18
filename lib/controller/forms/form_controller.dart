@@ -40,28 +40,28 @@ class FormController extends GetxController {
   }
 
   // Bagian 3 - Bukti Kelengkapan
-var buktiStatus = <String, String>{}.obs;
+  var buktiStatus = <String, String>{}.obs;
 
-void setBuktiStatus(String key, String value) {
-  if (buktiStatus[key] == value) {
-    buktiStatus[key] = "";
-  } else {
-    buktiStatus[key] = value;
+  void setBuktiStatus(String key, String value) {
+    if (buktiStatus[key] == value) {
+      buktiStatus[key] = "";
+    } else {
+      buktiStatus[key] = value;
+    }
   }
-}
 
-// Bagian 4 - Upload File
-var uploadedFiles = <String, String>{}.obs;
+  // Bagian 4 - Upload File
+  var uploadedFiles = <String, String>{}.obs;
 
-void pickFile(String tipe) async {
-  // nanti integrasi file picker
-  // sementara simulasi dulu
-  uploadedFiles[tipe] = "contoh_file.pdf";
-}
+  void pickFile(String tipe) async {
+    // nanti integrasi file picker
+    // sementara simulasi dulu
+    uploadedFiles[tipe] = "contoh_file.pdf";
+  }
 
-void removeFile(String tipe) {
-  uploadedFiles.remove(tipe);
-}
+  void removeFile(String tipe) {
+    uploadedFiles.remove(tipe);
+  }
 
   @override
   void onClose() {

@@ -32,7 +32,6 @@ class ProfilPage extends GetView<ProfilController> {
         return SingleChildScrollView(
           child: Column(
             children: [
-
               const SizedBox(height: 24),
 
               // ─────────────────────────────────────
@@ -49,37 +48,44 @@ class ProfilPage extends GetView<ProfilController> {
                         ? NetworkImage(controller.photoUrl.value)
                         : null,
                     child: controller.photoUrl.value.isEmpty
-                        ? Icon(Icons.person,
-                            size: 48, color: Colors.grey.shade500)
+                        ? Icon(
+                            Icons.person,
+                            size: 48,
+                            color: Colors.grey.shade500,
+                          )
                         : null,
                   ),
 
                   const SizedBox(height: 12),
 
                   // Nama
-                  Obx(() => Text(
-                        controller.displayName.value.isEmpty
-                            ? 'display.name_'
-                            : controller.displayName.value,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      )),
+                  Obx(
+                    () => Text(
+                      controller.displayName.value.isEmpty
+                          ? 'display.name_'
+                          : controller.displayName.value,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 2),
 
                   // Email — abu-abu kecil
-                  Obx(() => Text(
-                        controller.email.value.isEmpty
-                            ? 'useremail@gmail23.com'
-                            : controller.email.value,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                        ),
-                      )),
+                  Obx(
+                    () => Text(
+                      controller.email.value.isEmpty
+                          ? 'useremail@gmail23.com'
+                          : controller.email.value,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ),
                 ],
               ),
 
@@ -114,7 +120,6 @@ class ProfilPage extends GetView<ProfilController> {
                 ),
                 child: Column(
                   children: [
-
                     // ── Bar 1: Ubah Nama ──
                     _MenuItem(
                       icon: Icons.grid_view_rounded,
@@ -162,7 +167,7 @@ class ProfilPage extends GetView<ProfilController> {
                       label: 'Info Akun',
                       subtitleObs: controller.role,
                     ),
-                    ProfileDocumentSection()
+                    ProfileDocumentSection(),
                   ],
                 ),
               ),
@@ -205,9 +210,10 @@ class ProfilPage extends GetView<ProfilController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _SheetHandle(),
-            Text(title,
-                style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w700)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: textCtrl,
@@ -223,33 +229,45 @@ class ProfilPage extends GetView<ProfilController> {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 14),
+                  horizontal: 16,
+                  vertical: 14,
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            Obx(() => SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: controller.isSaving.value
-                        ? null
-                        : () => onSave(textCtrl.text.trim()),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3E8E41),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+            Obx(
+              () => SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: controller.isSaving.value
+                      ? null
+                      : () => onSave(textCtrl.text.trim()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3E8E41),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: controller.isSaving.value
-                        ? const SizedBox(
-                            width: 20, height: 20,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
-                        : const Text('Simpan',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700)),
                   ),
-                )),
+                  child: controller.isSaving.value
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Simpan',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -263,16 +281,18 @@ class ProfilPage extends GetView<ProfilController> {
   // ─────────────────────────────────────────────────────────────
   void _showPasswordSheet() {
     final currentCtrl = TextEditingController();
-    final newCtrl     = TextEditingController();
+    final newCtrl = TextEditingController();
     final confirmCtrl = TextEditingController();
     final hideCurrent = true.obs;
-    final hideNew     = true.obs;
+    final hideNew = true.obs;
     final hideConfirm = true.obs;
 
     Get.bottomSheet(
       Container(
         padding: EdgeInsets.only(
-          left: 24, right: 24, top: 24,
+          left: 24,
+          right: 24,
+          top: 24,
           bottom: Get.mediaQuery.viewInsets.bottom + 24,
         ),
         decoration: const BoxDecoration(
@@ -285,45 +305,69 @@ class ProfilPage extends GetView<ProfilController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _SheetHandle(),
-              const Text('Ubah Password',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              const Text(
+                'Ubah Password',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 16),
-              _PasswordField(label: 'Password Lama',
-                  hint: 'Masukkan password lama',
-                  controller: currentCtrl, hideObs: hideCurrent),
+              _PasswordField(
+                label: 'Password Lama',
+                hint: 'Masukkan password lama',
+                controller: currentCtrl,
+                hideObs: hideCurrent,
+              ),
               const SizedBox(height: 12),
-              _PasswordField(label: 'Password Baru',
-                  hint: 'Minimal 8 karakter',
-                  controller: newCtrl, hideObs: hideNew),
+              _PasswordField(
+                label: 'Password Baru',
+                hint: 'Minimal 8 karakter',
+                controller: newCtrl,
+                hideObs: hideNew,
+              ),
               const SizedBox(height: 12),
-              _PasswordField(label: 'Konfirmasi Password Baru',
-                  hint: 'Ulangi password baru',
-                  controller: confirmCtrl, hideObs: hideConfirm),
+              _PasswordField(
+                label: 'Konfirmasi Password Baru',
+                hint: 'Ulangi password baru',
+                controller: confirmCtrl,
+                hideObs: hideConfirm,
+              ),
               const SizedBox(height: 20),
-              Obx(() => SizedBox(
-                    width: double.infinity, height: 48,
-                    child: ElevatedButton(
-                      onPressed: controller.isSaving.value
-                          ? null
-                          : () => controller.updatePassword(
-                                currentPassword: currentCtrl.text.trim(),
-                                newPassword:     newCtrl.text.trim(),
-                                confirmPassword: confirmCtrl.text.trim(),
-                              ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3E8E41),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+              Obx(
+                () => SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: controller.isSaving.value
+                        ? null
+                        : () => controller.updatePassword(
+                            currentPassword: currentCtrl.text.trim(),
+                            newPassword: newCtrl.text.trim(),
+                            confirmPassword: confirmCtrl.text.trim(),
+                          ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3E8E41),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: controller.isSaving.value
-                          ? const SizedBox(width: 20, height: 20,
-                              child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2))
-                          : const Text('Simpan Password',
-                              style: TextStyle(color: Colors.white,
-                                  fontWeight: FontWeight.w700)),
                     ),
-                  )),
+                    child: controller.isSaving.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Simpan Password',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -345,8 +389,8 @@ class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final RxString? subtitleObs; // nilai reaktif (update otomatis)
-  final String subtitle;       // nilai statis (untuk password)
-  final VoidCallback? onTap;   // null = read-only
+  final String subtitle; // nilai statis (untuk password)
+  final VoidCallback? onTap; // null = read-only
 
   const _MenuItem({
     required this.icon,
@@ -380,9 +424,7 @@ class _MenuItem extends StatelessWidget {
                 icon,
                 size: 20,
                 // Read-only = abu, editable = hitam
-                color: onTap == null
-                    ? Colors.grey.shade400
-                    : Colors.black54,
+                color: onTap == null ? Colors.grey.shade400 : Colors.black54,
               ),
             ),
 
@@ -404,16 +446,16 @@ class _MenuItem extends StatelessWidget {
                   ),
                   // Tampilkan subtitle jika ada
                   if (subtitleObs != null)
-                    Obx(() => Text(
-                          subtitleObs!.value.isEmpty
-                              ? '-'
-                              : subtitleObs!.value,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ))
+                    Obx(
+                      () => Text(
+                        subtitleObs!.value.isEmpty ? '-' : subtitleObs!.value,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    )
                   else if (subtitle.isNotEmpty)
                     Text(
                       subtitle,
@@ -428,8 +470,7 @@ class _MenuItem extends StatelessWidget {
 
             // Chevron hanya untuk item editable
             if (onTap != null)
-              Icon(Icons.chevron_right,
-                  color: Colors.grey.shade400, size: 20),
+              Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
           ],
         ),
       ),
@@ -441,25 +482,28 @@ class _MenuItem extends StatelessWidget {
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Divider(
-      height: 1, thickness: 1,
-      color: Colors.grey.shade100,
-      indent: 70,   // mulai setelah icon box (40px + 16px padding + 14px gap)
-      endIndent: 16);
+    height: 1,
+    thickness: 1,
+    color: Colors.grey.shade100,
+    indent: 70, // mulai setelah icon box (40px + 16px padding + 14px gap)
+    endIndent: 16,
+  );
 }
 
 // ── _SheetHandle ──
 class _SheetHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
-        child: Container(
-          width: 40, height: 4,
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-      );
+    child: Container(
+      width: 40,
+      height: 4,
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+  );
 }
 
 // ── _PasswordField ──
@@ -481,30 +525,33 @@ class _PasswordField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 6),
-        Obx(() => TextField(
-              controller: controller,
-              obscureText: hideObs.value,
-              decoration: InputDecoration(
-                hintText: hint,
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 14),
-                suffixIcon: IconButton(
-                  icon: Icon(hideObs.value
-                      ? Icons.visibility_off
-                      : Icons.visibility),
-                  onPressed: () => hideObs.value = !hideObs.value,
-                ),
+        Obx(
+          () => TextField(
+            controller: controller,
+            obscureText: hideObs.value,
+            decoration: InputDecoration(
+              hintText: hint,
+              filled: true,
+              fillColor: const Color(0xFFF5F5F5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
               ),
-            )),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  hideObs.value ? Icons.visibility_off : Icons.visibility,
+                ),
+                onPressed: () => hideObs.value = !hideObs.value,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

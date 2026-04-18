@@ -53,11 +53,15 @@ class _StepEmail extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          const Text("Lupa Password",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text(
+            "Lupa Password",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Text("Masukkan email kamu, kami akan kirimkan kode OTP.",
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+          Text(
+            "Masukkan email kamu, kami akan kirimkan kode OTP.",
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          ),
           const SizedBox(height: 32),
 
           // Input Email
@@ -73,37 +77,50 @@ class _StepEmail extends StatelessWidget {
                 borderSide: BorderSide.none,
               ),
               prefixIcon: const Icon(Icons.email_outlined),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
           ),
 
           const SizedBox(height: 24),
 
           // Tombol Kirim
-          Obx(() => SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () => controller.sendForgotPassword(emailCtrl.text.trim()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3E8E41),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+          Obx(
+            () => SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () =>
+                          controller.sendForgotPassword(emailCtrl.text.trim()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3E8E41),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: controller.isLoading.value
-                      ? const SizedBox(
-                          width: 20, height: 20,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2))
-                      : const Text('Kirim Kode OTP',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700)),
                 ),
-              )),
+                child: controller.isLoading.value
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Kirim Kode OTP',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -127,13 +144,17 @@ class _StepOtp extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          const Text("Verifikasi OTP",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text(
+            "Verifikasi OTP",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Obx(() => Text(
-                "Kode OTP telah dikirim ke ${controller.email.value}",
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-              )),
+          Obx(
+            () => Text(
+              "Kode OTP telah dikirim ke ${controller.email.value}",
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
+          ),
           const SizedBox(height: 32),
 
           // Input OTP
@@ -152,37 +173,49 @@ class _StepOtp extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
           ),
 
           const SizedBox(height: 24),
 
           // Tombol Verifikasi
-          Obx(() => SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () => controller.verifyOtp(otpCtrl.text.trim()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3E8E41),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+          Obx(
+            () => SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () => controller.verifyOtp(otpCtrl.text.trim()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3E8E41),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: controller.isLoading.value
-                      ? const SizedBox(
-                          width: 20, height: 20,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2))
-                      : const Text('Verifikasi OTP',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700)),
                 ),
-              )),
+                child: controller.isLoading.value
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Verifikasi OTP',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            ),
+          ),
 
           const SizedBox(height: 16),
 
@@ -191,8 +224,10 @@ class _StepOtp extends StatelessWidget {
             child: TextButton(
               onPressed: () =>
                   controller.sendForgotPassword(controller.email.value),
-              child: Text('Kirim Ulang OTP',
-                  style: TextStyle(color: Colors.grey.shade600)),
+              child: Text(
+                'Kirim Ulang OTP',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
             ),
           ),
         ],
@@ -221,92 +256,114 @@ class _StepNewPassword extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          const Text("Password Baru",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text(
+            "Password Baru",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Text("Masukkan password baru kamu.",
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+          Text(
+            "Masukkan password baru kamu.",
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          ),
           const SizedBox(height: 32),
 
           // Input Password Baru
-          Obx(() => TextField(
-                controller: newPassCtrl,
-                obscureText: hideNew.value,
-                decoration: InputDecoration(
-                  hintText: 'Password Baru (min. 8 karakter)',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(hideNew.value
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: () => hideNew.value = !hideNew.value,
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          Obx(
+            () => TextField(
+              controller: newPassCtrl,
+              obscureText: hideNew.value,
+              decoration: InputDecoration(
+                hintText: 'Password Baru (min. 8 karakter)',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-              )),
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    hideNew.value ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () => hideNew.value = !hideNew.value,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+            ),
+          ),
 
           const SizedBox(height: 16),
 
           // Input Konfirmasi Password
-          Obx(() => TextField(
-                controller: confirmPassCtrl,
-                obscureText: hideConfirm.value,
-                decoration: InputDecoration(
-                  hintText: 'Konfirmasi Password Baru',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(hideConfirm.value
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: () => hideConfirm.value = !hideConfirm.value,
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          Obx(
+            () => TextField(
+              controller: confirmPassCtrl,
+              obscureText: hideConfirm.value,
+              decoration: InputDecoration(
+                hintText: 'Konfirmasi Password Baru',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-              )),
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    hideConfirm.value ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () => hideConfirm.value = !hideConfirm.value,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+            ),
+          ),
 
           const SizedBox(height: 24),
 
           // Tombol Reset
-          Obx(() => SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () => controller.resetPassword(
-                            newPassword: newPassCtrl.text.trim(),
-                            confirmPassword: confirmPassCtrl.text.trim(),
-                          ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3E8E41),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+          Obx(
+            () => SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () => controller.resetPassword(
+                        newPassword: newPassCtrl.text.trim(),
+                        confirmPassword: confirmPassCtrl.text.trim(),
+                      ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3E8E41),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: controller.isLoading.value
-                      ? const SizedBox(
-                          width: 20, height: 20,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2))
-                      : const Text('Ubah Password',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700)),
                 ),
-              )),
+                child: controller.isLoading.value
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Ubah Password',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -6,10 +6,8 @@ import 'package:lsp_mkc_app/pages/loading_controller.dart';
 class LoadingPage extends GetView<LoadingController> {
   const LoadingPage({super.key});
 
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Color(0xFF009447),
       body: Column(
@@ -18,20 +16,19 @@ class LoadingPage extends GetView<LoadingController> {
           Center(
             child: LoadingAnimationWidget.waveDots(
               color: Colors.white,
-              size: 160  ,
+              size: 160,
             ),
           ),
           Text(
-              'Tunggu sebentar ya...',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold
-              ),
+            'Tunggu sebentar ya...',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
+          ),
         ],
       ),
     );
   }
 }
-
