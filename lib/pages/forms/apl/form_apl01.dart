@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
-import 'form_apl01pt2.dart';
+import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt2.dart';
 
 class FormApl01 extends StatelessWidget {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
@@ -375,24 +375,19 @@ class FormApl01 extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      _stepDot(1, active: true),
-                      _stepLine(active: true),
-                      _stepDot(2),
-                      _stepLine(),
-                      _stepDot(3),
-                    ],
-                  ),
+                  Row(children: [
+                    _stepDot(1, active: true),
+                    _stepLine(active: true),
+                    _stepDot(2),
+                    _stepLine(),
+                    _stepDot(3),
+                  ]),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Bagian 1 dari 3',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF4CAF50),
-                    ),
-                  ),
+                  const Text('Bagian 1 dari 3',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF4CAF50))),
                   const SizedBox(height: 2),
                   const Text(
                     'Rincian Data Pemohon Sertifikasi',
@@ -419,12 +414,14 @@ class FormApl01 extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionHeader('Data Pribadi', Icons.person_outline_rounded),
+                  _sectionHeader(
+                      'Data Pribadi', Icons.person_outline_rounded),
+
                   _buildField(
-                    label: 'Nama Lengkap',
-                    controller: c.namaController,
-                    hint: 'Sesuai KTP',
-                  ),
+                      label: 'Nama Lengkap',
+                      controller: c.namaController,
+                      hint: 'Sesuai KTP'),
+
                   // Tempat & Tanggal Lahir — 2 kolom
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -516,22 +513,22 @@ class FormApl01 extends StatelessWidget {
                     ),
                   ),
                   _buildField(
-                    label: 'Alamat Rumah',
-                    controller: c.alamatController,
-                    hint: 'Jalan, RT/RW, Kelurahan, Kecamatan',
-                  ),
+                      label: 'Alamat Rumah',
+                      controller: c.alamatController,
+                      hint: 'Jalan, RT/RW, Kelurahan, Kecamatan'),
+
                   _buildField(
-                    label: 'Kode Pos',
-                    controller: c.kodePosController,
-                    type: TextInputType.number,
-                    hint: '12345',
-                  ),
+                      label: 'Kode Pos',
+                      controller: c.kodePosController,
+                      type: TextInputType.number,
+                      hint: '12345'),
+
                   _buildField(
-                    label: 'Nomor HP',
-                    controller: c.noHpController,
-                    type: TextInputType.phone,
-                    hint: '08xxxxxxxxxx',
-                  ),
+                      label: 'Nomor HP',
+                      controller: c.noHpController,
+                      type: TextInputType.phone,
+                      hint: '08xxxxxxxxxx'),
+
                   _buildField(
                     label: 'Kualifikasi Pendidikan',
                     controller: c.pendidikanController,
@@ -545,25 +542,24 @@ class FormApl01 extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionHeader(
-                    'Data Pekerjaan Sekarang',
-                    Icons.business_center_outlined,
-                  ),
+                  _sectionHeader('Data Pekerjaan Sekarang',
+                      Icons.business_center_outlined),
+
                   _buildField(
-                    label: 'Nama Institusi / Perusahaan',
-                    controller: c.institusiController,
-                    hint: 'PT. / CV. / Instansi',
-                  ),
+                      label: 'Nama Institusi / Perusahaan',
+                      controller: c.institusiController,
+                      hint: 'PT. / CV. / Instansi'),
+
                   _buildField(
-                    label: 'Jabatan',
-                    controller: c.jabatanController,
-                    hint: 'Staff / Manager / dll',
-                  ),
+                      label: 'Jabatan',
+                      controller: c.jabatanController,
+                      hint: 'Staff / Manager / dll'),
+
                   _buildField(
-                    label: 'Alamat Kantor',
-                    controller: c.alamatKantorController,
-                    hint: 'Jalan, Gedung, Kota',
-                  ),
+                      label: 'Alamat Kantor',
+                      controller: c.alamatKantorController,
+                      hint: 'Jalan, Gedung, Kota'),
+
                   // Kode pos & kontak — 2 kolom
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -597,55 +593,44 @@ class FormApl01 extends StatelessWidget {
             const SizedBox(height: 12),
 
             // ── Tombol Selanjutnya ───────────────────────────────────────
-            Obx(
-              () => SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4CAF50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+            Obx(() => SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  onPressed: c.isLoadingBagian1.value
-                      ? null
-                      : () async {
-                          final ok = await c.submitBagian1();
-                          if (ok) Get.to(() => FormApl01Bagian2());
-                        },
-                  child: c.isLoadingBagian1.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
+                    onPressed: c.isLoadingBagian1.value
+                        ? null
+                        : () async {
+                            final ok = await c.submitBagian1();
+                            if (ok) Get.to(() => FormApl01Bagian2());
+                          },
+                    child: c.isLoadingBagian1.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2))
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Selanjutnya',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600)),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward_rounded,
+                                  color: Colors.white, size: 18),
+                            ],
                           ),
-                        )
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Simpan & Lanjutkan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-            ),
+                  ),
+                )),
+
             const SizedBox(height: 32),
           ],
         ),

@@ -36,15 +36,18 @@ class RegistrationController extends GetxController {
     if (identityNumber.isEmpty) return 'Nomor identitas tidak boleh kosong';
     if (identityType == 'id') {
       if (identityNumber.length != 16) return 'NIK harus 16 digit';
-      if (!RegExp(r'^\d+$').hasMatch(identityNumber)) return 'NIK hanya boleh angka';
+      if (!RegExp(r'^\d+$').hasMatch(identityNumber))
+        return 'NIK hanya boleh angka';
     } else {
       if (identityNumber.length < 6) return 'Nomor passport minimal 6 karakter';
     }
 
     if (password.isEmpty) return 'Kata sandi tidak boleh kosong';
     if (password.length < 6) return 'Kata sandi minimal 6 karakter';
-    if (!RegExp(r'[A-Z]').hasMatch(password)) return 'Kata sandi harus mengandung huruf kapital';
-    if (!RegExp(r'[a-z]').hasMatch(password)) return 'Kata sandi harus mengandung huruf kecil';
+    if (!RegExp(r'[A-Z]').hasMatch(password))
+      return 'Kata sandi harus mengandung huruf kapital';
+    if (!RegExp(r'[a-z]').hasMatch(password))
+      return 'Kata sandi harus mengandung huruf kecil';
     if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]').hasMatch(password)) {
       return 'Kata sandi harus mengandung simbol (contoh: !@#\$)';
     }
@@ -57,7 +60,8 @@ class RegistrationController extends GetxController {
 
   void _showError(String message) {
     Get.snackbar(
-      'Gagal', message,
+      'Gagal',
+      message,
       backgroundColor: Colors.red,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
@@ -69,7 +73,8 @@ class RegistrationController extends GetxController {
 
   void _showWarning(String message) {
     Get.snackbar(
-      'Data Sudah Terdaftar', message,
+      'Data Sudah Terdaftar',
+      message,
       backgroundColor: Colors.orange,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
@@ -100,9 +105,12 @@ class RegistrationController extends GetxController {
 
     isLoading.value = true;
     try {
-      var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.registerPoint);
+      var url = Uri.parse(
+        ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.registerPoint,
+      );
 
-      Map<String, dynamic> body = {  // Add <String, dynamic> 
+      Map<String, dynamic> body = {
+        // Add <String, dynamic>
         'identity_type': identityType,
         'identity_number': identityNumberController.text.trim(),
         'name': nameController.text.trim(),
@@ -129,24 +137,24 @@ class RegistrationController extends GetxController {
 
       var bodyStr = response.body.trim();
 
-// Guard body kosong
-if (bodyStr.isEmpty) {
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('temp_email', emailController.text.trim());
-    await prefs.setString('temp_password', passwordController.text);
-    _clearForm();
-    Get.offAllNamed(AppPages.verify);
-  } else {
-    _showError('Server error (${response.statusCode}), coba lagi nanti');
-  }
-  return;
-}
+      // Guard body kosong
+      if (bodyStr.isEmpty) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('temp_email', emailController.text.trim());
+          await prefs.setString('temp_password', passwordController.text);
+          _clearForm();
+          Get.offAllNamed(AppPages.verify);
+        } else {
+          _showError('Server error (${response.statusCode}), coba lagi nanti');
+        }
+        return;
+      }
 
-if (bodyStr.startsWith('"') && bodyStr.endsWith('"')) {
-  bodyStr = jsonDecode(bodyStr);
-}
-final json = jsonDecode(bodyStr);
+      if (bodyStr.startsWith('"') && bodyStr.endsWith('"')) {
+        bodyStr = jsonDecode(bodyStr);
+      }
+      final json = jsonDecode(bodyStr);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final prefs = await SharedPreferences.getInstance();
@@ -155,7 +163,6 @@ final json = jsonDecode(bodyStr);
 
         _clearForm();
         Get.offAllNamed(AppPages.verify);
-
       } else if (response.statusCode == 422) {
         final metadata = json['metadata'] as Map?;
         final errors = json['errors'] as Map?;
@@ -165,43 +172,55 @@ final json = jsonDecode(bodyStr);
           final message = metadata['message']?.toString() ?? 'Data Invalid';
 
           if (code == 'E2001') {
-            _showWarning('Email Sudah Terdaftar, Silahkan Gunakan Email yang Lain.');
+            _showWarning(
+              'Email Sudah Terdaftar, Silahkan Gunakan Email yang Lain.',
+            );
           } else if (code == 'E2002') {
-            _showWarning('${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
+            _showWarning(
+              '${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar',
+            );
           } else if (code == 'E2003') {
-            _showWarning('Email dan ${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
+            _showWarning(
+              'Email dan ${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar',
+            );
           } else {
             _showError(message);
           }
         } else if (errors != null) {
-            final emailErr = errors['email'];
-            final nikErr = errors['identity_number'];
-            final emailCode = emailErr is List ? emailErr.first : emailErr?.toString();
-            final nikCode = nikErr is List ? nikErr.first : nikErr?.toString();
+          final emailErr = errors['email'];
+          final nikErr = errors['identity_number'];
+          final emailCode = emailErr is List
+              ? emailErr.first
+              : emailErr?.toString();
+          final nikCode = nikErr is List ? nikErr.first : nikErr?.toString();
 
-            if (emailCode == 'E2001' && nikCode == 'E2002') {
-              _showWarning('Email dan ${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
-              return;
-            }
-            if (emailCode == 'E2001') {
-              _showWarning('Email sudah terdaftar, gunakan email lain');
-              return;
-            }
-            if (nikCode == 'E2002') {
-              _showWarning('${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar');
-              return;
-            }
+          if (emailCode == 'E2001' && nikCode == 'E2002') {
+            _showWarning(
+              'Email dan ${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar',
+            );
+            return;
+          }
+          if (emailCode == 'E2001') {
+            _showWarning('Email sudah terdaftar, gunakan email lain');
+            return;
+          }
+          if (nikCode == 'E2002') {
+            _showWarning(
+              '${identityType == 'id' ? 'NIK' : 'Nomor Passport'} sudah terdaftar',
+            );
+            return;
+          }
 
-            final firstError = errors.values.first;
-            final msg = firstError is List ? firstError.first : firstError.toString();
-            _showError(msg);
-          } else {
-            _showError('Data tidak valid');
+          final firstError = errors.values.first;
+          final msg = firstError is List
+              ? firstError.first
+              : firstError.toString();
+          _showError(msg);
+        } else {
+          _showError('Data tidak valid');
         }
-
       } else if (response.statusCode == 409) {
         _showWarning('Email sudah terdaftar, gunakan email lain');
-
       } else if (response.statusCode == 500) {
         // Data kemungkinan sudah masuk DB, tetap arahkan ke verify
         final prefs = await SharedPreferences.getInstance();
@@ -209,15 +228,14 @@ final json = jsonDecode(bodyStr);
         await prefs.setString('temp_password', passwordController.text);
         _clearForm();
         Get.offAllNamed(AppPages.verify);
-
       } else {
         // Ambil pesan dari metadata atau message
-        final message = json['metadata']?['message'] 
-            ?? json['message'] 
-            ?? 'Terjadi kesalahan';
+        final message =
+            json['metadata']?['message'] ??
+            json['message'] ??
+            'Terjadi kesalahan';
         _showError(message);
       }
-
     } catch (e, stackTrace) {
       print('Error: $e');
       print('StackTrace: $stackTrace');

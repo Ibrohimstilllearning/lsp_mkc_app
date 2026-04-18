@@ -44,8 +44,14 @@ dependencies:
   app_links: ^6.0.0
   image_picker: ^1.1.2
   get_storage: ^2.1.1
+<<<<<<< HEAD
   file_picker: ^11.0.2
 
+=======
+  signature: ^6.3.0
+  intl: ^0.20.2
+  file_picker: ^10.3.10
+>>>>>>> 16b902387f9010674a99522f28f5eb2aae4f9709
 
 dev_dependencies:
   flutter_test:

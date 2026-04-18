@@ -10,6 +10,14 @@ import 'package:lsp_mkc_app/pages/auth/verify_controller.dart';
 import 'package:lsp_mkc_app/pages/auth/verify_page.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/ak/form_ak01.dart';
+import 'package:lsp_mkc_app/pages/forms/ak/form_ak01_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/ak/form_ak04.dart';
+import 'package:lsp_mkc_app/pages/forms/ak/form_ak04_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/ak/form_ak07.dart';
+import 'package:lsp_mkc_app/pages/forms/ak/form_ak07_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl02_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl_02.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/home_page.dart';
 import 'package:lsp_mkc_app/pages/loading_controller.dart';
@@ -63,10 +71,7 @@ class AppRoutes {
       page: () => HomePage(),
       binding: BindingsBuilder(() {
         Get.put(HomeController());
-        // Manage the tabs
         Get.put(BottomNavController());
-        // lazyPut for save memories
-        // only built when early access
         Get.lazyPut(() => PengajuanController());
         Get.lazyPut(() => RiwayatController());
         Get.lazyPut(() => ProfilController());

@@ -36,7 +36,10 @@ class LoginPage extends GetView<LoginController> {
               Text(
                 'Masuk untuk mengelola sertifikasi dan kompetensi profesional Anda.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 30),
 
@@ -70,35 +73,50 @@ class LoginPage extends GetView<LoginController> {
               ),
               const SizedBox(height: 20),
 
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF009447),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () => controller.loginMethod(), // ← sambungkan
-                  child: Text(
-                    'Masuk',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+             // Ganti ElevatedButton "Masuk" dengan:
+Obx(() => SizedBox(
+  width: double.infinity,
+  height: 55,
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.white,
+      foregroundColor: const Color(0xFF009447),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    onPressed: controller.isLoading.value
+        ? null
+        : () => controller.loginMethod(),
+    child: controller.isLoading.value
+        ? const SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              color: Color(0xFF009447),
+              strokeWidth: 2.5,
+            ),
+          )
+        : Text(
+            'Masuk',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+  ),
+)),
               const SizedBox(height: 25),
 
               GestureDetector(
                 onTap: () => Get.toNamed(AppPages.register),
                 child: RichText(
                   text: TextSpan(
-                    style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
                     children: const [
                       TextSpan(text: 'Belum Punya Akun? '),
                       TextSpan(
@@ -142,8 +160,14 @@ class LoginPage extends GetView<LoginController> {
             filled: true,
             fillColor: Colors.white,
             hintText: hint,
-            hintStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[400], fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            hintStyle: GoogleFonts.plusJakartaSans(
+              color: Colors.grey[400],
+              fontSize: 14,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

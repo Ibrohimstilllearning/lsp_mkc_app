@@ -8,20 +8,20 @@ class ProfilController extends GetxController {
   static const String _baseUrl = 'https://ujikomp.lspmkc.or.id/api';
 
   var isLoading = false.obs;
-  var isSaving  = false.obs;
+  var isSaving = false.obs;
 
   // ── Data dari GET /api/user ──
-  var displayName  = ''.obs;
-  var email        = ''.obs;
-  var role         = ''.obs;
-  var status       = ''.obs;
-  var identityType   = ''.obs;
+  var displayName = ''.obs;
+  var email = ''.obs;
+  var role = ''.obs;
+  var status = ''.obs;
+  var identityType = ''.obs;
   var identityNumber = ''.obs;
-  var userId       = 0.obs; // simpan id untuk endpoint profile/{id}
+  var userId = 0.obs; // simpan id untuk endpoint profile/{id}
 
   // ── Data dari GET /api/profile/{id} ──
-  var username     = ''.obs;
-  var photoUrl     = ''.obs;
+  var username = ''.obs;
+  var photoUrl = ''.obs;
 
   // ── Ambil token dari SharedPreferences ──
   // Sama persis dengan login_controller.dart:
@@ -33,10 +33,10 @@ class ProfilController extends GetxController {
 
   // ── Header dengan Bearer token ──
   Future<Map<String, String>> get _headers async => {
-        'Content-Type': 'application/json',
-        'Accept':        'application/json',
-        'Authorization': 'Bearer ${await _token}',
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer ${await _token}',
+  };
 
   @override
   void onInit() {
@@ -48,7 +48,7 @@ class ProfilController extends GetxController {
   // Ambil semua data — user dulu, lalu profil
   // ─────────────────────────────────────────
   Future<void> fetchAll() async {
-    await fetchUser();    // GET /api/user → nama, email, role, status, id
+    await fetchUser(); // GET /api/user → nama, email, role, status, id
     await fetchProfile(); // GET /api/profile/{id} → data profil tambahan
   }
 
@@ -76,15 +76,15 @@ class ProfilController extends GetxController {
         // {"response": {"id":3,"name":"...","identity":{"type":"id","number":"..."}}, "metadata":{...}}
         final user = data['response'] ?? data['data'] ?? data;
 
-        userId.value      = user['id']    ?? 0;
-        displayName.value = user['name']  ?? '';
-        email.value       = user['email'] ?? '';
-        role.value        = user['role']  ?? '';
-        status.value      = user['status'] ?? '';
+        userId.value = user['id'] ?? 0;
+        displayName.value = user['name'] ?? '';
+        email.value = user['email'] ?? '';
+        role.value = user['role'] ?? '';
+        status.value = user['status'] ?? '';
 
         // identity ada di dalam object nested: {"type": "id", "number": "..."}
-        final identity    = user['identity'] as Map<String, dynamic>?;
-        identityType.value   = identity?['type']   ?? '';
+        final identity = user['identity'] as Map<String, dynamic>?;
+        identityType.value = identity?['type'] ?? '';
         identityNumber.value = identity?['number'] ?? '';
       } else {
         Get.snackbar('Error', data['message'] ?? 'Gagal memuat data user');
@@ -153,21 +153,27 @@ class ProfilController extends GetxController {
         Get.snackbar(
           'Berhasil',
           data['message'] ?? 'Profil berhasil diperbarui',
-          snackPosition:   SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF3E8E41),
-          colorText:       const Color(0xFFFFFFFF),
+          colorText: const Color(0xFFFFFFFF),
         );
       } else if (response.statusCode == 422) {
-        final errors  = data['errors'] as Map<String, dynamic>?;
-        final first   = errors?.values.first;
+        final errors = data['errors'] as Map<String, dynamic>?;
+        final first = errors?.values.first;
         final message = first is List
             ? first.first.toString()
             : data['message'] ?? 'Validasi gagal';
-        Get.snackbar('Validasi Gagal', message,
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Validasi Gagal',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       } else {
-        Get.snackbar('Gagal', data['message'] ?? 'Gagal memperbarui profil',
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Gagal',
+          data['message'] ?? 'Gagal memperbarui profil',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
       print('=== PUT ERROR: $e');
@@ -200,21 +206,27 @@ class ProfilController extends GetxController {
         Get.snackbar(
           'Berhasil',
           data['message'] ?? 'Data berhasil diperbarui',
-          snackPosition:   SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF3E8E41),
-          colorText:       const Color(0xFFFFFFFF),
+          colorText: const Color(0xFFFFFFFF),
         );
       } else if (response.statusCode == 422) {
-        final errors  = data['errors'] as Map<String, dynamic>?;
-        final first   = errors?.values.first;
+        final errors = data['errors'] as Map<String, dynamic>?;
+        final first = errors?.values.first;
         final message = first is List
             ? first.first.toString()
             : data['message'] ?? 'Validasi gagal';
-        Get.snackbar('Validasi Gagal', message,
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Validasi Gagal',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       } else {
-        Get.snackbar('Gagal', data['message'] ?? 'Gagal memperbarui data',
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Gagal',
+          data['message'] ?? 'Gagal memperbarui data',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
       print('=== PUT USER ERROR: $e');
@@ -226,8 +238,8 @@ class ProfilController extends GetxController {
 
   // ── Wrapper publik ──
   // Nama & email → PUT /api/user (tabel users)
-  Future<void> updateName(String v)     => _putUser({'name': v});
-  Future<void> updateEmail(String v)    => _putUser({'email': v});
+  Future<void> updateName(String v) => _putUser({'name': v});
+  Future<void> updateEmail(String v) => _putUser({'email': v});
   // Username → PUT /api/profile/{id} (tabel profiles, jika ada kolom username)
   Future<void> updateUsername(String v) => _putProfile({'username': v});
 
@@ -254,8 +266,8 @@ class ProfilController extends GetxController {
         Uri.parse('$_baseUrl/change-password'),
         headers: await _headers,
         body: jsonEncode({
-          'current_password':      currentPassword,
-          'password':              newPassword,
+          'current_password': currentPassword,
+          'password': newPassword,
           'password_confirmation': confirmPassword,
         }),
       );
@@ -265,14 +277,18 @@ class ProfilController extends GetxController {
       if (response.statusCode == 200) {
         Get.back();
         Get.snackbar(
-          'Berhasil', 'Password berhasil diperbarui',
-          snackPosition:   SnackPosition.BOTTOM,
+          'Berhasil',
+          'Password berhasil diperbarui',
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF3E8E41),
-          colorText:       const Color(0xFFFFFFFF),
+          colorText: const Color(0xFFFFFFFF),
         );
       } else {
-        Get.snackbar('Gagal', data['message'] ?? 'Gagal mengubah password',
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Gagal',
+          data['message'] ?? 'Gagal mengubah password',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'Tidak dapat terhubung ke server');

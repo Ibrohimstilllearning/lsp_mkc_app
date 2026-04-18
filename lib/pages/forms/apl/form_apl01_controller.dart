@@ -63,7 +63,8 @@ class FormApl01Controller extends GetxController {
 
   void _showError(String message) {
     Get.snackbar(
-      'Gagal', message,
+      'Gagal',
+      message,
       backgroundColor: Colors.red,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
@@ -72,28 +73,41 @@ class FormApl01Controller extends GetxController {
 
   void _showSuccess(String message) {
     Get.snackbar(
-      'Berhasil', message,
+      'Berhasil',
+      message,
       backgroundColor: const Color(0xFF4CAF50),
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
     );
   }
 
-  // ─── SUBMIT BAGIAN 1 ──────────────────────────────────────────────────────
+  // ─── Validasi Bagian 1 ────────────────────────────────────────────────────
+  String? _validateBagian1() {
+    if (namaController.text.trim().isEmpty)          return 'Nama lengkap tidak boleh kosong';
+    if (tempatLahirController.text.trim().isEmpty)   return 'Tempat lahir tidak boleh kosong';
+    if (tanggalLahirController.text.trim().isEmpty)  return 'Tanggal lahir tidak boleh kosong';
+    if (alamatController.text.trim().isEmpty)        return 'Alamat tidak boleh kosong';
+    if (noHpController.text.trim().isEmpty)          return 'Nomor HP tidak boleh kosong';
+    if (pendidikanController.text.trim().isEmpty)    return 'Kualifikasi pendidikan tidak boleh kosong';
+    if (institusiController.text.trim().isEmpty)     return 'Nama institusi/perusahaan tidak boleh kosong';
+    if (jabatanController.text.trim().isEmpty)       return 'Jabatan tidak boleh kosong';
+    if (alamatKantorController.text.trim().isEmpty)  return 'Alamat kantor tidak boleh kosong';
+    return null;
+  }
+
+  // ─── POST Bagian 1 ────────────────────────────────────────────────────────
   Future<bool> submitBagian1() async {
     if (namaController.text.isEmpty) { _showError('Nama harus diisi'); return false; }
     isLoadingBagian1.value = true;
     try {
       final token = await _getToken();
       final body = {
-        "asesi_type": asesiType.value,
-        "institution_name": asesiType.value == 'institusi' ? namaInstitusiController.text.trim() : null,
-        'gender': jenisKelamin.value,
-        'place_of_birth': tempatLahirController.text.trim(),
-        'date_of_birth': tanggalLahirController.text.trim(),
-        'address': alamatController.text.trim(),
-        'home_postal_code': kodePosController.text.trim(),
-        'phone_number': noHpController.text.trim(),
+        'gender'                  : jenisKelamin.value,           // "male" | "female"
+        'place_of_birth'          : tempatLahirController.text.trim(),
+        'date_of_birth'           : tanggalLahirController.text.trim(), // format: YYYY-MM-DD
+        'address'                 : alamatController.text.trim(),
+        'home_postal_code'        : kodePosController.text.trim(),
+        'phone_number'            : noHpController.text.trim(),
         'education_qualifications': pendidikanController.text.trim(),
         'company_name': institusiController.text.trim(),
         'job_title': jabatanController.text.trim(),
@@ -113,6 +127,18 @@ class FormApl01Controller extends GetxController {
         registrationId = data['response']?['registration_id'];
         return true;
       }
+
+      final bodyStr1 = response.body.trim();
+      if (bodyStr1.isEmpty) {
+        _showError('Server error (${response.statusCode}), coba lagi nanti');
+        return false;
+      }
+      final json1 = jsonDecode(bodyStr1);
+      _showError(json1['message'] ?? json1['metadata']?['message'] ?? 'Terjadi kesalahan');
+      return false;
+    } catch (e) {
+      print('[APL01 Bagian 1] Error: $e');
+      _showError('Terjadi kesalahan koneksi, coba lagi');
       return false;
     } finally {
       isLoadingBagian1.value = false;
@@ -128,6 +154,18 @@ class FormApl01Controller extends GetxController {
     isLoadingBagian2.value = true;
     try {
       final token = await _getToken();
+      final url = Uri.parse(
+        '${ApiEndpoints.baseUrl}/apl01/data-sertifikasi',
+      );
+
+      print('[APL01 Bagian 2] tujuanAsesmen: $tujuanAsesmen');
+      print('[APL01 Bagian 2] registrationId: $registrationId');
+
+      if (tujuanAsesmen.isEmpty) {
+        _showError('Pilih tujuan asesmen terlebih dahulu');
+        return false;
+      }
+
       final body = {
         'registration_id': registrationId,
         'certification_purpose': tujuanAsesmen.first,
@@ -140,7 +178,21 @@ class FormApl01Controller extends GetxController {
         headers: token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers,
       );
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      print('[APL01 Bagian 2] Status : ${response.statusCode}');
+      print('[APL01 Bagian 2] Body   : ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+
+      final bodyStr2 = response.body.trim();
+      if (bodyStr2.isEmpty) {
+        _showError('Server error (${response.statusCode}), coba lagi nanti');
+        return false;
+      }
+      final json2 = jsonDecode(bodyStr2);
+      _showError(json2['message'] ?? json2['metadata']?['message'] ?? 'Terjadi kesalahan');
+      return false;
     } catch (e) {
       return false;
     } finally {
@@ -164,6 +216,18 @@ class FormApl01Controller extends GetxController {
         _showSuccess('Form APL-01 Berhasil Terkirim!');
         return true;
       }
+
+      final bodyStr3 = response.body.trim();
+      if (bodyStr3.isEmpty) {
+        _showError('Server error (${response.statusCode}), coba lagi nanti');
+        return false;
+      }
+      final json3 = jsonDecode(bodyStr3);
+      _showError(json3['message'] ?? json3['metadata']?['message'] ?? 'Terjadi kesalahan');
+      return false;
+    } catch (e) {
+      print('[APL01 Bagian 3] Error: $e');
+      _showError('Terjadi kesalahan koneksi, coba lagi');
       return false;
     } finally {
       isLoadingBagian3.value = false;

@@ -25,8 +25,10 @@ class FormApl01Bagian4 extends StatelessWidget {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Get.back(),
         ),
-        title: Text("Kembali ke beranda",
-            style: TextStyle(color: Colors.black, fontSize: 14)),
+        title: Text(
+          "Kembali ke beranda",
+          style: TextStyle(color: Colors.black, fontSize: 14),
+        ),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -57,9 +59,13 @@ class FormApl01Bagian4 extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Bagian 4 : Bukti Administratif",
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold)),
+                        Text(
+                          "Bagian 4 : Bukti Administratif",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 6),
                         Text(
                           "Upload file bukti administratif per tipe. Format yang diterima: PDF/JPG, maksimal 2MB per file.",
@@ -87,12 +93,15 @@ class FormApl01Bagian4 extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Color(0xFF4CAF50)),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       padding: EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: () => Get.back(),
-                    child: Text("Sebelumnya",
-                        style: TextStyle(color: Color(0xFF4CAF50))),
+                    child: Text(
+                      "Sebelumnya",
+                      style: TextStyle(color: Color(0xFF4CAF50)),
+                    ),
                   ),
                 ),
                 SizedBox(width: 12),
@@ -101,7 +110,8 @@ class FormApl01Bagian4 extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF4CAF50),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       padding: EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: () {
@@ -141,11 +151,15 @@ class FormApl01Bagian4 extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(tipe,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            Text(
+              tipe,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 4),
-            Text("Format: PDF/JPG • Maks 2MB",
-                style: TextStyle(fontSize: 11, color: Colors.grey)),
+            Text(
+              "Format: PDF/JPG • Maks 2MB",
+              style: TextStyle(fontSize: 11, color: Colors.grey),
+            ),
             SizedBox(height: 12),
 
             // Status upload
@@ -158,12 +172,21 @@ class FormApl01Bagian4 extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Color(0xFF4CAF50), size: 18),
+                    Icon(
+                      Icons.check_circle,
+                      color: Color(0xFF4CAF50),
+                      size: 18,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
-                      child: Text(fileName,
-                          style: TextStyle(fontSize: 12, color: Color(0xFF4CAF50)),
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        fileName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF4CAF50),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () => c.removeFile(tipe),
@@ -180,18 +203,27 @@ class FormApl01Bagian4 extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
                     border: Border.all(
-                        color: Color(0xFF4CAF50), style: BorderStyle.solid),
+                      color: Color(0xFF4CAF50),
+                      style: BorderStyle.solid,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                     color: Color(0xFFF9FFF9),
                   ),
                   child: Column(
                     children: [
-                      Icon(Icons.cloud_upload_outlined,
-                          color: Color(0xFF4CAF50), size: 32),
+                      Icon(
+                        Icons.cloud_upload_outlined,
+                        color: Color(0xFF4CAF50),
+                        size: 32,
+                      ),
                       SizedBox(height: 6),
-                      Text("Tap untuk upload file",
-                          style: TextStyle(
-                              fontSize: 12, color: Color(0xFF4CAF50))),
+                      Text(
+                        "Tap untuk upload file",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF4CAF50),
+                        ),
+                      ),
                     ],
                   ),
                 ),
