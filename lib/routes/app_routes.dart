@@ -91,37 +91,6 @@ class AppRoutes {
         Get.put(FormApl01Controller());
       }),
     ),
-    GetPage(
-      name: AppPages.apl02,
-      page: () => FormApl02(registrationId: Get.arguments as int? ?? 0),
-      binding: BindingsBuilder(() {
-        Get.put(Apl02Controller());
-      }),
-    ),
-    GetPage(
-  name: AppPages.ak01,
-  page: () {
-    final args = Get.arguments as Map<String, dynamic>? ?? {};
-    final registrationId = args['registrationId'] as int? ?? 0;
-    return FormAk01(registrationId: registrationId);
-  },
-  binding: BindingsBuilder(() {
-    Get.put(FormAk01Controller());
-  }),
-),
-    GetPage(
-      name: AppPages.ak04,
-      page: () => const FormAk04(),
-      binding: BindingsBuilder(() {
-        Get.put(FormAk04Controller());
-      }),
-    ),
-    GetPage(
-  name: AppPages.ak07,
-  page: () => const FormAk07(),
-  binding: BindingsBuilder(() {
-    Get.put(FormAk07Controller());
-  }),
-),
+    
   ];
 }

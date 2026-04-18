@@ -328,10 +328,7 @@ class _NavItem extends StatelessWidget {
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(
-          icon,
-          color: isActive ? Colors.white : Colors.white70,
-        ),
+        child: Icon(icon, color: isActive ? Colors.white : Colors.white70),
       ),
     );
   }

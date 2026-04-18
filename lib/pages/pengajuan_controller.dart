@@ -1,5 +1,3 @@
 import 'package:get/get.dart';
 
-class PengajuanController extends GetxController {
-
-}
+class PengajuanController extends GetxController {}
