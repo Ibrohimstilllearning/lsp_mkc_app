@@ -16,6 +16,8 @@ import 'package:lsp_mkc_app/pages/forms/ak/form_ak04.dart';
 import 'package:lsp_mkc_app/pages/forms/ak/form_ak04_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/ak/form_ak07.dart';
 import 'package:lsp_mkc_app/pages/forms/ak/form_ak07_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl02_controller.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl_02.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/home_page.dart';
 import 'package:lsp_mkc_app/pages/loading_controller.dart';
@@ -87,6 +89,13 @@ class AppRoutes {
       page: () => FormApl01(),
       binding: BindingsBuilder(() {
         Get.put(FormApl01Controller());
+      }),
+    ),
+    GetPage(
+      name: AppPages.apl02,
+      page: () => FormApl02(registrationId: Get.arguments as int? ?? 0),
+      binding: BindingsBuilder(() {
+        Get.put(Apl02Controller());
       }),
     ),
     GetPage(

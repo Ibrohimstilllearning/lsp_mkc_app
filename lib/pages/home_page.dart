@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl_02.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
+import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
+import 'package:lsp_mkc_app/pages/profil_page.dart';
+import 'package:lsp_mkc_app/pages/riwayat_page.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -162,6 +167,31 @@ class _HomeTab extends StatelessWidget {
                           },
                           child: const Text(
                             'FR.APL.01 — Permohonan Sertifikasi',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4CAF50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            Get.back();
+                            Get.toNamed(AppPages.apl02, arguments: 11); // TODO: ganti 11 dengan ID registrasi yang dinamis nantinya
+                          },
+                          child: const Text(
+                            'FR.APL.02 — Assesmen Mandiri',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 13,

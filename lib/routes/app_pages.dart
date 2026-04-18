@@ -7,6 +7,7 @@ class AppPages {
   static const home = '/home';
   static const reset = '/reset';
    static const apl01 = '/apl01';
+   static const apl02 = '/apl02';
    static const ak01 = '/ak01';
    static const ak04 = '/ak04';
    static const ak07 = '/ak07';

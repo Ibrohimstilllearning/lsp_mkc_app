@@ -83,7 +83,21 @@ class LoginController extends GetxController {
         bodyStr = jsonDecode(bodyStr);
       }
 
-      final json = jsonDecode(bodyStr);
+      var json;
+      try {
+        json = jsonDecode(bodyStr);
+      } catch (e) {
+        if (response.statusCode == 502) {
+          _showError('Server backend tidak dapat diakses (502 Bad Gateway). Pastikan server backend Anda berjalan aktif dan ngrok tersambung dengan benar.');
+          return;
+        } else if (response.statusCode >= 500) {
+          _showError('Terjadi masalah pada server. Status: ${response.statusCode}');
+          return;
+        } else {
+          _showError('Format respons gagal dibaca. Cek log untuk info lebih. Status: ${response.statusCode}');
+          return;
+        }
+      }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (json['metadata']['code'] == 200) {
