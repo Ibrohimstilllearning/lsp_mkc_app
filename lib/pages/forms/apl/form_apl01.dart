@@ -212,9 +212,8 @@ class FormApl01 extends StatelessWidget {
             color: selected ? const Color(0xFFE8F5E9) : const Color(0xFFF9FAFB),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: selected
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFFE5E7EB),
+              color:
+                  selected ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -246,33 +245,91 @@ class FormApl01 extends StatelessWidget {
     );
   }
 
-  // ─── Asesi Type chip ──────────────────────────────────────────────────────
-  Widget _asesiChip(String value, String label) {
+  // ─── Asesi Type Selector ──────────────────────────────────────────────────
+  Widget _asesiTypeSelector() {
+    return Obx(() {
+      final isInstitusi = c.asesiType.value == 'institusi';
+      return _card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _sectionHeader('Tipe Pendaftaran', Icons.assignment_ind_outlined),
+            const Text(
+              'Pilih kategori pendaftaran Anda',
+              style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _asesiButton('pribadi', 'Pribadi', Icons.person_outline),
+                const SizedBox(width: 10),
+                _asesiButton('institusi', 'Institusi', Icons.account_balance_outlined),
+              ],
+            ),
+            // Input tambahan yang muncul jika memilih Institusi
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: isInstitusi
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: _buildField(
+                        label: 'Nama Institusi / Lembaga',
+                        controller: c.namaInstitusiController, // Pastikan controller ini ada di controller Anda
+                        hint: 'Contoh: Universitas Gadjah Mada',
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _asesiButton(String value, String label, IconData icon) {
     return Obx(() {
       final selected = c.asesiType.value == value;
-      return GestureDetector(
-        onTap: () => c.asesiType.value = value,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: selected ? const Color(0xFFE8F5E9) : const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: selected
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFFE5E7EB),
-              width: selected ? 1.5 : 1,
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => c.asesiType.value = value,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: selected ? const Color(0xFF4CAF50) : const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
+                width: 1.5,
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF4CAF50).withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      )
+                    ]
+                  : [],
             ),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: selected
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFF6B7280),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  color: selected ? Colors.white : const Color(0xFF9CA3AF),
+                  size: 20,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : const Color(0xFF6B7280),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -357,20 +414,17 @@ class FormApl01 extends StatelessWidget {
                 ],
               ),
             ),
-
             // ── Data Pribadi ─────────────────────────────────────────────
             _card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionHeader('Data Pribadi', Icons.person_outline_rounded),
-
                   _buildField(
                     label: 'Nama Lengkap',
                     controller: c.namaController,
                     hint: 'Sesuai KTP',
                   ),
-
                   // Tempat & Tanggal Lahir — 2 kolom
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -424,7 +478,6 @@ class FormApl01 extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   // Jenis Kelamin
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -462,53 +515,23 @@ class FormApl01 extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Tipe Asesi
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Tipe Asesi',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF6B7280),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            _asesiChip('pribadi', 'Pribadi'),
-                            const SizedBox(width: 8),
-                            _asesiChip('instansi', 'Instansi'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
                   _buildField(
                     label: 'Alamat Rumah',
                     controller: c.alamatController,
                     hint: 'Jalan, RT/RW, Kelurahan, Kecamatan',
                   ),
-
                   _buildField(
                     label: 'Kode Pos',
                     controller: c.kodePosController,
                     type: TextInputType.number,
                     hint: '12345',
                   ),
-
                   _buildField(
                     label: 'Nomor HP',
                     controller: c.noHpController,
                     type: TextInputType.phone,
                     hint: '08xxxxxxxxxx',
                   ),
-
                   _buildField(
                     label: 'Kualifikasi Pendidikan',
                     controller: c.pendidikanController,
@@ -517,7 +540,6 @@ class FormApl01 extends StatelessWidget {
                 ],
               ),
             ),
-
             // ── Data Pekerjaan ───────────────────────────────────────────
             _card(
               child: Column(
@@ -527,25 +549,21 @@ class FormApl01 extends StatelessWidget {
                     'Data Pekerjaan Sekarang',
                     Icons.business_center_outlined,
                   ),
-
                   _buildField(
                     label: 'Nama Institusi / Perusahaan',
                     controller: c.institusiController,
                     hint: 'PT. / CV. / Instansi',
                   ),
-
                   _buildField(
                     label: 'Jabatan',
                     controller: c.jabatanController,
                     hint: 'Staff / Manager / dll',
                   ),
-
                   _buildField(
                     label: 'Alamat Kantor',
                     controller: c.alamatKantorController,
                     hint: 'Jalan, Gedung, Kota',
                   ),
-
                   // Kode pos & kontak — 2 kolom
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -573,18 +591,21 @@ class FormApl01 extends StatelessWidget {
               ),
             ),
 
+            // ── Tipe Asesi (Pindah ke Bawah) ──────────────────────────────
+            _asesiTypeSelector(),
+
             const SizedBox(height: 12),
 
             // ── Tombol Selanjutnya ───────────────────────────────────────
             Obx(
               () => SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CAF50),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 0,
                   ),
@@ -607,25 +628,24 @@ class FormApl01 extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Selanjutnya',
+                              'Simpan & Lanjutkan',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: 10),
                             Icon(
                               Icons.arrow_forward_rounded,
                               color: Colors.white,
-                              size: 18,
+                              size: 20,
                             ),
                           ],
                         ),
                 ),
               ),
             ),
-
             const SizedBox(height: 32),
           ],
         ),
