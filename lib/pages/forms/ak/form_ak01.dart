@@ -15,11 +15,6 @@ class FormAk01 extends StatefulWidget {
 class _FormAk01State extends State<FormAk01> {
   final FormAk01Controller c = Get.find<FormAk01Controller>();
 
-  final SignatureController _ttdAsesor = SignatureController(
-    penStrokeWidth: 2,
-    penColor: const Color(0xFF111827),
-    exportBackgroundColor: Colors.white,
-  );
   final SignatureController _ttdAsesi = SignatureController(
     penStrokeWidth: 2,
     penColor: const Color(0xFF111827),
@@ -27,8 +22,13 @@ class _FormAk01State extends State<FormAk01> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    c.fetchData(registrationId: widget.registrationId);
+  }
+
+  @override
   void dispose() {
-    _ttdAsesor.dispose();
     _ttdAsesi.dispose();
     super.dispose();
   }
@@ -52,7 +52,8 @@ class _FormAk01State extends State<FormAk01> {
       );
 
   // ─── Section header ───────────────────────────────────────────────────────
-  Widget _sectionHeader(String title, IconData icon, {String? subtitle}) =>
+  Widget _sectionHeader(String title, IconData icon,
+          {String? subtitle}) =>
       Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Row(
@@ -65,7 +66,8 @@ class _FormAk01State extends State<FormAk01> {
                 color: const Color(0xFFE8F5E9),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, size: 16, color: const Color(0xFF4CAF50)),
+              child:
+                  Icon(icon, size: 16, color: const Color(0xFF4CAF50)),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -80,7 +82,8 @@ class _FormAk01State extends State<FormAk01> {
                   if (subtitle != null)
                     Text(subtitle,
                         style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF9CA3AF))),
+                            fontSize: 11,
+                            color: Color(0xFF9CA3AF))),
                 ],
               ),
             ),
@@ -88,289 +91,7 @@ class _FormAk01State extends State<FormAk01> {
         ),
       );
 
-  // ─── Field ────────────────────────────────────────────────────────────────
-  Widget _buildField({
-    required String label,
-    required TextEditingController controller,
-    TextInputType type = TextInputType.text,
-    String? hint,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    Widget? suffix,
-  }) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF6B7280))),
-            const SizedBox(height: 6),
-            TextFormField(
-              controller: controller,
-              keyboardType: type,
-              readOnly: readOnly,
-              onTap: onTap,
-              style: const TextStyle(
-                  fontSize: 14, color: Color(0xFF111827)),
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: const TextStyle(
-                    fontSize: 13, color: Color(0xFFD1D5DB)),
-                suffixIcon: suffix,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
-                filled: true,
-                fillColor: const Color(0xFFF9FAFB),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide:
-                      const BorderSide(color: Color(0xFFE5E7EB)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                      color: Color(0xFF4CAF50), width: 1.5),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-
-  // ─── Dropdown ─────────────────────────────────────────────────────────────
-  Widget _buildDropdown({
-    required String label,
-    required RxString value,
-    required List<String> items,
-    String? hint,
-  }) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF6B7280))),
-            const SizedBox(height: 6),
-            Obx(() => DropdownButtonFormField<String>(
-                  value: value.value.isEmpty ? null : value.value,
-                  hint: Text(hint ?? '',
-                      style: const TextStyle(
-                          fontSize: 13, color: Color(0xFFD1D5DB))),
-                  style: const TextStyle(
-                      fontSize: 14, color: Color(0xFF111827)),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                    filled: true,
-                    fillColor: const Color(0xFFF9FAFB),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide:
-                          const BorderSide(color: Color(0xFFE5E7EB)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(
-                          color: Color(0xFF4CAF50), width: 1.5),
-                    ),
-                  ),
-                  dropdownColor: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF9CA3AF)),
-                  items: items
-                      .map((item) => DropdownMenuItem(
-                            value: item,
-                            child: Text(item),
-                          ))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) value.value = val;
-                  },
-                )),
-          ],
-        ),
-      );
-
-  // ─── Bukti checkbox ───────────────────────────────────────────────────────
-  Widget _buktiCheckbox(
-          String label, RxBool value, IconData icon) =>
-      Obx(() => GestureDetector(
-            onTap: () => value.value = !value.value,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: value.value
-                    ? const Color(0xFFE8F5E9)
-                    : const Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: value.value
-                      ? const Color(0xFF4CAF50)
-                      : const Color(0xFFE5E7EB),
-                  width: value.value ? 1.5 : 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(icon,
-                      size: 16,
-                      color: value.value
-                          ? const Color(0xFF4CAF50)
-                          : const Color(0xFF9CA3AF)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(label,
-                        style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: value.value
-                                ? const Color(0xFF1B5E20)
-                                : const Color(0xFF374151))),
-                  ),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: value.value
-                          ? const Color(0xFF4CAF50)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: value.value
-                            ? const Color(0xFF4CAF50)
-                            : const Color(0xFFD1D5DB),
-                      ),
-                    ),
-                    child: value.value
-                        ? const Icon(Icons.check_rounded,
-                            size: 12, color: Colors.white)
-                        : null,
-                  ),
-                ],
-              ),
-            ),
-          ));
-
-  // ─── Lainnya dynamic list ─────────────────────────────────────────────────
-  Widget _lainnyaSection() => Obx(() {
-        if (!c.buktiLainnya.value) return const SizedBox.shrink();
-        return AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // List item
-                ...List.generate(c.lainnyaList.length, (i) {
-                  return Obx(() => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: c.lainnyaList[i],
-                                style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF111827)),
-                                decoration: InputDecoration(
-                                  hintText:
-                                      'Bukti lainnya ${i + 1}...',
-                                  hintStyle: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFFD1D5DB)),
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10),
-                                  filled: true,
-                                  fillColor: const Color(0xFFF9FAFB),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFFE5E7EB)),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFF4CAF50),
-                                        width: 1.5),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () => c.removeLainnya(i),
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                  borderRadius:
-                                      BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: Colors.red.shade200),
-                                ),
-                                child: Icon(Icons.remove_rounded,
-                                    size: 16,
-                                    color: Colors.red.shade400),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ));
-                }),
-                // Tombol tambah
-                GestureDetector(
-                  onTap: () => c.addLainnya(),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color: const Color(0xFF4CAF50)),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_rounded,
-                            size: 16, color: Color(0xFF4CAF50)),
-                        SizedBox(width: 6),
-                        Text('Tambah Bukti Lainnya',
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF4CAF50))),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      });
-
-  // ─── Info row (read-only) ─────────────────────────────────────────────────
+  // ─── Info row read-only ───────────────────────────────────────────────────
   Widget _infoRow(String label, String value) => Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(
@@ -381,9 +102,10 @@ class _FormAk01State extends State<FormAk01> {
           border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 110,
+              width: 120,
               child: Text(label,
                   style: const TextStyle(
                       fontSize: 13, color: Color(0xFF6B7280))),
@@ -391,50 +113,103 @@ class _FormAk01State extends State<FormAk01> {
             const Text(':  ',
                 style: TextStyle(color: Color(0xFF9CA3AF))),
             Expanded(
-              child: Text(value,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF111827))),
-            ),
-          ],
-        ),
-      );
-
-  // ─── Autofill info box ────────────────────────────────────────────────────
-  Widget _autoFillInfo() => Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEFF6FF),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFBFDBFE)),
-        ),
-        child: const Row(
-          children: [
-            Icon(Icons.access_time_rounded,
-                size: 16, color: Color(0xFF2563EB)),
-            SizedBox(width: 8),
-            Expanded(
               child: Text(
-                'Tanggal dan waktu akan otomatis terisi sesuai waktu submit.',
-                style: TextStyle(
-                    fontSize: 12, color: Color(0xFF1E40AF)),
+                value.isEmpty ? '-' : value,
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF111827)),
               ),
             ),
           ],
         ),
       );
 
-  // ─── TTD ──────────────────────────────────────────────────────────────────
-  Widget _ttdRow(
-    BuildContext context, {
-    required String role,
-    required SignatureController signatureController,
-    required Rx<Uint8List?> signatureBytes,
-  }) =>
-      Container(
-        margin: const EdgeInsets.only(bottom: 12),
+  // ─── Evidence item ────────────────────────────────────────────────────────
+  Widget _evidenceItem(Map<String, dynamic> item) {
+    final bool answer = item['answer'] == true;
+    final List? items = item['items'];
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: answer
+            ? const Color(0xFFE8F5E9)
+            : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: answer
+              ? const Color(0xFF4CAF50)
+              : const Color(0xFFE5E7EB),
+          width: answer ? 1.5 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 18,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: answer
+                      ? const Color(0xFF4CAF50)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: answer
+                        ? const Color(0xFF4CAF50)
+                        : const Color(0xFFD1D5DB),
+                  ),
+                ),
+                child: answer
+                    ? const Icon(Icons.check_rounded,
+                        size: 12, color: Colors.white)
+                    : null,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  item['label'] ?? '',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: answer
+                          ? const Color(0xFF1B5E20)
+                          : const Color(0xFF9CA3AF)),
+                ),
+              ),
+            ],
+          ),
+          if (answer && items != null && items.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            ...items.map((sub) => Padding(
+                  padding:
+                      const EdgeInsets.only(left: 28, bottom: 4),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.arrow_right_rounded,
+                          size: 14, color: Color(0xFF4CAF50)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(sub.toString(),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF374151))),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ─── TTD Asesi ────────────────────────────────────────────────────────────
+  Widget _ttdAsesiWidget() => Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: const Color(0xFFF9FAFB),
@@ -444,13 +219,13 @@ class _FormAk01State extends State<FormAk01> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(role,
-                style: const TextStyle(
+            const Text('Tanda Tangan Asesi',
+                style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF111827))),
             const SizedBox(height: 12),
-            Obx(() => signatureBytes.value != null
+            Obx(() => c.ttdAsesiBytes.value != null
                 ? Stack(children: [
                     Container(
                       width: double.infinity,
@@ -464,7 +239,7 @@ class _FormAk01State extends State<FormAk01> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.memory(
-                          signatureBytes.value!,
+                          c.ttdAsesiBytes.value!,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -474,8 +249,8 @@ class _FormAk01State extends State<FormAk01> {
                       right: 6,
                       child: GestureDetector(
                         onTap: () {
-                          signatureController.clear();
-                          signatureBytes.value = null;
+                          _ttdAsesi.clear();
+                          c.ttdAsesiBytes.value = null;
                         },
                         child: Container(
                           padding: const EdgeInsets.all(4),
@@ -505,7 +280,7 @@ class _FormAk01State extends State<FormAk01> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Signature(
-                          controller: signatureController,
+                          controller: _ttdAsesi,
                           backgroundColor: Colors.white,
                         ),
                       ),
@@ -530,8 +305,7 @@ class _FormAk01State extends State<FormAk01> {
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF9CA3AF))),
-                          onPressed: () =>
-                              signatureController.clear(),
+                          onPressed: () => _ttdAsesi.clear(),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -554,11 +328,10 @@ class _FormAk01State extends State<FormAk01> {
                                   fontSize: 12,
                                   color: Colors.white)),
                           onPressed: () async {
-                            if (signatureController.isNotEmpty) {
+                            if (_ttdAsesi.isNotEmpty) {
                               final bytes =
-                                  await signatureController
-                                      .toPngBytes();
-                              signatureBytes.value = bytes;
+                                  await _ttdAsesi.toPngBytes();
+                              c.ttdAsesiBytes.value = bytes;
                             } else {
                               Get.snackbar(
                                 'Perhatian',
@@ -578,6 +351,221 @@ class _FormAk01State extends State<FormAk01> {
           ],
         ),
       );
+
+  // ─── Skeleton loading ─────────────────────────────────────────────────────
+  Widget _skeleton() => Column(
+        children: List.generate(
+          4,
+          (i) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                      height: 12,
+                      width: 120,
+                      decoration: BoxDecoration(
+                          color: const Color(0xFFE5E7EB),
+                          borderRadius: BorderRadius.circular(6))),
+                  const SizedBox(height: 10),
+                  Container(
+                      height: 12,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(6))),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+  // ─── Error state ──────────────────────────────────────────────────────────
+  Widget _errorState() {
+    final code = c.fetchErrorCode.value;
+
+    String title;
+    String subtitle;
+    IconData icon;
+    Color color;
+
+    switch (code) {
+      case 'E2019':
+        title = 'Asesor Belum Ditugaskan';
+        subtitle =
+            'Formulir AK.01 belum tersedia karena asesor belum ditugaskan oleh admin. Silakan tunggu konfirmasi dari LSP.';
+        icon = Icons.person_off_outlined;
+        color = const Color(0xFFF59E0B);
+        break;
+      case 'E2018':
+        title = 'APL.02 Belum Disetujui';
+        subtitle =
+            'Formulir AK.01 baru bisa diakses setelah APL.02 kamu disetujui oleh admin.';
+        icon = Icons.pending_actions_outlined;
+        color = const Color(0xFF3B82F6);
+        break;
+      case 'E2009':
+        title = 'APL.01 Belum Disetujui';
+        subtitle =
+            'Formulir AK.01 baru bisa diakses setelah APL.01 kamu disetujui oleh admin.';
+        icon = Icons.pending_actions_outlined;
+        color = const Color(0xFF3B82F6);
+        break;
+      case 'E1005':
+        title = 'Akses Ditolak';
+        subtitle =
+            'Kamu tidak memiliki akses ke formulir ini.';
+        icon = Icons.lock_outline_rounded;
+        color = const Color(0xFFEF4444);
+        break;
+      case 'NETWORK':
+        title = 'Koneksi Bermasalah';
+        subtitle =
+            'Periksa koneksi internet kamu dan coba lagi.';
+        icon = Icons.wifi_off_rounded;
+        color = const Color(0xFF6B7280);
+        break;
+      default:
+        title = 'Formulir Tidak Tersedia';
+        subtitle = c.fetchError.value.isNotEmpty
+            ? c.fetchError.value
+            : 'Formulir AK.01 belum tersedia saat ini.';
+        icon = Icons.description_outlined;
+        color = const Color(0xFF6B7280);
+    }
+
+    return Column(
+      children: [
+        // ── Ilustrasi & pesan ──────────────────────────────────────
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2))
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 36, color: color),
+              ),
+              const SizedBox(height: 20),
+              Text(title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827))),
+              const SizedBox(height: 8),
+              Text(subtitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6B7280),
+                      height: 1.5)),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // ── Info tambahan ──────────────────────────────────────────
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFBEB),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFFDE68A)),
+          ),
+          child: const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline_rounded,
+                  size: 16, color: Color(0xFFD97706)),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Jika kamu merasa ini adalah kesalahan, silakan hubungi pihak LSP untuk informasi lebih lanjut.',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF92400E),
+                      height: 1.5),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // ── Tombol retry (khusus network error) ───────────────────
+        if (code == 'NETWORK') ...[
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4CAF50),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.refresh_rounded,
+                  color: Colors.white, size: 16),
+              label: const Text('Coba Lagi',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600)),
+              onPressed: () =>
+                  c.fetchData(registrationId: widget.registrationId),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+
+        // ── Tombol kembali ─────────────────────────────────────────
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFF4CAF50)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            icon: const Icon(Icons.arrow_back_rounded,
+                color: Color(0xFF4CAF50), size: 16),
+            label: const Text('Kembali',
+                style: TextStyle(
+                    color: Color(0xFF4CAF50),
+                    fontWeight: FontWeight.w600)),
+            onPressed: () => Get.back(),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -602,274 +590,261 @@ class _FormAk01State extends State<FormAk01> {
           child: Container(height: 1, color: const Color(0xFFE5E7EB)),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // ── Header ────────────────────────────────────────────────────
-            _card(
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Persetujuan Asesmen dan Kerahasiaan',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827))),
-                  SizedBox(height: 4),
-                  Text(
-                      'Isi informasi skema, pihak yang terlibat, bukti, pelaksanaan, dan tanda tangan persetujuan.',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
-                          height: 1.5)),
-                ],
-              ),
-            ),
+      body: Obx(() {
+        // ── Loading ──────────────────────────────────────────────
+        if (c.isLoadingData.value) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: _skeleton(),
+          );
+        }
 
-            // ── Skema Sertifikasi ─────────────────────────────────────────
-            _card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionHeader('Skema Sertifikasi',
-                      Icons.workspace_premium_outlined),
-                  _infoRow('Judul', 'Ahli Desain Grafis'),
-                  _infoRow('Nomor', 'SUK-SKS-REV1-L007'),
-                ],
-              ),
-            ),
+        // ── Error state ──────────────────────────────────────────
+        if (c.fetchError.value.isNotEmpty) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: _errorState(),
+          );
+        }
 
-            // ── Pihak yang Terlibat ───────────────────────────────────────
-            _card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionHeader('Pihak yang Terlibat',
-                      Icons.people_outline_rounded),
-                  _buildDropdown(
-                    label: 'TUK',
-                    value: c.tukSelected,
-                    hint: 'Pilih jenis TUK',
-                    items: const [
-                      'Sewaktu',
-                      'Tempat Kerja',
-                      'Mandiri'
-                    ],
-                  ),
-                  _buildField(
-                    label: 'Nama Asesi',
-                    controller: c.namaAsesi,
-                    hint: 'Nama lengkap asesi',
-                  ),
-                ],
+        // ── Normal UI ────────────────────────────────────────────
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // ── Header ──────────────────────────────────────────
+              _card(
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Persetujuan Asesmen dan Kerahasiaan',
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF111827))),
+                    SizedBox(height: 4),
+                    Text(
+                        'Data di bawah diisi oleh admin. Asesi hanya perlu menandatangani formulir ini.',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
+                            height: 1.5)),
+                  ],
+                ),
               ),
-            ),
 
-            // ── Bukti yang Dikumpulkan ────────────────────────────────────
-            _card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionHeader(
-                    'Bukti yang Akan Dikumpulkan',
-                    Icons.folder_open_outlined,
-                    subtitle: 'Pilih satu atau lebih jenis bukti',
-                  ),
-                  _buktiCheckbox(
-                      'Hasil Verifikasi Portofolio',
-                      c.buktiVerifikasiPortofolio,
-                      Icons.folder_copy_outlined),
-                  _buktiCheckbox(
-                      'Hasil Reviu Produk',
-                      c.buktiReviewProduk,
-                      Icons.rate_review_outlined),
-                  _buktiCheckbox(
-                      'Hasil Observasi Langsung',
-                      c.buktiObservasiLangsung,
-                      Icons.visibility_outlined),
-                  _buktiCheckbox(
-                      'Hasil Kegiatan Terstruktur',
-                      c.buktiKegiatanTerstruktur,
-                      Icons.account_tree_outlined),
-                  _buktiCheckbox(
-                      'Hasil Tanya Jawab',
-                      c.buktiTanyaJawab,
-                      Icons.quiz_outlined),
-                  _buktiCheckbox(
-                      'Lainnya',
-                      c.buktiLainnya,
-                      Icons.more_horiz_rounded),
-                  _lainnyaSection(),
-                ],
+              // ── Skema Sertifikasi ────────────────────────────────
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader('Skema Sertifikasi',
+                        Icons.workspace_premium_outlined),
+                    _infoRow('Judul', c.certificationName.value),
+                    _infoRow('Nomor', c.certificationCode.value),
+                  ],
+                ),
               ),
-            ),
 
-            // ── Pelaksanaan Asesmen ───────────────────────────────────────
-            _card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionHeader('Pelaksanaan Asesmen',
-                      Icons.event_note_outlined),
-                  _autoFillInfo(),
-                  _buildField(
-                    label: 'TUK Pelaksanaan',
-                    controller: c.tukPelaksanaan,
-                    hint: 'Nama TUK pelaksanaan',
-                  ),
-                ],
+              // ── Pihak yang Terlibat ──────────────────────────────
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader('Pihak yang Terlibat',
+                        Icons.people_outline_rounded),
+                    _infoRow('TUK', c.tuk.value),
+                    _infoRow('Nama Asesor', c.asesorName.value),
+                    _infoRow('Nama Asesi', c.asesiName.value),
+                  ],
+                ),
               ),
-            ),
 
-            // ── Pernyataan Kerahasiaan ────────────────────────────────────
-            _card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionHeader('Pernyataan Kerahasiaan',
-                      Icons.lock_outline_rounded),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0FDF4),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: const Color(0xFFBBF7D0)),
+              // ── Bukti yang Dikumpulkan ───────────────────────────
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader(
+                      'Bukti yang Akan Dikumpulkan',
+                      Icons.folder_open_outlined,
+                      subtitle: 'Diisi oleh asesor',
                     ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Asesor :',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF166534))),
-                        SizedBox(height: 6),
-                        Text(
-                          'Menyatakan tidak akan membuka hasil pekerjaan yang saya peroleh karena penugasan saya sebagai Asesor dalam pekerjaan Asesmen kepada siapapun atau organisasi apapun selain kepada pihak yang berwenang sehubungan dengan kewajiban saya sebagai Asesor yang ditugaskan oleh LSP.',
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF374151),
-                              height: 1.6),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0FDF4),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: const Color(0xFFBBF7D0)),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Asesi :',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF166534))),
-                        SizedBox(height: 6),
-                        Text(
-                          'Saya setuju mengikuti asesmen dengan pemahaman bahwa informasi yang dikumpulkan hanya digunakan untuk pengembangan profesional dan hanya dapat diakses oleh orang tertentu saja.',
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF374151),
-                              height: 1.6),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Tanda Tangan ──────────────────────────────────────────────
-            _card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionHeader(
-                      'Tanda Tangan', Icons.draw_outlined),
-                  _autoFillInfo(),
-                  _ttdRow(
-                    context,
-                    role: 'Tanda Tangan Asesor',
-                    signatureController: _ttdAsesor,
-                    signatureBytes: c.ttdAsesorBytes,
-                  ),
-                  _ttdRow(
-                    context,
-                    role: 'Tanda Tangan Asesi',
-                    signatureController: _ttdAsesi,
-                    signatureBytes: c.ttdAsesiBytes,
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Tombol Simpan ─────────────────────────────────────────────
-            Obx(() => SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4CAF50),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
-                    ),
-                    onPressed: c.isLoading.value
-                        ? null
-                        : () async {
-                            final ok = await c.submit(
-                                registrationId:
-                                    widget.registrationId);
-                            if (ok) {
-                              Get.back();
-                              Get.snackbar(
-                                'Berhasil',
-                                'FR.AK.01 berhasil disimpan',
-                                backgroundColor:
-                                    const Color(0xFF4CAF50),
-                                colorText: Colors.white,
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
-                            }
-                          },
-                    child: c.isLoading.value
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
-                        : const Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                  Icons.check_circle_outline_rounded,
-                                  color: Colors.white,
-                                  size: 18),
-                              SizedBox(width: 8),
-                              Text('Simpan',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight:
-                                          FontWeight.w600)),
-                            ],
+                    c.evidenceMethods.isEmpty
+                        ? const Padding(
+                            padding: EdgeInsets.only(top: 4),
+                            child: Text('-',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF9CA3AF))),
+                          )
+                        : Column(
+                            children: c.evidenceMethods
+                                .map((item) => _evidenceItem(item))
+                                .toList(),
                           ),
-                  ),
-                )),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
+                  ],
+                ),
+              ),
+
+              // ── Pelaksanaan Asesmen ──────────────────────────────
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader('Pelaksanaan Asesmen',
+                        Icons.event_note_outlined),
+                    _infoRow('Hari / Tanggal', c.agreementDate.value),
+                    _infoRow('Waktu', c.agreementTime.value),
+                    _infoRow('TUK', c.agreementTuk.value),
+                  ],
+                ),
+              ),
+
+              // ── Pernyataan Kerahasiaan ───────────────────────────
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader('Pernyataan Kerahasiaan',
+                        Icons.lock_outline_rounded),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: const Color(0xFFBBF7D0)),
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Asesor :',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF166534))),
+                          SizedBox(height: 6),
+                          Text(
+                            'Menyatakan tidak akan membuka hasil pekerjaan yang saya peroleh karena penugasan saya sebagai Asesor dalam pekerjaan Asesmen kepada siapapun atau organisasi apapun selain kepada pihak yang berwenang sehubungan dengan kewajiban saya sebagai Asesor yang ditugaskan oleh LSP.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF374151),
+                                height: 1.6),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: const Color(0xFFBBF7D0)),
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Asesi :',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF166534))),
+                          SizedBox(height: 6),
+                          Text(
+                            'Saya setuju mengikuti asesmen dengan pemahaman bahwa informasi yang dikumpulkan hanya digunakan untuk pengembangan profesional dan hanya dapat diakses oleh orang tertentu saja.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF374151),
+                                height: 1.6),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Tanda Tangan Asesi ───────────────────────────────
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader(
+                      'Tanda Tangan',
+                      Icons.draw_outlined,
+                      subtitle:
+                          'Tanggal otomatis terisi saat submit',
+                    ),
+                    _ttdAsesiWidget(),
+                  ],
+                ),
+              ),
+
+              // ── Tombol Simpan ────────────────────────────────────
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4CAF50),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      onPressed: c.isLoading.value
+                          ? null
+                          : () async {
+                              final ok = await c.submit(
+                                  registrationId:
+                                      widget.registrationId);
+                              if (ok) {
+                                Get.back();
+                                Get.snackbar(
+                                  'Berhasil',
+                                  'FR.AK.01 berhasil disimpan',
+                                  backgroundColor:
+                                      const Color(0xFF4CAF50),
+                                  colorText: Colors.white,
+                                  snackPosition:
+                                      SnackPosition.BOTTOM,
+                                );
+                              }
+                            },
+                      child: c.isLoading.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2))
+                          : const Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                    Icons
+                                        .check_circle_outline_rounded,
+                                    color: Colors.white,
+                                    size: 18),
+                                SizedBox(width: 8),
+                                Text('Simpan',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight:
+                                            FontWeight.w600)),
+                              ],
+                            ),
+                    ),
+                  )),
+              const SizedBox(height: 32),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
