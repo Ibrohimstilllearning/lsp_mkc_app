@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart'; 
+import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
+import 'package:lsp_mkc_app/pages/riwayat_page.dart';
+import 'package:lsp_mkc_app/pages/profil_page.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -11,9 +15,9 @@ class HomePage extends GetView<HomeController> {
 
     final List<Widget> pages = [
       _HomeTab(currentIndex: currentIndex),
-      const PengajuanPage(),
-      const RiwayatPage(),
-      const ProfilPage(),
+       PengajuanPage(),
+       RiwayatPage(),
+       ProfilPage(),
     ];
 
     return Obx(() => Scaffold(
@@ -99,25 +103,6 @@ class _HomeTab extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 40),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/serviceunavailable.png',
-                width: 250,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                "Belum ada pengajuan\npending, buat satu?",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: SizedBox(
@@ -183,7 +168,7 @@ class _HomeTab extends StatelessWidget {
                           ),
                           onPressed: () {
                             Get.back();
-                            Get.toNamed(AppPages.ak01, arguments: {'registrationId': 11});
+                            Get.toNamed(AppPages.ak01, arguments: {'registrationId': 1});
                           },
                           child: const Text(
                             'FR.AK.01 — Persetujuan Asesmen',
