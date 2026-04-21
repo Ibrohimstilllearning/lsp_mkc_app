@@ -187,11 +187,10 @@ class _HomeTab extends StatelessWidget {
                           ),
                           onPressed: () {
                             Get.back();
-                            Get.toNamed(AppPages.ak01,
-                                arguments: {'registrationId': 1});
+                            Get.toNamed(AppPages.apl02, arguments: 11); // TODO: ganti 11 dengan ID registrasi yang dinamis nantinya
                           },
                           child: const Text(
-                            'FR.AK.01 — Persetujuan Asesmen',
+                            'FR.APL.02 — Assesmen Mandiri',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 13,
