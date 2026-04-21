@@ -55,7 +55,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
         final picked = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
         if (picked != null) setState(() => _files[requirementId] = File(picked.path));
       } else if (source == 'file') {
-        final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: accept);
+        final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: accept);
         if (result != null && result.files.single.path != null) {
           setState(() => _files[requirementId] = File(result.files.single.path!));
         }

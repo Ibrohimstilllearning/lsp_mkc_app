@@ -9,9 +9,6 @@ class PengajuanPage extends GetView<PengajuanController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('PengajuanPage')),
-
-      body: SafeArea(child: Text('PengajuanController')),
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Column(
@@ -71,7 +68,7 @@ class PengajuanPage extends GetView<PengajuanController> {
                 if (controller.pengajuanList.isEmpty) {
                   return const _EmptyState();
                 }
-                return _PengajuanList();
+                return const _PengajuanList();
               }),
             ),
           ],
@@ -108,8 +105,7 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 4),
           const Text(
             'Mulai proses sertifikasi dari halaman utama',
-            style:
-                TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+            style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
           ),
         ],
       ),
@@ -148,8 +144,8 @@ class _ErrorState extends StatelessWidget {
                     color: Color(0xFF111827))),
             const SizedBox(height: 4),
             const Text('Periksa koneksi dan coba lagi',
-                style: TextStyle(
-                    fontSize: 13, color: Color(0xFF6B7280))),
+                style:
+                    TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
@@ -260,7 +256,6 @@ class _RegistrationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header card ──────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Row(
@@ -313,10 +308,7 @@ class _RegistrationCard extends StatelessWidget {
               ],
             ),
           ),
-
           const Divider(height: 1, color: Color(0xFFF3F4F6)),
-
-          // ── Form list ────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -402,7 +394,6 @@ class _FormRow extends StatelessWidget {
     }
   }
 
-  // Hanya bisa navigate kalau draft
   bool _canNavigate(String status) => status == 'draft';
 
   @override
@@ -427,7 +418,6 @@ class _FormRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Badge kode form
             Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: 8, vertical: 3),
@@ -442,13 +432,11 @@ class _FormRow extends StatelessWidget {
                       color: Color(0xFF4CAF50))),
             ),
             const SizedBox(width: 10),
-            // Label form
             Expanded(
               child: Text(form.label,
                   style: const TextStyle(
                       fontSize: 12, color: Color(0xFF374151))),
             ),
-            // Status chip
             Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: 8, vertical: 4),
@@ -459,8 +447,7 @@ class _FormRow extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(config.icon,
-                      size: 11, color: config.color),
+                  Icon(config.icon, size: 11, color: config.color),
                   const SizedBox(width: 4),
                   Text(config.label,
                       style: TextStyle(
@@ -470,7 +457,6 @@ class _FormRow extends StatelessWidget {
                 ],
               ),
             ),
-            // Arrow jika bisa navigate
             if (canNav) ...[
               const SizedBox(width: 6),
               const Icon(Icons.arrow_forward_ios_rounded,

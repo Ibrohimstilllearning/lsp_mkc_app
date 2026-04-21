@@ -59,7 +59,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
             source: ImageSource.gallery, imageQuality: 80);
         if (picked != null) setState(() => _files[requirementId] = File(picked.path));
       } else if (source == 'file') {
-        final result = await FilePicker.pickFiles(
+        final result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowedExtensions: accept,
         );
