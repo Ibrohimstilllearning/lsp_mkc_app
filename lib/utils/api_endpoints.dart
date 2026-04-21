@@ -1,5 +1,5 @@
 class ApiEndpoints {
-  static const bool _useLocal = true;
+  static const bool _useLocal = false;
   static String baseUrl = _useLocal
       ? 'https://maverick-unaccessional-salutatorily.ngrok-free.dev/api'
       : 'http://ujikomp.lspmkc.or.id/api';
