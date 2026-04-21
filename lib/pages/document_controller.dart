@@ -125,13 +125,13 @@ class DocumentController extends GetxController {
       //Send as multipart cz upload file
       final request = http.MultipartRequest('POST', url)
         ..headers.addAll(ApiEndpoints.authHeaders(token))
-        ..fields['document_type'] = key 
+        ..fields['document_type'] = key
         ..files.add(await http.MultipartFile.fromPath('file', file.path!));
 
       final stream = await request.send();
       final response = await http.Response.fromStream(stream);
 
-      if(response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final json = jsonDecode(response.body);
 
         // Expected response:
@@ -139,9 +139,9 @@ class DocumentController extends GetxController {
         final data = json['response'] as Map<String, dynamic>;
 
         uploadedDocs[key] = {
-          'file_name' : data?['file_name']?.toString() ?? file.name,
-          'file_url' : data?['file_url']?.toString() ?? '',
-          'source' : 'profile'
+          'file_name': data?['file_name']?.toString() ?? file.name,
+          'file_url': data?['file_url']?.toString() ?? '',
+          'source': 'profile',
         };
 
         _showSuccess('Dokumen Berhasil Diupload');
@@ -172,7 +172,9 @@ class DocumentController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/apl01/documents/upload'); // endpoint not exist
+      final url = Uri.parse(
+        '${ApiEndpoints.baseUrl}/apl01/documents/upload',
+      ); // endpoint not exist
 
       final request = http.MultipartRequest('POST', url)
         ..headers.addAll(ApiEndpoints.authHeaders(token))
@@ -182,21 +184,21 @@ class DocumentController extends GetxController {
       final stream = await request.send();
       final response = await http.Response.fromStream(stream);
 
-      if(response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final json = jsonDecode(response.body);
         final data = json['response'] as Map<String, dynamic>?;
 
         // ✅ Sync ke uploadedDocs → otomatis tersedia di Profile juga
         uploadedDocs[key] = {
-          'file_name' : data?['file_name']?.toString() ?? file.name,
-          'file_url' : data?['fole_url']?.toString() ?? '',
-          'source' : 'apl01'
+          'file_name': data?['file_name']?.toString() ?? file.name,
+          'file_url': data?['fole_url']?.toString() ?? '',
+          'source': 'apl01',
         };
 
         _showSuccess('Dokumen Berhasil Diupload');
       } else {
         final json = jsonDecode(response.body);
-        _showError(json['metadata']?['message']?? 'Gagal Upload Dokumen');
+        _showError(json['metadata']?['message'] ?? 'Gagal Upload Dokumen');
       }
     } catch (e) {
       debugPrint('uploadDokumenFromApl01 error: $e');
@@ -205,20 +207,22 @@ class DocumentController extends GetxController {
       loadingDocs.remove(key);
     }
   }
+
   // DELETE
   Future<void> deleteDokumen(String key) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
- 
+
       final url = Uri.parse(
-          '${ApiEndpoints.baseUrl}/profile/documents/$key'); // endpoint belum ada
- 
+        '${ApiEndpoints.baseUrl}/profile/documents/$key',
+      ); // endpoint belum ada
+
       final response = await http.delete(
         url,
         headers: ApiEndpoints.authHeaders(token),
       );
- 
+
       if (response.statusCode == 200) {
         uploadedDocs.remove(key);
         _showSuccess('Dokumen berhasil dihapus');
@@ -231,10 +235,10 @@ class DocumentController extends GetxController {
       debugPrint('deleteDokumen error: $e');
     }
   }
- 
+
   // ── Helper: buka file picker ──
   Future<PlatformFile?> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
       withData: false,
@@ -242,22 +246,28 @@ class DocumentController extends GetxController {
     );
     return result?.files.single;
   }
- 
+
   void _showSuccess(String msg) {
-    Get.snackbar('Berhasil', msg,
-        backgroundColor: const Color(0xFF4CAF50),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 10);
+    Get.snackbar(
+      'Berhasil',
+      msg,
+      backgroundColor: const Color(0xFF4CAF50),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 10,
+    );
   }
- 
+
   void _showError(String msg) {
-    Get.snackbar('Gagal', msg,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 10);
+    Get.snackbar(
+      'Gagal',
+      msg,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 10,
+    );
   }
 }

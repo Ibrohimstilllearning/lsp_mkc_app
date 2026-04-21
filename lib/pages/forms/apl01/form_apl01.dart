@@ -7,8 +7,11 @@ import 'package:lsp_mkc_app/pages/home_controller.dart';
 class FormApl01 extends StatelessWidget {
   final FormController c = Get.put(FormController());
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {TextInputType type = TextInputType.text}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    TextInputType type = TextInputType.text,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -43,8 +46,10 @@ class FormApl01 extends StatelessWidget {
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 8),
-      child: Text(title,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -59,8 +64,10 @@ class FormApl01 extends StatelessWidget {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Get.back(),
         ),
-        title: Text("Kembali ke beranda",
-            style: TextStyle(color: Colors.black, fontSize: 14)),
+        title: Text(
+          "Kembali ke beranda",
+          style: TextStyle(color: Colors.black, fontSize: 14),
+        ),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -91,15 +98,26 @@ class FormApl01 extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("FR.APL.01. PERMOHONAN SERTIFIKASI KOMPETENSI",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                        Text(
+                          "FR.APL.01. PERMOHONAN SERTIFIKASI KOMPETENSI",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 12),
-                        Text("Bagian 1 : Rincian Data Pemohon Sertifikasi",
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        Text(
+                          "Bagian 1 : Rincian Data Pemohon Sertifikasi",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 4),
                         Text(
-                            "Pada bagian ini, cantumkan data pribadi, data pendidikan formal serta data pekerjaan anda pada saat ini.",
-                            style: TextStyle(fontSize: 13)),
+                          "Pada bagian ini, cantumkan data pribadi, data pendidikan formal serta data pekerjaan anda pada saat ini.",
+                          style: TextStyle(fontSize: 13),
+                        ),
                       ],
                     ),
                   ),
@@ -123,7 +141,10 @@ class FormApl01 extends StatelessWidget {
                   _sectionTitle("a.  Data Pribadi"),
                   _buildTextField("Nama lengkap", c.namaController),
                   _buildTextField("No. KTP/NIK/Paspor", c.nikController),
-                  _buildTextField("Tempat / tgl. Lahir", c.tempatLahirController),
+                  _buildTextField(
+                    "Tempat / tgl. Lahir",
+                    c.tempatLahirController,
+                  ),
 
                   // Jenis Kelamin
                   Padding(
@@ -132,35 +153,44 @@ class FormApl01 extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: 160,
-                          child: Text("Jenis kelamin", style: TextStyle(fontSize: 13)),
+                          child: Text(
+                            "Jenis kelamin",
+                            style: TextStyle(fontSize: 13),
+                          ),
                         ),
                         Text(": "),
-                        Obx(() => Row(
-                          children: [
-                            Radio<String>(
-                              value: "Laki-laki",
-                              groupValue: c.jenisKelamin.value,
-                              onChanged: (val) => c.jenisKelamin.value = val!,
-                              activeColor: Color(0xFF4CAF50),
-                            ),
-                            Text("Laki-laki", style: TextStyle(fontSize: 13)),
-                            SizedBox(width: 8),
-                            Radio<String>(
-                              value: "Wanita",
-                              groupValue: c.jenisKelamin.value,
-                              onChanged: (val) => c.jenisKelamin.value = val!,
-                              activeColor: Color(0xFF4CAF50),
-                            ),
-                            Text("Wanita", style: TextStyle(fontSize: 13)),
-                          ],
-                        )),
+                        Obx(
+                          () => Row(
+                            children: [
+                              Radio<String>(
+                                value: "Laki-laki",
+                                groupValue: c.jenisKelamin.value,
+                                onChanged: (val) => c.jenisKelamin.value = val!,
+                                activeColor: Color(0xFF4CAF50),
+                              ),
+                              Text("Laki-laki", style: TextStyle(fontSize: 13)),
+                              SizedBox(width: 8),
+                              Radio<String>(
+                                value: "Wanita",
+                                groupValue: c.jenisKelamin.value,
+                                onChanged: (val) => c.jenisKelamin.value = val!,
+                                activeColor: Color(0xFF4CAF50),
+                              ),
+                              Text("Wanita", style: TextStyle(fontSize: 13)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
 
                   _buildTextField("Kebangsaan", c.kebangsaanController),
                   _buildTextField("Alamat rumah", c.alamatController),
-                  _buildTextField("Kode pos", c.kodePosController, type: TextInputType.number),
+                  _buildTextField(
+                    "Kode pos",
+                    c.kodePosController,
+                    type: TextInputType.number,
+                  ),
 
                   // Telepon
                   Padding(
@@ -168,36 +198,66 @@ class FormApl01 extends StatelessWidget {
                     child: Row(
                       children: [
                         SizedBox(
-                            width: 160,
-                            child: Text("No. Telepon/E-mail", style: TextStyle(fontSize: 13))),
+                          width: 160,
+                          child: Text(
+                            "No. Telepon/E-mail",
+                            style: TextStyle(fontSize: 13),
+                          ),
+                        ),
                         Text(": "),
                         Expanded(
                           child: Column(
                             children: [
                               Row(
                                 children: [
-                                  Text("Rumah: ", style: TextStyle(fontSize: 13)),
+                                  Text(
+                                    "Rumah: ",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
                                   Expanded(
                                     child: TextField(
                                       controller: c.noRumahController,
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.only(bottom: 4),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF4CAF50))),
+                                        contentPadding: EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                   SizedBox(width: 8),
-                                  Text("Kantor: ", style: TextStyle(fontSize: 13)),
+                                  Text(
+                                    "Kantor: ",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
                                   Expanded(
                                     child: TextField(
                                       controller: c.noKantorController,
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.only(bottom: 4),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF4CAF50))),
+                                        contentPadding: EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -212,22 +272,45 @@ class FormApl01 extends StatelessWidget {
                                       controller: c.noHpController,
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.only(bottom: 4),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF4CAF50))),
+                                        contentPadding: EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                   SizedBox(width: 8),
-                                  Text("E-mail: ", style: TextStyle(fontSize: 13)),
+                                  Text(
+                                    "E-mail: ",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
                                   Expanded(
                                     child: TextField(
                                       controller: c.emailController,
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.only(bottom: 4),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF4CAF50))),
+                                        contentPadding: EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -240,9 +323,14 @@ class FormApl01 extends StatelessWidget {
                     ),
                   ),
 
-                  _buildTextField("Kualifikasi Pendidikan", c.pendidikanController),
-                  Text("*Coret yang tidak perlu",
-                      style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  _buildTextField(
+                    "Kualifikasi Pendidikan",
+                    c.pendidikanController,
+                  ),
+                  Text(
+                    "*Coret yang tidak perlu",
+                    style: TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
                 ],
               ),
             ),
@@ -261,10 +349,17 @@ class FormApl01 extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionTitle("b.  Data Pekerjaan Sekarang"),
-                  _buildTextField("Nama Institusi /\nPerusahaan", c.institusiController),
+                  _buildTextField(
+                    "Nama Institusi /\nPerusahaan",
+                    c.institusiController,
+                  ),
                   _buildTextField("Jabatan", c.jabatanController),
                   _buildTextField("Alamat Kantor", c.alamatKantorController),
-                  _buildTextField("Kode pos", c.kodePosKantorController, type: TextInputType.number),
+                  _buildTextField(
+                    "Kode pos",
+                    c.kodePosKantorController,
+                    type: TextInputType.number,
+                  ),
 
                   // Telp/Fax/Email kantor
                   Padding(
@@ -272,23 +367,40 @@ class FormApl01 extends StatelessWidget {
                     child: Row(
                       children: [
                         SizedBox(
-                            width: 160,
-                            child: Text("No. Telp/Fax/E-mail", style: TextStyle(fontSize: 13))),
+                          width: 160,
+                          child: Text(
+                            "No. Telp/Fax/E-mail",
+                            style: TextStyle(fontSize: 13),
+                          ),
+                        ),
                         Text(": "),
                         Expanded(
                           child: Column(
                             children: [
                               Row(
                                 children: [
-                                  Text("Telp: ", style: TextStyle(fontSize: 13)),
+                                  Text(
+                                    "Telp: ",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
                                   Expanded(
                                     child: TextField(
                                       controller: c.noTelpController,
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.only(bottom: 4),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF4CAF50))),
+                                        contentPadding: EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -299,9 +411,19 @@ class FormApl01 extends StatelessWidget {
                                       controller: c.noFaxController,
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.only(bottom: 4),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF4CAF50))),
+                                        contentPadding: EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -310,15 +432,28 @@ class FormApl01 extends StatelessWidget {
                               SizedBox(height: 8),
                               Row(
                                 children: [
-                                  Text("E-mail: ", style: TextStyle(fontSize: 13)),
+                                  Text(
+                                    "E-mail: ",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
                                   Expanded(
                                     child: TextField(
                                       controller: c.emailKantorController,
                                       decoration: InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.only(bottom: 4),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF4CAF50))),
+                                        contentPadding: EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -342,11 +477,16 @@ class FormApl01 extends StatelessWidget {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF4CAF50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   padding: EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () => Get.to(() => FormApl01Bagian2()),
-                child: Text("Selanjutnya", style: TextStyle(color: Colors.white, fontSize: 15)),
+                child: Text(
+                  "Selanjutnya",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
               ),
             ),
 

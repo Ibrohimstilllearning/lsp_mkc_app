@@ -17,8 +17,11 @@ class ResetController extends GetxController {
   // ─────────────────────────────────────
   Future<void> sendForgotPassword(String emailInput) async {
     if (emailInput.isEmpty) {
-      Get.snackbar('Gagal', 'Email tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Gagal',
+        'Email tidak boleh kosong',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -58,8 +61,11 @@ class ResetController extends GetxController {
       }
     } catch (e) {
       print('=== FORGOT PASSWORD ERROR: $e');
-      Get.snackbar('Error', 'Tidak dapat terhubung ke server',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Tidak dapat terhubung ke server',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -70,8 +76,11 @@ class ResetController extends GetxController {
   // ─────────────────────────────────────
   Future<void> verifyOtp(String otpInput) async {
     if (otpInput.isEmpty) {
-      Get.snackbar('Gagal', 'Kode OTP tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Gagal',
+        'Kode OTP tidak boleh kosong',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -82,10 +91,7 @@ class ResetController extends GetxController {
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/verify-otp'),
         headers: ApiEndpoints.headers,
-        body: jsonEncode({
-          'email': email.value,
-          'otp': otpInput,
-        }),
+        body: jsonEncode({'email': email.value, 'otp': otpInput}),
       );
 
       final data = jsonDecode(response.body);
@@ -109,8 +115,11 @@ class ResetController extends GetxController {
       }
     } catch (e) {
       print('=== VERIFY OTP ERROR: $e');
-      Get.snackbar('Error', 'Tidak dapat terhubung ke server',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Tidak dapat terhubung ke server',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -124,18 +133,27 @@ class ResetController extends GetxController {
     required String confirmPassword,
   }) async {
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      Get.snackbar('Gagal', 'Password tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Gagal',
+        'Password tidak boleh kosong',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
     if (newPassword.length < 8) {
-      Get.snackbar('Gagal', 'Password minimal 8 karakter',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Gagal',
+        'Password minimal 8 karakter',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
     if (newPassword != confirmPassword) {
-      Get.snackbar('Gagal', 'Konfirmasi password tidak cocok',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Gagal',
+        'Konfirmasi password tidak cocok',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -175,8 +193,11 @@ class ResetController extends GetxController {
       }
     } catch (e) {
       print('=== RESET PASSWORD ERROR: $e');
-      Get.snackbar('Error', 'Tidak dapat terhubung ke server',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Tidak dapat terhubung ke server',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }

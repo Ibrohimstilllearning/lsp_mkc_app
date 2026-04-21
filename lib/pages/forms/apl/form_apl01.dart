@@ -18,11 +18,14 @@ class FormApl01 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF6B7280))),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6B7280),
+            ),
+          ),
           const SizedBox(height: 6),
           TextFormField(
             controller: controller,
@@ -30,9 +33,14 @@ class FormApl01 extends StatelessWidget {
             style: const TextStyle(fontSize: 14, color: Color(0xFF111827)),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(fontSize: 13, color: Color(0xFFD1D5DB)),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              hintStyle: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFFD1D5DB),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
               filled: true,
               fillColor: const Color(0xFFF9FAFB),
               enabledBorder: OutlineInputBorder(
@@ -41,8 +49,10 @@ class FormApl01 extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    const BorderSide(color: Color(0xFF4CAF50), width: 1.5),
+                borderSide: const BorderSide(
+                  color: Color(0xFF4CAF50),
+                  width: 1.5,
+                ),
               ),
             ),
           ),
@@ -64,11 +74,14 @@ class FormApl01 extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF9CA3AF))),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF9CA3AF),
+          ),
+        ),
         const SizedBox(height: 4),
         TextFormField(
           controller: controller,
@@ -80,8 +93,10 @@ class FormApl01 extends StatelessWidget {
             hintText: hint,
             hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFD1D5DB)),
             suffixIcon: suffix,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             filled: true,
             fillColor: const Color(0xFFF9FAFB),
             enabledBorder: OutlineInputBorder(
@@ -90,8 +105,10 @@ class FormApl01 extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide:
-                  const BorderSide(color: Color(0xFF4CAF50), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF4CAF50),
+                width: 1.5,
+              ),
             ),
           ),
         ),
@@ -115,11 +132,14 @@ class FormApl01 extends StatelessWidget {
             child: Icon(icon, size: 16, color: const Color(0xFF4CAF50)),
           ),
           const SizedBox(width: 10),
-          Text(title,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF111827))),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF111827),
+            ),
+          ),
         ],
       ),
     );
@@ -156,11 +176,14 @@ class FormApl01 extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Center(
-        child: Text('$num',
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: active ? Colors.white : const Color(0xFF9CA3AF))),
+        child: Text(
+          '$num',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: active ? Colors.white : const Color(0xFF9CA3AF),
+          ),
+        ),
       ),
     );
   }
@@ -178,8 +201,7 @@ class FormApl01 extends StatelessWidget {
   }
 
   // ─── Gender chip ──────────────────────────────────────────────────────────
-  Widget _genderChip(
-      String value, String label, IconData icon, bool selected) {
+  Widget _genderChip(String value, String label, IconData icon, bool selected) {
     return Expanded(
       child: GestureDetector(
         onTap: () => c.jenisKelamin.value = value,
@@ -187,37 +209,132 @@ class FormApl01 extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color:
-                selected ? const Color(0xFFE8F5E9) : const Color(0xFFF9FAFB),
+            color: selected ? const Color(0xFFE8F5E9) : const Color(0xFFF9FAFB),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: selected
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFFE5E7EB),
+              color:
+                  selected ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
               width: selected ? 1.5 : 1,
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon,
-                  size: 16,
+              Icon(
+                icon,
+                size: 16,
+                color: selected
+                    ? const Color(0xFF4CAF50)
+                    : const Color(0xFF9CA3AF),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                   color: selected
                       ? const Color(0xFF4CAF50)
-                      : const Color(0xFF9CA3AF)),
-              const SizedBox(width: 6),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: selected
-                          ? const Color(0xFF4CAF50)
-                          : const Color(0xFF6B7280))),
+                      : const Color(0xFF6B7280),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  // ─── Asesi Type Selector ──────────────────────────────────────────────────
+  Widget _asesiTypeSelector() {
+    return Obx(() {
+      final isInstitusi = c.asesiType.value == 'institusi';
+      return _card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _sectionHeader('Tipe Pendaftaran', Icons.assignment_ind_outlined),
+            const Text(
+              'Pilih kategori pendaftaran Anda',
+              style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _asesiButton('pribadi', 'Pribadi', Icons.person_outline),
+                const SizedBox(width: 10),
+                _asesiButton('institusi', 'Institusi', Icons.account_balance_outlined),
+              ],
+            ),
+            // Input tambahan yang muncul jika memilih Institusi
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: isInstitusi
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: _buildField(
+                        label: 'Nama Institusi / Lembaga',
+                        controller: c.namaInstitusiController, // Pastikan controller ini ada di controller Anda
+                        hint: 'Contoh: Universitas Gadjah Mada',
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _asesiButton(String value, String label, IconData icon) {
+    return Obx(() {
+      final selected = c.asesiType.value == value;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => c.asesiType.value = value,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: selected ? const Color(0xFF4CAF50) : const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
+                width: 1.5,
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF4CAF50).withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      )
+                    ]
+                  : [],
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  color: selected ? Colors.white : const Color(0xFF9CA3AF),
+                  size: 20,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : const Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   @override
@@ -228,15 +345,21 @@ class FormApl01 extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111827), size: 18),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Color(0xFF111827),
+            size: 18,
+          ),
           onPressed: () => Get.back(),
         ),
-        title: const Text('FR.APL.01',
-            style: TextStyle(
-                color: Color(0xFF111827),
-                fontSize: 15,
-                fontWeight: FontWeight.w700)),
+        title: const Text(
+          'FR.APL.01',
+          style: TextStyle(
+            color: Color(0xFF111827),
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -258,32 +381,34 @@ class FormApl01 extends StatelessWidget {
                     _stepDot(2),
                     _stepLine(),
                     _stepDot(3),
-                    _stepLine(),
-                    _stepDot(4),
                   ]),
                   const SizedBox(height: 12),
-                  const Text('Bagian 1 dari 4',
+                  const Text('Bagian 1 dari 3',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF4CAF50))),
                   const SizedBox(height: 2),
-                  const Text('Rincian Data Pemohon Sertifikasi',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827))),
+                  const Text(
+                    'Rincian Data Pemohon Sertifikasi',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   const Text(
-                      'Cantumkan data pribadi, pendidikan formal, dan data pekerjaan Anda saat ini.',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
-                          height: 1.5)),
+                    'Cantumkan data pribadi, pendidikan formal, dan data pekerjaan Anda saat ini.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                      height: 1.5,
+                    ),
+                  ),
                 ],
               ),
             ),
-
             // ── Data Pribadi ─────────────────────────────────────────────
             _card(
               child: Column(
@@ -318,9 +443,10 @@ class FormApl01 extends StatelessWidget {
                             hint: 'YYYY-MM-DD',
                             readOnly: true,
                             suffix: const Icon(
-                                Icons.calendar_today_rounded,
-                                size: 14,
-                                color: Color(0xFF9CA3AF)),
+                              Icons.calendar_today_rounded,
+                              size: 14,
+                              color: Color(0xFF9CA3AF),
+                            ),
                             onTap: () async {
                               final picked = await showDatePicker(
                                 context: context,
@@ -349,36 +475,43 @@ class FormApl01 extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   // Jenis Kelamin
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Jenis Kelamin',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF6B7280))),
+                        const Text(
+                          'Jenis Kelamin',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
                         const SizedBox(height: 8),
-                        Obx(() => Row(children: [
+                        Obx(
+                          () => Row(
+                            children: [
                               _genderChip(
-                                  'male',
-                                  'Laki-laki',
-                                  Icons.male_rounded,
-                                  c.jenisKelamin.value == 'male'),
+                                'male',
+                                'Laki-laki',
+                                Icons.male_rounded,
+                                c.jenisKelamin.value == 'male',
+                              ),
                               const SizedBox(width: 10),
                               _genderChip(
-                                  'female',
-                                  'Wanita',
-                                  Icons.female_rounded,
-                                  c.jenisKelamin.value == 'female'),
-                            ])),
+                                'female',
+                                'Wanita',
+                                Icons.female_rounded,
+                                c.jenisKelamin.value == 'female',
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-
                   _buildField(
                       label: 'Alamat Rumah',
                       controller: c.alamatController,
@@ -397,14 +530,13 @@ class FormApl01 extends StatelessWidget {
                       hint: '08xxxxxxxxxx'),
 
                   _buildField(
-                      label: 'Kualifikasi Pendidikan',
-                      controller: c.pendidikanController,
-                      hint: 'SMA / D3 / S1 / dll'),
-
+                    label: 'Kualifikasi Pendidikan',
+                    controller: c.pendidikanController,
+                    hint: 'SMA / D3 / S1 / dll',
+                  ),
                 ],
               ),
             ),
-
             // ── Data Pekerjaan ───────────────────────────────────────────
             _card(
               child: Column(
@@ -454,6 +586,9 @@ class FormApl01 extends StatelessWidget {
                 ],
               ),
             ),
+
+            // ── Tipe Asesi (Pindah ke Bawah) ──────────────────────────────
+            _asesiTypeSelector(),
 
             const SizedBox(height: 12),
 
