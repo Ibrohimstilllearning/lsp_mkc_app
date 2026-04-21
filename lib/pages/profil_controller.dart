@@ -10,7 +10,7 @@ class ProfilController extends GetxController {
   String get _baseUrl => ApiEndpoints.baseUrl;
 
   var isLoading = false.obs;
-  var isSaving  = false.obs;
+  var isSaving = false.obs;
 
   // ── Data dari GET /api/user ──
   var displayName    = ''.obs;
@@ -123,17 +123,25 @@ class ProfilController extends GetxController {
           data['metadata']?['message'] ?? data['message'] ?? 'Profil berhasil diperbarui',
           snackPosition:   SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF3E8E41),
-          colorText:       const Color(0xFFFFFFFF),
+          colorText: const Color(0xFFFFFFFF),
         );
       } else if (response.statusCode == 422) {
-        final errors  = data['errors'] as Map<String, dynamic>?;
-        final first   = errors?.values.first;
+        final errors = data['errors'] as Map<String, dynamic>?;
+        final first = errors?.values.first;
         final message = first is List
             ? first.first.toString()
             : data['message'] ?? 'Validasi gagal';
-        Get.snackbar('Validasi Gagal', message,
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Validasi Gagal',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       } else {
+        Get.snackbar(
+          'Gagal',
+          data['message'] ?? 'Gagal memperbarui profil',
+          snackPosition: SnackPosition.BOTTOM,
+        );
         Get.snackbar(
           'Gagal',
           data['message'] ?? 'Gagal memperbarui profil',
@@ -190,14 +198,22 @@ class ProfilController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
         );
       } else if (response.statusCode == 422) {
-        final errors  = data['errors'] as Map<String, dynamic>?;
-        final first   = errors?.values.first;
+        final errors = data['errors'] as Map<String, dynamic>?;
+        final first = errors?.values.first;
         final message = first is List
             ? first.first.toString()
             : data['message'] ?? 'Validasi gagal';
-        Get.snackbar('Validasi Gagal', message,
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Validasi Gagal',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       } else {
+        Get.snackbar(
+          'Gagal',
+          data['message'] ?? 'Gagal memperbarui data',
+          snackPosition: SnackPosition.BOTTOM,
+        );
         Get.snackbar(
           'Gagal',
           data['message'] ?? 'Gagal memperbarui data',
@@ -263,8 +279,8 @@ class ProfilController extends GetxController {
         Uri.parse('$_baseUrl/change-password'),
         headers: await _headers,
         body: jsonEncode({
-          'current_password':      currentPassword,
-          'password':              newPassword,
+          'current_password': currentPassword,
+          'password': newPassword,
           'password_confirmation': confirmPassword,
         }),
       );
@@ -276,12 +292,18 @@ class ProfilController extends GetxController {
       if (response.statusCode == 200) {
         Get.back();
         Get.snackbar(
-          'Berhasil', 'Password berhasil diperbarui',
-          snackPosition:   SnackPosition.BOTTOM,
+          'Berhasil',
+          'Password berhasil diperbarui',
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF3E8E41),
-          colorText:       const Color(0xFFFFFFFF),
+          colorText: const Color(0xFFFFFFFF),
         );
       } else {
+        Get.snackbar(
+          'Gagal',
+          data['message'] ?? 'Gagal mengubah password',
+          snackPosition: SnackPosition.BOTTOM,
+        );
         Get.snackbar(
           'Gagal',
           data['message'] ?? 'Gagal mengubah password',

@@ -11,7 +11,9 @@ class HomeController extends GetxController {
       final token = prefs.getString('token');
 
       if (token != null) {
-        var url = Uri.parse(ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.logoutPoint);
+        var url = Uri.parse(
+          ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.logoutPoint,
+        );
         await http.post(url, headers: ApiEndpoints.authHeaders(token));
       }
 

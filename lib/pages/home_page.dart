@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/apl_02.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart'; 
 import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
@@ -99,6 +100,76 @@ class _HomeTab extends StatelessWidget {
   const _HomeTab({required this.currentIndex});
 
   @override
+  Widget build(BuildContext context) {
+    final navController = Get.find<BottomNavController>();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: Obx(() => _pages[navController.currentIndex.value]),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: Container(
+          height: 65,
+          decoration: BoxDecoration(
+            color: const Color(0xFF3E8E41),
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 10
+              )
+            ]
+          ),
+          child: Obx(() {
+            final activeIndex = navController.currentIndex.value;
+
+            return Row (
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavItem(icon: Icons.home, isActive: activeIndex == 0, onTap: () => navController.changePage(0)),
+                _NavItem(icon: Icons.description, isActive: activeIndex == 1, onTap: () => navController.changePage(1)),
+                _NavItem(icon: Icons.history, isActive: activeIndex == 2, onTap: () => navController.changePage(2)),
+                _NavItem(icon: Icons.person, isActive: activeIndex == 3, onTap: () => navController.changePage(3)),
+                //Logout Method
+                GestureDetector(
+                  onTap: () => _showLogoutDialog(),
+                   child: const Icon(Icons.logout, color: Colors.white70),
+                )
+              ],
+            );
+          }),
+        ), 
+      ),
+    );
+  }
+
+    void _showLogoutDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              controller.logoutMethod();
+            },
+            child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeTab extends StatelessWidget {
+    const _HomeTab();
+    
+    @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -283,10 +354,7 @@ class _NavItem extends StatelessWidget {
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(
-          icon,
-          color: isActive ? Colors.white : Colors.white70,
-        ),
+        child: Icon(icon, color: isActive ? Colors.white : Colors.white70),
       ),
     );
   }

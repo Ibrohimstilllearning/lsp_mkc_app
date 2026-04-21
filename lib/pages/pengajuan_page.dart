@@ -9,6 +9,9 @@ class PengajuanPage extends GetView<PengajuanController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text('PengajuanPage')),
+
+      body: SafeArea(child: Text('PengajuanController')),
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Column(
