@@ -8,28 +8,28 @@ import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 class FormApl01Controller extends GetxController {
   // ─── BAGIAN 1: Data Pribadi & Pekerjaan ───────────────────────────────────
   final namaController = TextEditingController();
-  final tempatLahirController = TextEditingController(); 
-  final tanggalLahirController = TextEditingController(); 
+  final tempatLahirController = TextEditingController();
+  final tanggalLahirController = TextEditingController();
   final alamatController = TextEditingController();
-  final kodePosController = TextEditingController(); 
-  final noHpController = TextEditingController(); 
+  final kodePosController = TextEditingController();
+  final noHpController = TextEditingController();
   final pendidikanController = TextEditingController();
-  final namaInstitusiController = TextEditingController(); 
+  final namaInstitusiController = TextEditingController();
 
-  final institusiController = TextEditingController(); 
-  final jabatanController = TextEditingController(); 
-  final alamatKantorController = TextEditingController(); 
-  final kodePosKantorController = TextEditingController(); 
-  final noTelpController = TextEditingController(); 
+  final institusiController = TextEditingController();
+  final jabatanController = TextEditingController();
+  final alamatKantorController = TextEditingController();
+  final kodePosKantorController = TextEditingController();
+  final noTelpController = TextEditingController();
 
   final jenisKelamin = 'male'.obs;
-  final asesiType = 'pribadi'.obs; 
+  final asesiType = 'pribadi'.obs;
 
-  int? registrationId; 
+  int? registrationId;
 
   // ─── BAGIAN 2: Data Sertifikasi ───────────────────────────────────────────
   final tujuanAsesmen = <String>[].obs;
-  
+
   void toggleTujuan(String label) {
     if (tujuanAsesmen.contains(label)) {
       tujuanAsesmen.remove(label);
@@ -83,43 +83,63 @@ class FormApl01Controller extends GetxController {
 
   // ─── Validasi Bagian 1 ────────────────────────────────────────────────────
   String? _validateBagian1() {
-    if (namaController.text.trim().isEmpty)          return 'Nama lengkap tidak boleh kosong';
-    if (tempatLahirController.text.trim().isEmpty)   return 'Tempat lahir tidak boleh kosong';
-    if (tanggalLahirController.text.trim().isEmpty)  return 'Tanggal lahir tidak boleh kosong';
-    if (alamatController.text.trim().isEmpty)        return 'Alamat tidak boleh kosong';
-    if (noHpController.text.trim().isEmpty)          return 'Nomor HP tidak boleh kosong';
-    if (pendidikanController.text.trim().isEmpty)    return 'Kualifikasi pendidikan tidak boleh kosong';
-    if (institusiController.text.trim().isEmpty)     return 'Nama institusi/perusahaan tidak boleh kosong';
-    if (jabatanController.text.trim().isEmpty)       return 'Jabatan tidak boleh kosong';
-    if (alamatKantorController.text.trim().isEmpty)  return 'Alamat kantor tidak boleh kosong';
+    if (namaController.text.trim().isEmpty)
+      return 'Nama lengkap tidak boleh kosong';
+    if (tempatLahirController.text.trim().isEmpty)
+      return 'Tempat lahir tidak boleh kosong';
+    if (tanggalLahirController.text.trim().isEmpty)
+      return 'Tanggal lahir tidak boleh kosong';
+    if (alamatController.text.trim().isEmpty)
+      return 'Alamat tidak boleh kosong';
+    if (noHpController.text.trim().isEmpty)
+      return 'Nomor HP tidak boleh kosong';
+    if (pendidikanController.text.trim().isEmpty)
+      return 'Kualifikasi pendidikan tidak boleh kosong';
+    if (institusiController.text.trim().isEmpty)
+      return 'Nama institusi/perusahaan tidak boleh kosong';
+    if (jabatanController.text.trim().isEmpty)
+      return 'Jabatan tidak boleh kosong';
+    if (alamatKantorController.text.trim().isEmpty)
+      return 'Alamat kantor tidak boleh kosong';
     return null;
   }
 
   // ─── POST Bagian 1 ────────────────────────────────────────────────────────
   Future<bool> submitBagian1() async {
-    if (namaController.text.isEmpty) { _showError('Nama harus diisi'); return false; }
+    if (namaController.text.isEmpty) {
+      _showError('Nama harus diisi');
+      return false;
+    }
     isLoadingBagian1.value = true;
     try {
       final token = await _getToken();
       final body = {
-        'gender'                  : jenisKelamin.value,           // "male" | "female"
-        'place_of_birth'          : tempatLahirController.text.trim(),
-        'date_of_birth'           : tanggalLahirController.text.trim(), // format: YYYY-MM-DD
-        'address'                 : alamatController.text.trim(),
-        'home_postal_code'        : kodePosController.text.trim(),
-        'phone_number'            : noHpController.text.trim(),
+        'gender': jenisKelamin.value, // "male" | "female"
+        'place_of_birth': tempatLahirController.text.trim(),
+        'date_of_birth': tanggalLahirController.text
+            .trim(), // format: YYYY-MM-DD
+        'address': alamatController.text.trim(),
+        'home_postal_code': kodePosController.text.trim(),
+        'phone_number': noHpController.text.trim(),
         'education_qualifications': pendidikanController.text.trim(),
         'company_name': institusiController.text.trim(),
         'job_title': jabatanController.text.trim(),
         'company_address': alamatKantorController.text.trim(),
         'company_postal_code': kodePosKantorController.text.trim(),
         'company_contact': noTelpController.text.trim(),
+        'asesi_type': asesiType.value, // "pribadi" | "perusahaan"
+        'institution_name': namaInstitusiController.text.trim(),
       };
+
+      print('[DEBUG] asesi_type: ${asesiType.value}');
+      print('[DEBUG] full body: $body');
 
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/apl01/data-pemohon-sertifikasi'),
         body: jsonEncode(body),
-        headers: token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers,
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -134,7 +154,11 @@ class FormApl01Controller extends GetxController {
         return false;
       }
       final json1 = jsonDecode(bodyStr1);
-      _showError(json1['message'] ?? json1['metadata']?['message'] ?? 'Terjadi kesalahan');
+      _showError(
+        json1['message'] ??
+            json1['metadata']?['message'] ??
+            'Terjadi kesalahan',
+      );
       return false;
     } catch (e) {
       print('[APL01 Bagian 1] Error: $e');
@@ -154,9 +178,7 @@ class FormApl01Controller extends GetxController {
     isLoadingBagian2.value = true;
     try {
       final token = await _getToken();
-      final url = Uri.parse(
-        '${ApiEndpoints.baseUrl}/apl01/data-sertifikasi',
-      );
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/apl01/data-sertifikasi');
 
       print('[APL01 Bagian 2] tujuanAsesmen: $tujuanAsesmen');
       print('[APL01 Bagian 2] registrationId: $registrationId');
@@ -175,7 +197,9 @@ class FormApl01Controller extends GetxController {
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/apl01/data-sertifikasi'),
         body: jsonEncode(body),
-        headers: token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers,
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
       );
 
       print('[APL01 Bagian 2] Status : ${response.statusCode}');
@@ -191,7 +215,11 @@ class FormApl01Controller extends GetxController {
         return false;
       }
       final json2 = jsonDecode(bodyStr2);
-      _showError(json2['message'] ?? json2['metadata']?['message'] ?? 'Terjadi kesalahan');
+      _showError(
+        json2['message'] ??
+            json2['metadata']?['message'] ??
+            'Terjadi kesalahan',
+      );
       return false;
     } catch (e) {
       return false;
@@ -209,7 +237,9 @@ class FormApl01Controller extends GetxController {
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/apl01/bukti-kelengkapan-pemohon'),
         body: jsonEncode(body),
-        headers: token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers,
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -223,7 +253,11 @@ class FormApl01Controller extends GetxController {
         return false;
       }
       final json3 = jsonDecode(bodyStr3);
-      _showError(json3['message'] ?? json3['metadata']?['message'] ?? 'Terjadi kesalahan');
+      _showError(
+        json3['message'] ??
+            json3['metadata']?['message'] ??
+            'Terjadi kesalahan',
+      );
       return false;
     } catch (e) {
       print('[APL01 Bagian 3] Error: $e');
