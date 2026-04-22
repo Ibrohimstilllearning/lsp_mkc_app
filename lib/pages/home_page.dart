@@ -6,7 +6,6 @@ import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
 import 'package:lsp_mkc_app/pages/profil_page.dart';
 import 'package:lsp_mkc_app/pages/riwayat_page.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
-import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -102,131 +101,6 @@ class _HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navController = Get.find<BottomNavController>();
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: Obx(() => _pages[navController.currentIndex.value]),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: Container(
-          height: 65,
-          decoration: BoxDecoration(
-            color: const Color(0xFF3E8E41),
-            borderRadius: BorderRadius.circular(40),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 10
-              )
-            ]
-          ),
-          child: Obx(() {
-            final activeIndex = navController.currentIndex.value;
-
-            return Row (
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(icon: Icons.home, isActive: activeIndex == 0, onTap: () => navController.changePage(0)),
-                _NavItem(icon: Icons.description, isActive: activeIndex == 1, onTap: () => navController.changePage(1)),
-                _NavItem(icon: Icons.history, isActive: activeIndex == 2, onTap: () => navController.changePage(2)),
-                _NavItem(icon: Icons.person, isActive: activeIndex == 3, onTap: () => navController.changePage(3)),
-                //Logout Method
-                GestureDetector(
-                  onTap: () => _showLogoutDialog(),
-                   child: const Icon(Icons.logout, color: Colors.white70),
-                )
-              ],
-            );
-          }),
-        ), 
-      ),
-    );
-  }
-
-    void _showLogoutDialog() {
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Yakin ingin keluar?'),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.logoutMethod();
-            },
-            child: const Text('Keluar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HomeTab extends StatelessWidget {
-    const _HomeTab();
-    
-    @override
-  Widget build(BuildContext context) {
-   return Column(
-    children: [
-      const SizedBox(height: 40,),
-      Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/serviceunavailable.png',
-              width: 250,
-              height: 200,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 24,),
-            const Text(
-              "Belum ada pengajuan\npending, buat satu?",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            )
-          ],
-        )
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-           onPressed: () {
-                        Get.toNamed(AppPages.apl01);
-                    },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3E8E41),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)
-              ),
-            ),
-            child: const Text(
-              "Mulai Proses Sertifikasi",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Colors.white
-              ),
-            ),
-          ),
-        ), 
-      ),
-      const SizedBox(height: 26,)
-    ],
-   );
-  }
-}
-
-//_NavItem for BottomMenu
     return Column(
       children: [
         const SizedBox(height: 40),

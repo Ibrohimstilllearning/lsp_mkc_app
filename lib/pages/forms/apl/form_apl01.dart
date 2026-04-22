@@ -381,9 +381,11 @@ class FormApl01 extends StatelessWidget {
                     _stepDot(2),
                     _stepLine(),
                     _stepDot(3),
+                    _stepLine(),
+                    _stepDot(4),
                   ]),
                   const SizedBox(height: 12),
-                  const Text('Bagian 1 dari 3',
+                  const Text('Bagian 1 dari 4',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
