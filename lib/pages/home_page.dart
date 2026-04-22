@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lsp_mkc_app/pages/forms/apl02/services/apl02_navigation_helper.dart';
 import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/pengajuan_page.dart';
 import 'package:lsp_mkc_app/pages/riwayat_page.dart';
@@ -185,9 +186,9 @@ class _HomeTab extends StatelessWidget {
                             ),
                             elevation: 0,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             Get.back();
-                            Get.toNamed(AppPages.apl02, arguments: 11); // TODO: ganti 11 dengan ID registrasi yang dinamis nantinya
+                            await goToFormApl02(); // TODO: ganti 11 dengan ID registrasi yang dinamis nantinya
                           },
                           child: const Text(
                             'FR.APL.02 — Assesmen Mandiri',

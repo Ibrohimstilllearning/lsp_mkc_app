@@ -93,10 +93,13 @@ class AppRoutes {
     ),
     GetPage(
       name: AppPages.apl02,
-      page: () => FormApl02(registrationId: Get.arguments as int? ?? 0),
-      binding: BindingsBuilder(() {
-        Get.put(Apl02Controller());
-      }),
+        page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return FormApl02(
+          registrationId: args['registrationId'] ?? 0,
+          userId: args['userId'] ?? 0,
+        );
+      },
     ),
     GetPage(
   name: AppPages.ak01,

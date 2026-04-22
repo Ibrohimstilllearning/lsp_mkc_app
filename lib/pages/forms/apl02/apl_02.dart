@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lsp_mkc_app/pages/forms/apl02/apl02_controller.dart';
+import 'apl02_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl02/model/unit.dart';
 import 'package:lsp_mkc_app/pages/forms/apl02/model/element.dart' as model_element;
 import 'package:lsp_mkc_app/pages/forms/apl02/model/criterion.dart';
 
 class FormApl02 extends StatelessWidget {
   final int registrationId;
+  final int userId;
 
-  FormApl02({super.key, required this.registrationId});
+  FormApl02({super.key, required this.registrationId, required this.userId});
 
   @override
   Widget build(BuildContext context) {
-    final Apl02Controller c = Get.put(Apl02Controller());
+    final Apl02Controller c = Get.put(Apl02Controller(userId: userId));
 
-    // Memanggil fetchData untuk mendapatkan detail jika belum ada atau ID-nya beda
+    // Fetch data jika belum ada atau registrationId berbeda
     if (c.apl02Data.value?.registrationId != registrationId && !c.isLoading.value) {
       Future.microtask(() => c.fetchData(registrationId));
     }
@@ -48,7 +49,7 @@ class FormApl02 extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Card
+              // Header
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -80,7 +81,7 @@ class FormApl02 extends StatelessWidget {
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                           SizedBox(height: 4),
                           Text(
-                              "Tinjau kembali kriteria unjuk kerja dan tandai 'K' jika Anda kompeten atau 'BK' jika belum kompeten.",
+                              "Tinjau kembali kriteria unjuk kerja dan tandai 'K' jika kompeten atau 'BK' jika belum kompeten.",
                               style: TextStyle(fontSize: 13)),
                         ],
                       ),
@@ -91,7 +92,7 @@ class FormApl02 extends StatelessWidget {
 
               SizedBox(height: 16),
 
-              // Looping unit
+              // Loop unit
               ...scheme.units.map((Unit unit) {
                 return Container(
                   width: double.infinity,
@@ -107,8 +108,8 @@ class FormApl02 extends StatelessWidget {
                       Text("Kode Unit: ${unit.unitCode}", style: TextStyle(fontSize: 13, color: Colors.grey[700])),
                       Text("Judul Unit: ${unit.unitTitle}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                       Divider(color: Colors.grey[400], thickness: 0.8),
-                      
-                      // Looping element
+
+                      // Loop element
                       ...unit.elements.map((model_element.Element element) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 8, bottom: 8),
@@ -117,8 +118,8 @@ class FormApl02 extends StatelessWidget {
                             children: [
                               Text("Elemen: ${element.title}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF333333))),
                               SizedBox(height: 8),
-                              
-                              // Looping Criteria (just showing them as list)
+
+                              // Kriteria
                               ...element.criteria.map((Criterion criterion) {
                                 return Padding(
                                   padding: const EdgeInsets.only(left: 8, bottom: 6),
@@ -127,8 +128,7 @@ class FormApl02 extends StatelessWidget {
                                     children: [
                                       Text("\u2022 ", style: TextStyle(fontSize: 13, color: Colors.black87)),
                                       Expanded(
-                                        child: Text("${criterion.name} - ${criterion.description}", 
-                                          style: TextStyle(fontSize: 13, color: Colors.black87)),
+                                        child: Text("${criterion.name} - ${criterion.description}", style: TextStyle(fontSize: 13, color: Colors.black87)),
                                       ),
                                     ],
                                   ),
@@ -136,12 +136,13 @@ class FormApl02 extends StatelessWidget {
                               }),
 
                               SizedBox(height: 8),
-                              // Radio buttons K dan BK for Element
+
+                              // Radio K/BK
                               Container(
                                 decoration: BoxDecoration(
                                   color: Color(0xFFF9F9F9),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.grey[300]!)
+                                  border: Border.all(color: Colors.grey[300]!),
                                 ),
                                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 child: Row(
@@ -170,6 +171,7 @@ class FormApl02 extends StatelessWidget {
                                   ],
                                 ),
                               ),
+
                               SizedBox(height: 12),
                             ],
                           ),
@@ -182,7 +184,7 @@ class FormApl02 extends StatelessWidget {
 
               SizedBox(height: 16),
 
-              // Tombol Submit
+              // Submit button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -192,30 +194,35 @@ class FormApl02 extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () {
-                     if (c.isSubmitting.value) return;
+                    if (c.isSubmitting.value) return;
 
-                     // verifikasi ketersisian element
-                     bool isComplete = true;
-                     for(var unit in scheme.units){
-                       for(var element in unit.elements){
-                         if(!c.userAnswer.containsKey(element.id)){
-                           isComplete = false;
-                           break;
-                         }
-                       }
-                     }
+                    // Validasi semua elemen
+                    bool isComplete = true;
+                    for (var unit in scheme.units) {
+                      for (var element in unit.elements) {
+                        if (!c.userAnswer.containsKey(element.id)) {
+                          isComplete = false;
+                          break;
+                        }
+                      }
+                    }
 
-                     if(!isComplete) {
-                        Get.snackbar("Menunggu", "Harap isi semua elemen dengan menekan tombol K atau BK sebelum menyimpan", 
-                          backgroundColor: Colors.orange[400], colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
-                        return;
-                     }
+                    if (!isComplete) {
+                      Get.snackbar(
+                        "Menunggu",
+                        "Harap isi semua elemen dengan menekan tombol K atau BK sebelum menyimpan",
+                        backgroundColor: Colors.orange[400],
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                      return;
+                    }
 
-                     c.submitForm();
+                    c.submitForm();
                   },
-                  child: c.isSubmitting.value 
-                   ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                   : Text("Simpan Data", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                  child: c.isSubmitting.value
+                      ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text("Simpan Data", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                 ),
               ),
 
