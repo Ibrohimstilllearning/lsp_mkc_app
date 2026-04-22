@@ -98,14 +98,6 @@ class ProfilPage extends GetView<ProfilController> {
                 padding: const EdgeInsets.only(left: 20, bottom: 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Menu',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
                 ),
               ),
 
