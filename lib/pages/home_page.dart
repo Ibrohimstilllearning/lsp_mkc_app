@@ -14,8 +14,6 @@ class HomePage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final RxInt currentIndex = 0.obs;
 
-    // [PERUBAHAN 1] hapus PengajuanPage dari list pages
-    // karena sekarang kontennya udah ada di _HomeTab
     final List<Widget> pages = [
       _HomeTab(currentIndex: currentIndex, controller: controller),
       const RiwayatPage(),
@@ -49,7 +47,6 @@ class HomePage extends GetView<HomeController> {
                     isActive: currentIndex.value == 0,
                     onTap: () => currentIndex.value = 0,
                   ),
-                  // [PERUBAHAN 2] index bergeser karena PengajuanPage dihapus
                   _NavItem(
                     icon: Icons.history,
                     isActive: currentIndex.value == 1,
@@ -100,203 +97,6 @@ class _HomeTab extends StatelessWidget {
     required this.currentIndex,
     required this.controller,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    // [PERUBAHAN 3] ambil PengajuanController yang udah diregister
-    // di home binding (app_routes.dart)
-    final pengajuanController = Get.find<PengajuanController>();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-
-        // ── Header ──
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // [PERUBAHAN 4] tampilkan nama user dari HomeController
-                    Obx(() => Text(
-                          "Hello, ${controller.displayName.value.isEmpty ? 'User' : controller.displayName.value}",
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87,
-                          ),
-                        )),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Monitor status form yang kamu ajukan',
-                      style: TextStyle(
-                          fontSize: 12, color: Color(0xFF6B7280)),
-                    ),
-                  ],
-                ),
-              ),
-              // [PERUBAHAN 5] tombol refresh dari PengajuanController
-              GestureDetector(
-                onTap: () => pengajuanController.fetchPengajuan(),
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
-                  ),
-                  child: const Icon(Icons.refresh_rounded,
-                      size: 18, color: Color(0xFF4CAF50)),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // ── Banner LSP MKC ──
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEDF7ED),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF3E8E41).withOpacity(0.3),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/serviceunavailable.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "LSP MKC ONLINE APP",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Platform sertifikasi kompetensi resmi yang terakreditasi BNSP.",
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade600,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // [PERUBAHAN 6] konten pengajuan langsung di home
-        // pakai Expanded supaya ListView bisa scroll sampai bawah
-        Expanded(
-          child: Obx(() {
-            if (pengajuanController.isLoading.value) {
-              return _SkeletonList();
-            }
-            if (pengajuanController.hasError.value) {
-              return _ErrorState(
-                  onRetry: pengajuanController.fetchPengajuan);
-            }
-            if (pengajuanController.pengajuanList.isEmpty) {
-              return _EmptyState(controller: controller);
-            }
-            return _PengajuanList(controller: pengajuanController);
-          }),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── Empty State ──────────────────────────────────────────────────────────────
-// [PERUBAHAN 7] tambah parameter controller buat akses dialog pilih form
-class _EmptyState extends StatelessWidget {
-  final HomeController controller;
-  const _EmptyState({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/serviceunavailable.png',
-            width: 180,
-            height: 150,
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            "Belum ada pengajuan\npending, buat satu?",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 13),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () => _showFormDialog(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3E8E41),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  "Mulai Proses Sertifikasi",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showFormDialog() {
     Get.dialog(
@@ -389,6 +189,222 @@ class _EmptyState extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final pengajuanController = Get.find<PengajuanController>();
+
+    // Stack supaya tombol fixed bisa ditaruh di atas konten
+    return Stack(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            // ── Header ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(() => Text(
+                              "Hello, ${controller.displayName.value.isEmpty ? 'User' : controller.displayName.value}",
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
+                            )),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Monitor status form yang kamu ajukan',
+                          style: TextStyle(
+                              fontSize: 12, color: Color(0xFF6B7280)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => pengajuanController.fetchPengajuan(),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border:
+                            Border.all(color: const Color(0xFFE5E7EB)),
+                      ),
+                      child: const Icon(Icons.refresh_rounded,
+                          size: 18, color: Color(0xFF4CAF50)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // ── Banner LSP MKC ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEDF7ED),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFF3E8E41).withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          'assets/serviceunavailable.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "LSP MKC ONLINE APP",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Platform sertifikasi kompetensi resmi yang terakreditasi BNSP.",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // ── Konten Pengajuan ──
+            Expanded(
+              child: Obx(() {
+                if (pengajuanController.isLoading.value) {
+                  return _SkeletonList();
+                }
+                if (pengajuanController.hasError.value) {
+                  return _ErrorState(
+                      onRetry: pengajuanController.fetchPengajuan);
+                }
+                if (pengajuanController.pengajuanList.isEmpty) {
+                  return const _EmptyState();
+                }
+                return _PengajuanList(
+                    controller: pengajuanController);
+              }),
+            ),
+
+            // padding bawah supaya konten ga ketutup tombol fixed
+            const SizedBox(height: 80),
+          ],
+        ),
+
+        // ── Tombol Fixed di Bawah ──
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () => _showFormDialog(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3E8E41),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  "Mulai Proses Sertifikasi",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/serviceunavailable.png',
+            width: 180,
+            height: 150,
+            fit: BoxFit.cover,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "Belum ada pengajuan\npending, buat satu?",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // ─── Error State ──────────────────────────────────────────────────────────────
@@ -422,7 +438,8 @@ class _ErrorState extends StatelessWidget {
                     color: Color(0xFF111827))),
             const SizedBox(height: 4),
             const Text('Periksa koneksi dan coba lagi',
-                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                style:
+                    TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
@@ -483,7 +500,8 @@ class _SkeletonList extends StatelessWidget {
                           height: 40,
                           decoration: BoxDecoration(
                               color: const Color(0xFFF9FAFB),
-                              borderRadius: BorderRadius.circular(8))),
+                              borderRadius:
+                                  BorderRadius.circular(8))),
                     )),
           ],
         ),
@@ -560,7 +578,8 @@ class _RegistrationCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(item.schemeCode,
                           style: const TextStyle(
-                              fontSize: 11, color: Color(0xFF9CA3AF))),
+                              fontSize: 11,
+                              color: Color(0xFF9CA3AF))),
                     ],
                   ),
                 ),
@@ -681,7 +700,8 @@ class _FormRow extends StatelessWidget {
           : null,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(10),
@@ -690,8 +710,8 @@ class _FormRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: const Color(0xFFE8F5E9),
                 borderRadius: BorderRadius.circular(6),
@@ -709,8 +729,8 @@ class _FormRow extends StatelessWidget {
                       fontSize: 12, color: Color(0xFF374151))),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: config.bg,
                 borderRadius: BorderRadius.circular(20),
