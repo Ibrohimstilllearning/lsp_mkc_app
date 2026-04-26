@@ -114,6 +114,7 @@ class DocumentController extends GetxController {
           };
         }
       }
+      }
     } catch (e) {
       debugPrint('[DOC] fetchDokumenFromProfile error: $e');
     }
@@ -159,7 +160,15 @@ class DocumentController extends GetxController {
   // ── Upload dokumen dari Profile ──
   // POST /api/document-profiles
   Future<void> uploadDokumenFromProfil(String key) async {
-    final file = await _pickFile();
+    final file = await () async {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: false,
+        withReadStream: false,
+      );
+      return result?.files.single;
+    }();
     if (file == null) return;
 
     // ✅ Mapping key → list_id dari tabel document_lists
@@ -282,7 +291,15 @@ class DocumentController extends GetxController {
   // ── Upload dokumen dari APL01 ──
   // POST /api/document-profiles (sama, tapi source berbeda)
   Future<void> uploadDokumenFromApl01(String key) async {
-    final file = await _pickFile();
+    final file = await () async {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: false,
+        withReadStream: false,
+      );
+      return result?.files.single;
+    }();
     if (file == null) return;
 
     // Validasi ukuran file maks 2MB
@@ -298,8 +315,6 @@ class DocumentController extends GetxController {
       final token = prefs.getString('token') ?? '';
 
       final url = Uri.parse('${ApiEndpoints.baseUrl}/apl01/documents/upload');
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/document-profiles');
-
       final request = http.MultipartRequest('POST', url);
 
       // ✅ Fix headers sama seperti di atas
@@ -374,7 +389,15 @@ class DocumentController extends GetxController {
   // ── Update dokumen ──
   // PUT /api/document-profiles/{{user_id}}
   Future<void> updateDokumen(String key, int userId) async {
-    final file = await _pickFile();
+    final file = await () async {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: false,
+        withReadStream: false,
+      );
+      return result?.files.single;
+    }();
     if (file == null) return;
 
     if (file.size > 2 * 1024 * 1024) {
@@ -458,15 +481,6 @@ class DocumentController extends GetxController {
   }
 
   // ── Helper: buka file picker ──
-  Future<PlatformFile?> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-      withData: false,
-      withReadStream: false,
-    );
-    return result?.files.single;
-  }
 
   void _showSuccess(String msg) {
     Get.snackbar(
