@@ -4,30 +4,34 @@ import 'package:google_fonts/google_fonts.dart';
 import 'document_controller.dart';
 import 'document_page.dart';
 import 'portfolio_scheme_list_page.dart';
+import 'package:lsp_mkc_app/pages/document_controller.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
+
 class ProfileDocumentSection extends StatelessWidget {
   const ProfileDocumentSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final DocumentController c = Get.put(DocumentController());
-    return Column(
-      children: [
-        // ── Dokumen Saya (existing) ──
-        GestureDetector(
-          onTap: () => Get.to(() => const DocumentPage()),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    // [FIX] pakai find() bukan put() di dalam build()
+    // put() di dalam build() bikin controller dibuat ulang setiap rebuild
+    // find() ambil controller yang udah ada dari routes binding
+    final DocumentController c = Get.find<DocumentController>();
+
+    return GestureDetector(
+      // [FIX] pakai toNamed() bukan to()
+      // toNamed() pakai routes binding yang udah setup controller nya
+      onTap: () => Get.toNamed(AppPages.document),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
             child: Row(
               children: [

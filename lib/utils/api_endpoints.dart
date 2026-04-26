@@ -24,5 +24,5 @@ class _AuthEndPoints {
   final String logoutPoint = '/logout';
   final String resendVerifyPoint = '/verify-email/resend';
   final String userPoint = '/user';
-  
+
 }

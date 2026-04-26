@@ -55,7 +55,6 @@ class FormApl01Bagian2 extends StatelessWidget {
     },
   ];
 
-  // value → label
   final List<Map<String, String>> tujuanOptions = [
     {"value": "sertifikasi", "label": "Sertifikasi"},
     {
@@ -167,7 +166,7 @@ class FormApl01Bagian2 extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    _stepDot(1,done: true),
+                    _stepDot(1, done: true),
                     _stepLine(active: true),
                     _stepDot(2, active: true),
                     _stepLine(active: true),
@@ -176,11 +175,14 @@ class FormApl01Bagian2 extends StatelessWidget {
                     _stepDot(4),
                   ]),
                   const SizedBox(height: 12),
-                  const Text('Bagian 2 dari 4',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF4CAF50))),
+                  const Text(
+                    'Bagian 2 dari 4',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF4CAF50),
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   const Text(
                     "Data Sertifikasi",
@@ -235,8 +237,6 @@ class FormApl01Bagian2 extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-
-                  // Judul
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
@@ -244,9 +244,9 @@ class FormApl01Bagian2 extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0xFFE5E7EB)),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           flex: 3,
                           child: Text(
                             "Judul Skema",
@@ -257,7 +257,7 @@ class FormApl01Bagian2 extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           width: 1,
                           height: 36,
                           child: VerticalDivider(
@@ -265,8 +265,8 @@ class FormApl01Bagian2 extends StatelessWidget {
                             width: 1,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
+                        SizedBox(width: 12),
+                        Expanded(
                           flex: 5,
                           child: Text(
                             "Tenaga Administrasi Kewirausahaan",
@@ -281,8 +281,6 @@ class FormApl01Bagian2 extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-
-                  // Nomor
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
@@ -338,7 +336,7 @@ class FormApl01Bagian2 extends StatelessWidget {
               ),
             ),
 
-            // ── Tujuan Asesmen ───────────────────────────────────────────────
+            // ── Tujuan Asesmen (RADIO - hanya 1 pilihan) ────────────────────
             _card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,7 +369,7 @@ class FormApl01Bagian2 extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    "Pilih satu atau lebih tujuan asesmen",
+                    "Pilih satu tujuan asesmen", // ✅ ubah teks
                     style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
                   ),
                   const SizedBox(height: 14),
@@ -379,9 +377,12 @@ class FormApl01Bagian2 extends StatelessWidget {
                     (opt) => Obx(() {
                       final value = opt["value"]!;
                       final label = opt["label"]!;
-                      final selected = c.tujuanAsesmen.contains(value);
+                      // ✅ selected = hanya 1 yang dipilih
+                      final selected = c.tujuanAsesmen.isNotEmpty &&
+                          c.tujuanAsesmen.first == value;
                       return GestureDetector(
-                        onTap: () => c.toggleTujuan(value),
+                        // ✅ selectTujuan: clear dulu, baru set 1 nilai
+                        onTap: () => c.selectTujuan(value),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           margin: const EdgeInsets.only(bottom: 8),
@@ -403,26 +404,31 @@ class FormApl01Bagian2 extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
+                              // ✅ Ganti checkbox → radio button style
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 150),
                                 width: 20,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  color: selected
-                                      ? const Color(0xFF4CAF50)
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(5),
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
                                   border: Border.all(
                                     color: selected
                                         ? const Color(0xFF4CAF50)
                                         : const Color(0xFFD1D5DB),
+                                    width: selected ? 2 : 1.5,
                                   ),
                                 ),
                                 child: selected
-                                    ? const Icon(
-                                        Icons.check_rounded,
-                                        size: 13,
-                                        color: Colors.white,
+                                    ? Center(
+                                        child: Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFF4CAF50),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
                                       )
                                     : null,
                               ),
