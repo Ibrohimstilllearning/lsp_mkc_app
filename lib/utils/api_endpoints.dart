@@ -2,7 +2,7 @@ class ApiEndpoints {
   static const bool _useLocal = false;
   static String baseUrl = _useLocal
       ? 'https://maverick-unaccessional-salutatorily.ngrok-free.dev/api'
-      : 'http://ujikomp.lspmkc.or.id/api';
+      : 'https://ujikomp.lspmkc.or.id/api';
   static _AuthEndPoints authEndPoints = _AuthEndPoints();
 
   static Map<String, String> headers = {
@@ -24,5 +24,5 @@ class _AuthEndPoints {
   final String logoutPoint = '/logout';
   final String resendVerifyPoint = '/verify-email/resend';
   final String userPoint = '/user';
-  
+
 }

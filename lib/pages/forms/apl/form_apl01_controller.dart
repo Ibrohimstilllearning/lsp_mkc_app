@@ -8,34 +8,31 @@ import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 class FormApl01Controller extends GetxController {
   // ─── BAGIAN 1: Data Pribadi & Pekerjaan ───────────────────────────────────
   final namaController = TextEditingController();
-  final tempatLahirController = TextEditingController(); 
-  final tanggalLahirController = TextEditingController(); 
+  final tempatLahirController = TextEditingController();
+  final tanggalLahirController = TextEditingController();
   final alamatController = TextEditingController();
-  final kodePosController = TextEditingController(); 
-  final noHpController = TextEditingController(); 
+  final kodePosController = TextEditingController();
+  final noHpController = TextEditingController();
   final pendidikanController = TextEditingController();
-  final namaInstitusiController = TextEditingController(); 
+  final namaInstitusiController = TextEditingController();
 
-  final institusiController = TextEditingController(); 
-  final jabatanController = TextEditingController(); 
-  final alamatKantorController = TextEditingController(); 
-  final kodePosKantorController = TextEditingController(); 
-  final noTelpController = TextEditingController(); 
+  final institusiController = TextEditingController();
+  final jabatanController = TextEditingController();
+  final alamatKantorController = TextEditingController();
+  final kodePosKantorController = TextEditingController();
+  final noTelpController = TextEditingController();
 
   final jenisKelamin = 'male'.obs;
-  final asesiType = 'pribadi'.obs; 
+  final asesiType = 'pribadi'.obs;
 
-  int? registrationId; 
+  int? registrationId;
 
   // ─── BAGIAN 2: Data Sertifikasi ───────────────────────────────────────────
   final tujuanAsesmen = <String>[].obs;
-  
-  void toggleTujuan(String label) {
-    if (tujuanAsesmen.contains(label)) {
-      tujuanAsesmen.remove(label);
-    } else {
-      tujuanAsesmen.add(label);
-    }
+
+  void selectTujuan(String value) {
+    tujuanAsesmen.clear();
+    tujuanAsesmen.add(value);
   }
 
   // ─── BAGIAN 3: Bukti Kelengkapan ─────────────────────────────────────────
@@ -54,6 +51,7 @@ class FormApl01Controller extends GetxController {
   final isLoadingBagian1 = false.obs;
   final isLoadingBagian2 = false.obs;
   final isLoadingBagian3 = false.obs;
+  final isLoadingProfile = false.obs; // ✅ tambah
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
   Future<String?> _getToken() async {
@@ -68,6 +66,8 @@ class FormApl01Controller extends GetxController {
       backgroundColor: Colors.red,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 10,
     );
   }
 
@@ -78,66 +78,148 @@ class FormApl01Controller extends GetxController {
       backgroundColor: const Color(0xFF4CAF50),
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 10,
     );
   }
 
-  // ─── Validasi Bagian 1 ────────────────────────────────────────────────────
-  String? _validateBagian1() {
-    if (namaController.text.trim().isEmpty)          return 'Nama lengkap tidak boleh kosong';
-    if (tempatLahirController.text.trim().isEmpty)   return 'Tempat lahir tidak boleh kosong';
-    if (tanggalLahirController.text.trim().isEmpty)  return 'Tanggal lahir tidak boleh kosong';
-    if (alamatController.text.trim().isEmpty)        return 'Alamat tidak boleh kosong';
-    if (noHpController.text.trim().isEmpty)          return 'Nomor HP tidak boleh kosong';
-    if (pendidikanController.text.trim().isEmpty)    return 'Kualifikasi pendidikan tidak boleh kosong';
-    if (institusiController.text.trim().isEmpty)     return 'Nama institusi/perusahaan tidak boleh kosong';
-    if (jabatanController.text.trim().isEmpty)       return 'Jabatan tidak boleh kosong';
-    if (alamatKantorController.text.trim().isEmpty)  return 'Alamat kantor tidak boleh kosong';
-    return null;
+  // ─── Load dari Profil ─────────────────────────────────────────────────────
+  Future<void> loadFromProfile() async {
+    isLoadingProfile.value = true;
+    try {
+      final token = await _getToken();
+      final response = await http.get(
+        Uri.parse('${ApiEndpoints.baseUrl}/user'),
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
+      );
+
+      print('[APL01] Load profile status: ${response.statusCode}');
+      print('[APL01] Load profile body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final user = data['response'] ?? data['data'] ?? data;
+
+        // ✅ Isi field yang tersedia dari profil
+        if (user['name'] != null && user['name'].toString().isNotEmpty) {
+          namaController.text = user['name'];
+        }
+        if (user['gender'] != null) {
+          jenisKelamin.value = user['gender'];
+        }
+        if (user['place_of_birth'] != null) {
+          tempatLahirController.text = user['place_of_birth'];
+        }
+        if (user['date_of_birth'] != null) {
+          tanggalLahirController.text = user['date_of_birth'];
+        }
+        if (user['address'] != null) {
+          alamatController.text = user['address'];
+        }
+        if (user['home_postal_code'] != null) {
+          kodePosController.text = user['home_postal_code'];
+        }
+        if (user['phone_number'] != null) {
+          noHpController.text = user['phone_number'];
+        }
+        if (user['education_qualifications'] != null) {
+          pendidikanController.text = user['education_qualifications'];
+        }
+        if (user['company_name'] != null) {
+          institusiController.text = user['company_name'];
+        }
+        if (user['job_title'] != null) {
+          jabatanController.text = user['job_title'];
+        }
+        if (user['company_address'] != null) {
+          alamatKantorController.text = user['company_address'];
+        }
+        if (user['company_postal_code'] != null) {
+          kodePosKantorController.text = user['company_postal_code'];
+        }
+        if (user['company_contact'] != null) {
+          noTelpController.text = user['company_contact'];
+        }
+      }
+    } catch (e) {
+      print('[APL01] Load profile error: $e');
+    } finally {
+      isLoadingProfile.value = false;
+    }
   }
 
   // ─── POST Bagian 1 ────────────────────────────────────────────────────────
   Future<bool> submitBagian1() async {
-    if (namaController.text.isEmpty) { _showError('Nama harus diisi'); return false; }
+    if (namaController.text.isEmpty) {
+      _showError('Nama harus diisi');
+      return false;
+    }
     isLoadingBagian1.value = true;
     try {
       final token = await _getToken();
       final body = {
-        'gender'                  : jenisKelamin.value,           // "male" | "female"
-        'place_of_birth'          : tempatLahirController.text.trim(),
-        'date_of_birth'           : tanggalLahirController.text.trim(), // format: YYYY-MM-DD
-        'address'                 : alamatController.text.trim(),
-        'home_postal_code'        : kodePosController.text.trim(),
-        'phone_number'            : noHpController.text.trim(),
+        'gender': jenisKelamin.value,
+        'place_of_birth': tempatLahirController.text.trim(),
+        'date_of_birth': tanggalLahirController.text.trim(),
+        'address': alamatController.text.trim(),
+        'home_postal_code': kodePosController.text.trim(),
+        'phone_number': noHpController.text.trim(),
         'education_qualifications': pendidikanController.text.trim(),
         'company_name': institusiController.text.trim(),
         'job_title': jabatanController.text.trim(),
         'company_address': alamatKantorController.text.trim(),
         'company_postal_code': kodePosKantorController.text.trim(),
         'company_contact': noTelpController.text.trim(),
+        'asesi_type': asesiType.value,
+        'institution_name': namaInstitusiController.text.trim(),
       };
+
+      print('[DEBUG] asesi_type: ${asesiType.value}');
+      print('[DEBUG] full body: $body');
 
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/apl01/data-pemohon-sertifikasi'),
         body: jsonEncode(body),
-        headers: token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers,
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
       );
+
+      print('[APL01 Bagian 1] Status: ${response.statusCode}');
+      print('[APL01 Bagian 1] Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        registrationId = data['response']?['registration_id'];
+        registrationId =
+            data['response']?['registration_id'] ??
+            data['data']?['registration_id'] ??
+            data['registration_id'];
+        print('[APL01 Bagian 1] registrationId: $registrationId');
         return true;
       }
 
-      final bodyStr1 = response.body.trim();
-      if (bodyStr1.isEmpty) {
+      final bodyStr = response.body.trim();
+      if (bodyStr.isEmpty) {
         _showError('Server error (${response.statusCode}), coba lagi nanti');
         return false;
       }
-      final json1 = jsonDecode(bodyStr1);
-      _showError(json1['message'] ?? json1['metadata']?['message'] ?? 'Terjadi kesalahan');
+      try {
+        final json = jsonDecode(bodyStr);
+        _showError(
+          json['message'] ??
+              json['metadata']?['message'] ??
+              'Terjadi kesalahan (${response.statusCode})',
+        );
+      } catch (_) {
+        _showError('Server error (${response.statusCode}), coba lagi nanti');
+      }
       return false;
-    } catch (e) {
-      print('[APL01 Bagian 1] Error: $e');
+    } catch (e, stackTrace) {
+      print('[APL01 Bagian 1] Error type: ${e.runtimeType}');
+      print('[APL01 Bagian 1] Error detail: $e');
+      print('[APL01 Bagian 1] StackTrace: $stackTrace');
       _showError('Terjadi kesalahan koneksi, coba lagi');
       return false;
     } finally {
@@ -145,7 +227,7 @@ class FormApl01Controller extends GetxController {
     }
   }
 
-  // ─── SUBMIT BAGIAN 2 (INI YANG TADI ERROR) ───────────────────────────────
+  // ─── POST Bagian 2 ────────────────────────────────────────────────────────
   Future<bool> submitBagian2() async {
     if (tujuanAsesmen.isEmpty) {
       _showError('Pilih minimal satu tujuan asesmen');
@@ -154,17 +236,9 @@ class FormApl01Controller extends GetxController {
     isLoadingBagian2.value = true;
     try {
       final token = await _getToken();
-      final url = Uri.parse(
-        '${ApiEndpoints.baseUrl}/apl01/data-sertifikasi',
-      );
 
       print('[APL01 Bagian 2] tujuanAsesmen: $tujuanAsesmen');
       print('[APL01 Bagian 2] registrationId: $registrationId');
-
-      if (tujuanAsesmen.isEmpty) {
-        _showError('Pilih tujuan asesmen terlebih dahulu');
-        return false;
-      }
 
       final body = {
         'registration_id': registrationId,
@@ -175,32 +249,51 @@ class FormApl01Controller extends GetxController {
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/apl01/data-sertifikasi'),
         body: jsonEncode(body),
-        headers: token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers,
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
       );
 
-      print('[APL01 Bagian 2] Status : ${response.statusCode}');
-      print('[APL01 Bagian 2] Body   : ${response.body}');
+      print('[APL01 Bagian 2] Status: ${response.statusCode}');
+      print('[APL01 Bagian 2] Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       }
 
-      final bodyStr2 = response.body.trim();
-      if (bodyStr2.isEmpty) {
+      if (response.statusCode == 500) {
+        _showError('Server sedang bermasalah, hubungi administrator');
+        return false;
+      }
+
+      final bodyStr = response.body.trim();
+      if (bodyStr.isEmpty) {
         _showError('Server error (${response.statusCode}), coba lagi nanti');
         return false;
       }
-      final json2 = jsonDecode(bodyStr2);
-      _showError(json2['message'] ?? json2['metadata']?['message'] ?? 'Terjadi kesalahan');
+      try {
+        final json = jsonDecode(bodyStr);
+        _showError(
+          json['message'] ??
+              json['metadata']?['message'] ??
+              'Terjadi kesalahan (${response.statusCode})',
+        );
+      } catch (_) {
+        _showError('Server error (${response.statusCode}), coba lagi nanti');
+      }
       return false;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('[APL01 Bagian 2] Error type: ${e.runtimeType}');
+      print('[APL01 Bagian 2] Error detail: $e');
+      print('[APL01 Bagian 2] StackTrace: $stackTrace');
+      _showError('Terjadi kesalahan: $e');
       return false;
     } finally {
       isLoadingBagian2.value = false;
     }
   }
 
-  // ─── SUBMIT BAGIAN 3 ──────────────────────────────────────────────────────
+  // ─── POST Bagian 3 ────────────────────────────────────────────────────────
   Future<bool> submitBagian3() async {
     isLoadingBagian3.value = true;
     try {
@@ -209,24 +302,39 @@ class FormApl01Controller extends GetxController {
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/apl01/bukti-kelengkapan-pemohon'),
         body: jsonEncode(body),
-        headers: token != null ? ApiEndpoints.authHeaders(token) : ApiEndpoints.headers,
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
       );
+
+      print('[APL01 Bagian 3] Status: ${response.statusCode}');
+      print('[APL01 Bagian 3] Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         _showSuccess('Form APL-01 Berhasil Terkirim!');
         return true;
       }
 
-      final bodyStr3 = response.body.trim();
-      if (bodyStr3.isEmpty) {
+      final bodyStr = response.body.trim();
+      if (bodyStr.isEmpty) {
         _showError('Server error (${response.statusCode}), coba lagi nanti');
         return false;
       }
-      final json3 = jsonDecode(bodyStr3);
-      _showError(json3['message'] ?? json3['metadata']?['message'] ?? 'Terjadi kesalahan');
+      try {
+        final json = jsonDecode(bodyStr);
+        _showError(
+          json['message'] ??
+              json['metadata']?['message'] ??
+              'Terjadi kesalahan (${response.statusCode})',
+        );
+      } catch (_) {
+        _showError('Server error (${response.statusCode}), coba lagi nanti');
+      }
       return false;
-    } catch (e) {
-      print('[APL01 Bagian 3] Error: $e');
+    } catch (e, stackTrace) {
+      print('[APL01 Bagian 3] Error type: ${e.runtimeType}');
+      print('[APL01 Bagian 3] Error detail: $e');
+      print('[APL01 Bagian 3] StackTrace: $stackTrace');
       _showError('Terjadi kesalahan koneksi, coba lagi');
       return false;
     } finally {
