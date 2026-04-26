@@ -7,8 +7,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt4.dart';
+import 'package:lsp_mkc_app/pages/document_controller.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// Enum sumber dokumen
+enum DocSource { profil, upload }
 
 class FormApl01Bagian3 extends StatefulWidget {
   const FormApl01Bagian3({super.key});
@@ -21,14 +25,30 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
   final ImagePicker _picker = ImagePicker();
 
-  final Map<int, File?> _files = {1: null, 2: null};
+  // ── Ambil DocumentController (sudah di-register sebelumnya) ──────────────
+  DocumentController get _docC {
+    if (Get.isRegistered<DocumentController>()) {
+      return Get.find<DocumentController>();
+    }
+    return Get.put(DocumentController());
+  }
+
+  // ── State pilihan dokumen ─────────────────────────────────────────────────
+  int? _selectedRequirementId;
+
+  // Per requirementId: sumber dokumen (profil atau upload baru)
+  final Map<int, DocSource> _docSource = {};
+
+  // File upload baru per requirementId
+  final Map<int, File?> _uploadedFiles = {};
+
   bool _isLoading = false;
 
-  // ✅ FIX: tambah listId sesuai response API
   final List<Map<String, dynamic>> _buktiDasar = [
     {
       'requirementId': 1,
-      'listId': 3, // ← sesuaikan dengan list_id dari response API bagian 2
+      'listId': 3,
+      'profileKey': 'ijazah', // ← key di DocumentController.uploadedDocs
       'label': 'Ijazah / Sertifikat Pelatihan',
       'desc':
           'Pendidikan minimal SMA/SMK atau sertifikat pelatihan berbasis Kompetensi Tenaga Administrasi Kewirausahaan.',
@@ -37,7 +57,8 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
     },
     {
       'requirementId': 2,
-      'listId': 16, // ← sesuaikan dengan list_id dari response API bagian 2
+      'listId': 16,
+      'profileKey': 'surat_pengalaman_kerja',
       'label': 'Surat Pengalaman Kerja',
       'desc': 'Pengalaman kerja minimal 2 tahun di bidang Tenaga Administrasi.',
       'accept': ['jpg', 'jpeg', 'png', 'pdf'],
@@ -45,36 +66,88 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
     },
   ];
 
-  // ─── Picker ───────────────────────────────────────────────────────────────
-  Future<void> _pickFile(int requirementId, List<String> accept) async {
+  @override
+  void initState() {
+    super.initState();
+
+    // Set default dulu ke upload
+    for (final item in _buktiDasar) {
+      final reqId = item['requirementId'] as int;
+      _docSource[reqId] = DocSource.upload;
+    }
+
+    // Fetch ulang data profil, lalu update source
+    _docC.fetchDokumenFromProfile().then((_) {
+      if (mounted) {
+        setState(() {
+          for (final item in _buktiDasar) {
+            final reqId = item['requirementId'] as int;
+            final profileKey = item['profileKey'] as String;
+            final hasDoc = _hasProfileDoc(profileKey);
+            print(
+              '[DEBUG PT3] key: $profileKey → hasDoc: $hasDoc → data: ${_docC.uploadedDocs[profileKey]}',
+            );
+            if (hasDoc) _docSource[reqId] = DocSource.profil;
+          }
+        });
+      }
+    });
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  bool _hasProfileDoc(String profileKey) =>
+      _docC.uploadedDocs.containsKey(profileKey) &&
+      (_docC.uploadedDocs[profileKey]?['file_name'] ?? '').isNotEmpty;
+
+  bool get _isReady {
+    if (_selectedRequirementId == null) return false;
+    final item = _buktiDasar.firstWhere(
+      (e) => e['requirementId'] == _selectedRequirementId,
+    );
+    final reqId = _selectedRequirementId!;
+    final source = _docSource[reqId] ?? DocSource.upload;
+    if (source == DocSource.profil) {
+      return _hasProfileDoc(item['profileKey'] as String);
+    }
+    return _uploadedFiles[reqId] != null;
+  }
+
+  void _selectType(int requirementId) {
+    if (_selectedRequirementId != requirementId) {
+      setState(() => _selectedRequirementId = requirementId);
+    }
+  }
+
+  // ── Picker ────────────────────────────────────────────────────────────────
+  Future<void> _pickFile(int reqId, List<String> accept) async {
     final source = await _showPickerDialog(accept);
     if (source == null) return;
 
     try {
+      File? file;
       if (source == 'camera') {
         final picked = await _picker.pickImage(
           source: ImageSource.camera,
           imageQuality: 80,
         );
-        if (picked != null && mounted)
-          setState(() => _files[requirementId] = File(picked.path));
+        if (picked != null) file = File(picked.path);
       } else if (source == 'gallery') {
         final picked = await _picker.pickImage(
           source: ImageSource.gallery,
           imageQuality: 80,
         );
-        if (picked != null && mounted)
-          setState(() => _files[requirementId] = File(picked.path));
+        if (picked != null) file = File(picked.path);
       } else if (source == 'file') {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowedExtensions: accept,
         );
-        if (result != null && result.files.single.path != null && mounted) {
-          setState(
-            () => _files[requirementId] = File(result.files.single.path!),
-          );
+        if (result != null && result.files.single.path != null) {
+          file = File(result.files.single.path!);
         }
+      }
+      if (file != null && mounted) {
+        setState(() => _uploadedFiles[reqId] = file);
       }
     } catch (e) {
       Get.snackbar(
@@ -126,18 +199,10 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                 ),
               ),
               ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E9),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt_outlined,
-                    color: Color(0xFF4CAF50),
-                    size: 20,
-                  ),
+                leading: _pickerIconBox(
+                  Icons.camera_alt_outlined,
+                  const Color(0xFFE8F5E9),
+                  const Color(0xFF4CAF50),
                 ),
                 title: const Text(
                   'Ambil Foto',
@@ -150,18 +215,10 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                 onTap: () => Navigator.pop(ctx, 'camera'),
               ),
               ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E9),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.photo_library_outlined,
-                    color: Color(0xFF4CAF50),
-                    size: 20,
-                  ),
+                leading: _pickerIconBox(
+                  Icons.photo_library_outlined,
+                  const Color(0xFFE8F5E9),
+                  const Color(0xFF4CAF50),
                 ),
                 title: const Text(
                   'Pilih dari Galeri',
@@ -175,18 +232,10 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
               ),
               if (hasPdf)
                 ListTile(
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.upload_file_rounded,
-                      color: Color(0xFF3B82F6),
-                      size: 20,
-                    ),
+                  leading: _pickerIconBox(
+                    Icons.upload_file_rounded,
+                    const Color(0xFFEFF6FF),
+                    const Color(0xFF3B82F6),
                   ),
                   title: const Text(
                     'Pilih File / PDF',
@@ -206,7 +255,17 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
     );
   }
 
-  // ─── Submit ───────────────────────────────────────────────────────────────
+  Widget _pickerIconBox(IconData icon, Color bg, Color fg) => Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Icon(icon, color: fg, size: 20),
+  );
+
+  // ── Submit ────────────────────────────────────────────────────────────────
   Future<void> _submit() async {
     if (c.registrationId == null) {
       Get.snackbar(
@@ -220,19 +279,17 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
       return;
     }
 
-    for (final entry in _files.entries) {
-      if (entry.value == null) {
-        Get.snackbar(
-          'Belum Lengkap',
-          'Semua dokumen harus diunggah',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(16),
-          borderRadius: 10,
-        );
-        return;
-      }
+    if (!_isReady) {
+      Get.snackbar(
+        'Belum Lengkap',
+        'Pilih jenis dokumen dan pastikan dokumen tersedia',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+      );
+      return;
     }
 
     if (mounted) setState(() => _isLoading = true);
@@ -246,7 +303,6 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
       );
       final request = http.MultipartRequest('POST', url);
 
-      // ✅ FIX: salin headers agar tidak immutable error
       final rawHeaders = token != null
           ? ApiEndpoints.authHeaders(token)
           : ApiEndpoints.headers;
@@ -256,53 +312,67 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
 
       request.fields['registration_id'] = (c.registrationId ?? '').toString();
 
-      print('[DEBUG] registration_id: ${c.registrationId}');
+      final itemData = _buktiDasar.firstWhere(
+        (e) => e['requirementId'] == _selectedRequirementId,
+      );
+      final reqId = _selectedRequirementId!;
+      final listId = itemData['listId'] as int;
+      final profileKey = itemData['profileKey'] as String;
+      final source = _docSource[reqId] ?? DocSource.upload;
 
-      int index = 0;
-      for (final entry in _files.entries) {
-        final reqId = entry.key;
-        final file = entry.value!;
-        final exists = await file.exists();
+      request.fields['evidence[0][requirement_id]'] = reqId.toString();
+      request.fields['evidence[0][list_id]'] = listId.toString();
 
-        if (!exists) {
+      if (source == DocSource.profil) {
+        final docId = _docC.uploadedDocs[profileKey]?['id'] ?? '';
+        final fileName =
+            _docC.uploadedDocs[profileKey]?['file_name'] ?? 'document';
+
+        if (docId.isEmpty) {
           Get.snackbar(
             'Gagal',
-            'File tidak ditemukan, silakan unggah ulang.',
+            'ID dokumen tidak ditemukan',
             backgroundColor: Colors.red,
             colorText: Colors.white,
             snackPosition: SnackPosition.TOP,
             margin: const EdgeInsets.all(16),
-            borderRadius: 10,
           );
           if (mounted) setState(() => _isLoading = false);
           return;
         }
 
-        // ✅ FIX: cari listId dari _buktiDasar berdasarkan requirementId
-        final itemData = _buktiDasar.firstWhere(
-          (e) => e['requirementId'] == reqId,
+        final streamUrl = Uri.parse(
+          '${ApiEndpoints.baseUrl}/documents/$docId/stream',
         );
-        final listId = itemData['listId'];
-
-        // ✅ FIX: pakai fromBytes agar tidak kena _Namespace error
-        final bytes = await file.readAsBytes();
-
-        request.fields['evidence[$index][requirement_id]'] = reqId.toString();
-        request.fields['evidence[$index][list_id]'] = listId
-            .toString(); // ✅ tambah list_id
-        request.files.add(
-          http.MultipartFile.fromBytes(
-            'evidence[$index][file]',
-            bytes,
-            filename: file.path.split('/').last,
-          ),
+        final fileResponse = await http.get(
+          streamUrl,
+          headers: ApiEndpoints.authHeaders(token!),
         );
-        index++;
+
+        if (fileResponse.statusCode == 200) {
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'evidence[0][file]',
+              fileResponse.bodyBytes,
+              filename: fileName,
+            ),
+          );
+        } else {
+          Get.snackbar(
+            'Gagal',
+            'Gagal mengambil dokumen dari profil',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(16),
+          );
+          if (mounted) setState(() => _isLoading = false);
+          return;
+        }
       }
 
       print('[APL01 Bagian 3] URL: $url');
       print('[APL01 Bagian 3] Fields: ${request.fields}');
-      print('[APL01 Bagian 3] Files count: ${request.files.length}');
 
       final streamed = await request.send();
       final response = await http.Response.fromStream(streamed);
@@ -331,8 +401,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
         );
       }
     } catch (e) {
-      print('[APL01 Bagian 3] Error type: ${e.runtimeType}');
-      print('[APL01 Bagian 3] Error detail: ${e.toString()}');
+      print('[APL01 Bagian 3] Error: ${e.toString()}');
       Get.snackbar(
         'Gagal',
         'Terjadi kesalahan: ${e.toString()}',
@@ -347,315 +416,554 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
     }
   }
 
-  // ─── Widgets ──────────────────────────────────────────────────────────────
-  Widget _card({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
+  // ── Widgets ───────────────────────────────────────────────────────────────
+  Widget _card({required Widget child}) => Container(
+    width: double.infinity,
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: child,
+  );
 
-  Widget _stepDot(int num, {bool active = false, bool done = false}) {
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: (active || done)
-            ? const Color(0xFF4CAF50)
-            : const Color(0xFFE5E7EB),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: done
-            ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
-            : Text(
-                '$num',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: active ? Colors.white : const Color(0xFF9CA3AF),
-                ),
-              ),
-      ),
-    );
-  }
-
-  Widget _stepLine({bool active = false}) {
-    return Expanded(
-      child: Container(
-        height: 3,
+  Widget _stepDot(int num, {bool active = false, bool done = false}) =>
+      Container(
+        width: 28,
+        height: 28,
         decoration: BoxDecoration(
-          color: active ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
-          borderRadius: BorderRadius.circular(2),
+          color: (active || done)
+              ? const Color(0xFF4CAF50)
+              : const Color(0xFFE5E7EB),
+          shape: BoxShape.circle,
         ),
-      ),
-    );
-  }
-
-  Widget _sectionHeader(String title, String subtitle, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 16, color: const Color(0xFF4CAF50)),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
+        child: Center(
+          child: done
+              ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+              : Text(
+                  '$num',
+                  style: TextStyle(
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111827),
+                    color: active ? Colors.white : const Color(0xFF9CA3AF),
                   ),
                 ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _uploadItem(Map<String, dynamic> item) {
-    final int reqId = item['requirementId'] as int;
-    final File? file = _files[reqId];
-    final bool hasFile = file != null;
-    final String fileName = hasFile ? file.path.split('/').last : '';
-    final bool isImage =
-        hasFile &&
-        [
-          'jpg',
-          'jpeg',
-          'png',
-        ].any((ext) => fileName.toLowerCase().endsWith(ext));
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: hasFile ? const Color(0xFFF0FDF4) : const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: hasFile ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
-          width: hasFile ? 1.5 : 1,
         ),
+      );
+
+  Widget _stepLine({bool active = false}) => Expanded(
+    child: Container(
+      height: 3,
+      decoration: BoxDecoration(
+        color: active ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
+        borderRadius: BorderRadius.circular(2),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: hasFile
-                        ? const Color(0xFFE8F5E9)
-                        : const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    item['icon'] as IconData,
-                    size: 18,
-                    color: hasFile
-                        ? const Color(0xFF4CAF50)
-                        : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['label'] as String,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: hasFile
-                              ? const Color(0xFF166534)
-                              : const Color(0xFF111827),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        item['desc'] as String,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF9CA3AF),
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (hasFile)
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: Color(0xFF4CAF50),
-                    size: 20,
-                  ),
-              ],
-            ),
-          ),
-          if (hasFile && isImage)
+    ),
+  );
+
+  Widget _sectionHeader(String title, String subtitle, IconData icon) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: Row(
+          children: [
             Container(
-              margin: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-              height: 130,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
                 borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: FileImage(file),
-                  fit: BoxFit.cover,
-                ),
               ),
+              child: Icon(icon, size: 16, color: const Color(0xFF4CAF50)),
             ),
-          if (hasFile && !isImage)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.picture_as_pdf_rounded,
-                      size: 18,
-                      color: Color(0xFF3B82F6),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        fileName,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF1D4ED8),
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _pickFile(
-                      reqId,
-                      List<String>.from(item['accept'] as List),
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: hasFile ? Colors.white : const Color(0xFF4CAF50),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFF4CAF50)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            hasFile
-                                ? Icons.edit_outlined
-                                : Icons.upload_file_rounded,
-                            size: 16,
-                            color: hasFile
-                                ? const Color(0xFF4CAF50)
-                                : Colors.white,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            hasFile ? 'Ganti File' : 'Unggah File',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: hasFile
-                                  ? const Color(0xFF4CAF50)
-                                  : Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
                     ),
                   ),
-                ),
-                if (hasFile) ...[
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () => setState(() => _files[reqId] = null),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFEE2E2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.delete_outline_rounded,
-                        size: 16,
-                        color: Color(0xFFEF4444),
-                      ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF9CA3AF),
                     ),
                   ),
                 ],
-              ],
+              ),
             ),
+          ],
+        ),
+      );
+
+  // ── Doc option item dengan auto-fill dari profil ──────────────────────────
+  Widget _docOptionItem(Map<String, dynamic> item) {
+    final int reqId = item['requirementId'] as int;
+    final String profileKey = item['profileKey'] as String;
+    final bool isSelected = _selectedRequirementId == reqId;
+    final bool hasProfileDoc = _hasProfileDoc(profileKey);
+    final DocSource source = _docSource[reqId] ?? DocSource.upload;
+    final bool isUsingProfil = source == DocSource.profil;
+    final File? uploadedFile = _uploadedFiles[reqId];
+    final bool hasUploadedFile = uploadedFile != null;
+
+    // Card dianggap ready jika: pakai profil (dan ada) ATAU sudah upload file
+    final bool itemReady =
+        isSelected && (isUsingProfil ? hasProfileDoc : hasUploadedFile);
+
+    final String? profileFileName =
+        _docC.uploadedDocs[profileKey]?['file_name'];
+    final String? profileFileUrl = _docC.uploadedDocs[profileKey]?['file_url'];
+
+    return GestureDetector(
+      onTap: () => _selectType(reqId),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: itemReady
+              ? const Color(0xFFF0FDF4)
+              : isSelected
+              ? const Color(0xFFF0FDF4)
+              : const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFF4CAF50)
+                : const Color(0xFFE5E7EB),
+            width: isSelected ? 1.5 : 1,
           ),
-        ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Header ──────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Radio dot
+                  Container(
+                    width: 20,
+                    height: 20,
+                    margin: const EdgeInsets.only(top: 2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF4CAF50)
+                            : const Color(0xFFD1D5DB),
+                        width: 2,
+                      ),
+                      color: isSelected
+                          ? const Color(0xFF4CAF50)
+                          : Colors.transparent,
+                    ),
+                    child: isSelected
+                        ? const Icon(
+                            Icons.check_rounded,
+                            size: 12,
+                            color: Colors.white,
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFFE8F5E9)
+                          : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      item['icon'] as IconData,
+                      size: 18,
+                      color: isSelected
+                          ? const Color(0xFF4CAF50)
+                          : const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item['label'] as String,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected
+                                      ? const Color(0xFF166534)
+                                      : const Color(0xFF111827),
+                                ),
+                              ),
+                            ),
+                            // Badge "Ada di Profil"
+                            if (hasProfileDoc)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDCFCE7),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.cloud_done_rounded,
+                                      size: 10,
+                                      color: Color(0xFF16A34A),
+                                    ),
+                                    SizedBox(width: 3),
+                                    Text(
+                                      'Ada di Profil',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        color: Color(0xFF16A34A),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item['desc'] as String,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF9CA3AF),
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (itemReady) ...[
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF4CAF50),
+                      size: 20,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // ── Area konten (hanya tampil saat dipilih) ───────────────────
+            if (isSelected) ...[
+              // Toggle sumber: pakai profil vs upload baru
+              if (hasProfileDoc)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: Row(
+                      children: [
+                        _sourceToggle(
+                          label: 'Gunakan dari Profil',
+                          icon: Icons.cloud_done_rounded,
+                          selected: isUsingProfil,
+                          onTap: () => setState(
+                            () => _docSource[reqId] = DocSource.profil,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        _sourceToggle(
+                          label: 'Upload Baru',
+                          icon: Icons.upload_rounded,
+                          selected: !isUsingProfil,
+                          onTap: () => setState(
+                            () => _docSource[reqId] = DocSource.upload,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // ── Preview dokumen profil ───────────────────────────────────
+              if (isUsingProfil && hasProfileDoc) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF86EFAC)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDCFCE7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.insert_drive_file_rounded,
+                            size: 18,
+                            color: Color(0xFF16A34A),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Dokumen dari Profil',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF166534),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                profileFileName ?? profileFileUrl ?? '-',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF4CAF50),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: Color(0xFF4CAF50),
+                          size: 18,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              // ── Upload file baru ─────────────────────────────────────────
+              if (!isUsingProfil) ...[
+                if (hasUploadedFile) ...[_buildFilePreview(uploadedFile!)],
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _pickFile(
+                            reqId,
+                            List<String>.from(item['accept'] as List),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: hasUploadedFile
+                                  ? Colors.white
+                                  : const Color(0xFF4CAF50),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: const Color(0xFF4CAF50),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  hasUploadedFile
+                                      ? Icons.edit_outlined
+                                      : Icons.upload_file_rounded,
+                                  size: 16,
+                                  color: hasUploadedFile
+                                      ? const Color(0xFF4CAF50)
+                                      : Colors.white,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  hasUploadedFile
+                                      ? 'Ganti File'
+                                      : 'Unggah File',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: hasUploadedFile
+                                        ? const Color(0xFF4CAF50)
+                                        : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (hasUploadedFile) ...[
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () =>
+                              setState(() => _uploadedFiles[reqId] = null),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEE2E2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 16,
+                              color: Color(0xFFEF4444),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sourceToggle({
+    required String label,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onTap,
+  }) => Expanded(
+    child: GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: selected
+                  ? const Color(0xFF4CAF50)
+                  : const Color(0xFF9CA3AF),
+            ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected
+                      ? const Color(0xFF111827)
+                      : const Color(0xFF9CA3AF),
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  Widget _buildFilePreview(File file) {
+    final fileName = file.path.split('/').last;
+    final isImage = [
+      'jpg',
+      'jpeg',
+      'png',
+    ].any((ext) => fileName.toLowerCase().endsWith(ext));
+
+    if (isImage) {
+      return Container(
+        margin: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+        height: 130,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          image: DecorationImage(image: FileImage(file), fit: BoxFit.cover),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFF6FF),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.picture_as_pdf_rounded,
+              size: 18,
+              color: Color(0xFF3B82F6),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                fileName,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF1D4ED8)),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final uploadedCount = _files.values.where((f) => f != null).length;
-    final totalCount = _files.length;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
@@ -687,6 +995,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // ── Progress card ─────────────────────────────────────────────
             _card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -722,7 +1031,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Unggah dokumen persyaratan dasar untuk melengkapi pengajuan sertifikasi.',
+                    'Pilih salah satu dokumen persyaratan dan unggah filenya.',
                     style: TextStyle(
                       fontSize: 12,
                       color: Color(0xFF6B7280),
@@ -736,7 +1045,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
-                            value: uploadedCount / totalCount,
+                            value: _isReady ? 1.0 : 0.0,
                             backgroundColor: const Color(0xFFE5E7EB),
                             color: const Color(0xFF4CAF50),
                             minHeight: 6,
@@ -745,7 +1054,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        '$uploadedCount/$totalCount',
+                        _isReady ? '1/1' : '0/1',
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -758,20 +1067,60 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
               ),
             ),
 
+            // ── Pilihan dokumen ───────────────────────────────────────────
             _card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _sectionHeader(
                     'Persyaratan Dasar',
-                    'Ijazah & pengalaman kerja',
+                    'Pilih salah satu dokumen di bawah ini',
                     Icons.school_outlined,
                   ),
-                  ..._buktiDasar.map((item) => _uploadItem(item)),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          size: 15,
+                          color: Color(0xFF3B82F6),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Pilih salah satu: Ijazah atau Surat Pengalaman Kerja. Dokumen yang sudah ada di profil akan otomatis terisi.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF1D4ED8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // ✅ Obx agar reaktif saat uploadedDocs berubah
+                  Obx(
+                    () => Column(
+                      children: _buktiDasar
+                          .map((item) => _docOptionItem(item))
+                          .toList(),
+                    ),
+                  ),
                 ],
               ),
             ),
 
+            // ── Info lanjut ───────────────────────────────────────────────
             Container(
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(14),
@@ -805,6 +1154,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
 
             const SizedBox(height: 12),
 
+            // ── Tombol navigasi ───────────────────────────────────────────
             Row(
               children: [
                 Expanded(
@@ -835,7 +1185,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: uploadedCount == totalCount
+                      backgroundColor: _isReady
                           ? const Color(0xFF4CAF50)
                           : const Color(0xFFD1D5DB),
                       shape: RoundedRectangleBorder(
@@ -844,9 +1194,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 0,
                     ),
-                    onPressed: (_isLoading || uploadedCount < totalCount)
-                        ? null
-                        : _submit,
+                    onPressed: (_isLoading || !_isReady) ? null : _submit,
                     child: _isLoading
                         ? const SizedBox(
                             width: 20,
@@ -866,9 +1214,7 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                uploadedCount == totalCount
-                                    ? 'Selanjutnya'
-                                    : 'Lengkapi ($uploadedCount/$totalCount)',
+                                _isReady ? 'Selanjutnya' : 'Pilih Dokumen Dulu',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,

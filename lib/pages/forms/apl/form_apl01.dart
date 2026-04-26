@@ -3,8 +3,24 @@ import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt2.dart';
 
-class FormApl01 extends StatelessWidget {
+class FormApl01 extends StatefulWidget {
+  const FormApl01({super.key});
+
+  @override
+  State<FormApl01> createState() => _FormApl01State();
+}
+
+class _FormApl01State extends State<FormApl01> {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ Auto-fill dari profil saat halaman dibuka
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      c.loadFromProfile();
+    });
+  }
 
   // ─── Full-width input ─────────────────────────────────────────────────────
   Widget _buildField({
@@ -61,7 +77,7 @@ class FormApl01 extends StatelessWidget {
     );
   }
 
-  // ─── Compact inline input (untuk 2-kolom) ────────────────────────────────
+  // ─── Compact inline input ─────────────────────────────────────────────────
   Widget _inlineField(
     String label,
     TextEditingController controller, {
@@ -91,7 +107,8 @@ class FormApl01 extends StatelessWidget {
           style: const TextStyle(fontSize: 13, color: Color(0xFF111827)),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFD1D5DB)),
+            hintStyle:
+                const TextStyle(fontSize: 12, color: Color(0xFFD1D5DB)),
             suffixIcon: suffix,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -166,7 +183,7 @@ class FormApl01 extends StatelessWidget {
     );
   }
 
-  // ─── Step dot & line ─────────────────────────────────────────────────────
+  // ─── Step dot & line ──────────────────────────────────────────────────────
   Widget _stepDot(int num, {bool active = false}) {
     return Container(
       width: 28,
@@ -201,7 +218,8 @@ class FormApl01 extends StatelessWidget {
   }
 
   // ─── Gender chip ──────────────────────────────────────────────────────────
-  Widget _genderChip(String value, String label, IconData icon, bool selected) {
+  Widget _genderChip(
+      String value, String label, IconData icon, bool selected) {
     return Expanded(
       child: GestureDetector(
         onTap: () => c.jenisKelamin.value = value,
@@ -209,11 +227,14 @@ class FormApl01 extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFE8F5E9) : const Color(0xFFF9FAFB),
+            color: selected
+                ? const Color(0xFFE8F5E9)
+                : const Color(0xFFF9FAFB),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color:
-                  selected ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
+              color: selected
+                  ? const Color(0xFF4CAF50)
+                  : const Color(0xFFE5E7EB),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -253,7 +274,8 @@ class FormApl01 extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _sectionHeader('Tipe Pendaftaran', Icons.assignment_ind_outlined),
+            _sectionHeader(
+                'Tipe Pendaftaran', Icons.assignment_ind_outlined),
             const Text(
               'Pilih kategori pendaftaran Anda',
               style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
@@ -263,10 +285,10 @@ class FormApl01 extends StatelessWidget {
               children: [
                 _asesiButton('pribadi', 'Pribadi', Icons.person_outline),
                 const SizedBox(width: 10),
-                _asesiButton('institusi', 'Institusi', Icons.account_balance_outlined),
+                _asesiButton('institusi', 'Institusi',
+                    Icons.account_balance_outlined),
               ],
             ),
-            // Input tambahan yang muncul jika memilih Institusi
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
@@ -275,7 +297,7 @@ class FormApl01 extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 16),
                       child: _buildField(
                         label: 'Nama Institusi / Lembaga',
-                        controller: c.namaInstitusiController, // Pastikan controller ini ada di controller Anda
+                        controller: c.namaInstitusiController,
                         hint: 'Contoh: Universitas Gadjah Mada',
                       ),
                     )
@@ -297,10 +319,14 @@ class FormApl01 extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFF4CAF50) : const Color(0xFFF9FAFB),
+              color: selected
+                  ? const Color(0xFF4CAF50)
+                  : const Color(0xFFF9FAFB),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: selected ? const Color(0xFF4CAF50) : const Color(0xFFE5E7EB),
+                color: selected
+                    ? const Color(0xFF4CAF50)
+                    : const Color(0xFFE5E7EB),
                 width: 1.5,
               ),
               boxShadow: selected
@@ -317,7 +343,8 @@ class FormApl01 extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: selected ? Colors.white : const Color(0xFF9CA3AF),
+                  color:
+                      selected ? Colors.white : const Color(0xFF9CA3AF),
                   size: 20,
                 ),
                 const SizedBox(height: 4),
@@ -326,7 +353,9 @@ class FormApl01 extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : const Color(0xFF6B7280),
+                    color: selected
+                        ? Colors.white
+                        : const Color(0xFF6B7280),
                   ),
                 ),
               ],
@@ -385,11 +414,14 @@ class FormApl01 extends StatelessWidget {
                     _stepDot(4),
                   ]),
                   const SizedBox(height: 12),
-                  const Text('Bagian 1 dari 4',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF4CAF50))),
+                  const Text(
+                    'Bagian 1 dari 4',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF4CAF50),
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   const Text(
                     'Rincian Data Pemohon Sertifikasi',
@@ -411,6 +443,7 @@ class FormApl01 extends StatelessWidget {
                 ],
               ),
             ),
+
             // ── Data Pribadi ─────────────────────────────────────────────
             _card(
               child: Column(
@@ -418,11 +451,11 @@ class FormApl01 extends StatelessWidget {
                 children: [
                   _sectionHeader(
                       'Data Pribadi', Icons.person_outline_rounded),
-
                   _buildField(
-                      label: 'Nama Lengkap',
-                      controller: c.namaController,
-                      hint: 'Sesuai KTP'),
+                    label: 'Nama Lengkap',
+                    controller: c.namaController,
+                    hint: 'Sesuai KTP',
+                  ),
 
                   // Tempat & Tanggal Lahir — 2 kolom
                   Padding(
@@ -457,7 +490,8 @@ class FormApl01 extends StatelessWidget {
                                 lastDate: DateTime.now(),
                                 builder: (ctx, child) => Theme(
                                   data: Theme.of(ctx).copyWith(
-                                    colorScheme: const ColorScheme.light(
+                                    colorScheme:
+                                        const ColorScheme.light(
                                       primary: Color(0xFF4CAF50),
                                       onPrimary: Colors.white,
                                     ),
@@ -477,6 +511,7 @@ class FormApl01 extends StatelessWidget {
                       ],
                     ),
                   ),
+
                   // Jenis Kelamin
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -514,23 +549,24 @@ class FormApl01 extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _buildField(
-                      label: 'Alamat Rumah',
-                      controller: c.alamatController,
-                      hint: 'Jalan, RT/RW, Kelurahan, Kecamatan'),
 
                   _buildField(
-                      label: 'Kode Pos',
-                      controller: c.kodePosController,
-                      type: TextInputType.number,
-                      hint: '12345'),
-
+                    label: 'Alamat Rumah',
+                    controller: c.alamatController,
+                    hint: 'Jalan, RT/RW, Kelurahan, Kecamatan',
+                  ),
                   _buildField(
-                      label: 'Nomor HP',
-                      controller: c.noHpController,
-                      type: TextInputType.phone,
-                      hint: '08xxxxxxxxxx'),
-
+                    label: 'Kode Pos',
+                    controller: c.kodePosController,
+                    type: TextInputType.number,
+                    hint: '12345',
+                  ),
+                  _buildField(
+                    label: 'Nomor HP',
+                    controller: c.noHpController,
+                    type: TextInputType.phone,
+                    hint: '08xxxxxxxxxx',
+                  ),
                   _buildField(
                     label: 'Kualifikasi Pendidikan',
                     controller: c.pendidikanController,
@@ -539,6 +575,7 @@ class FormApl01 extends StatelessWidget {
                 ],
               ),
             ),
+
             // ── Data Pekerjaan ───────────────────────────────────────────
             _card(
               child: Column(
@@ -546,23 +583,21 @@ class FormApl01 extends StatelessWidget {
                 children: [
                   _sectionHeader('Data Pekerjaan Sekarang',
                       Icons.business_center_outlined),
-
                   _buildField(
-                      label: 'Nama Institusi / Perusahaan',
-                      controller: c.institusiController,
-                      hint: 'PT. / CV. / Instansi'),
-
+                    label: 'Nama Institusi / Perusahaan',
+                    controller: c.institusiController,
+                    hint: 'PT. / CV. / Instansi',
+                  ),
                   _buildField(
-                      label: 'Jabatan',
-                      controller: c.jabatanController,
-                      hint: 'Staff / Manager / dll'),
-
+                    label: 'Jabatan',
+                    controller: c.jabatanController,
+                    hint: 'Staff / Manager / dll',
+                  ),
                   _buildField(
-                      label: 'Alamat Kantor',
-                      controller: c.alamatKantorController,
-                      hint: 'Jalan, Gedung, Kota'),
-
-                  // Kode pos & kontak — 2 kolom
+                    label: 'Alamat Kantor',
+                    controller: c.alamatKantorController,
+                    hint: 'Jalan, Gedung, Kota',
+                  ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -589,7 +624,7 @@ class FormApl01 extends StatelessWidget {
               ),
             ),
 
-            // ── Tipe Asesi (Pindah ke Bawah) ──────────────────────────────
+            // ── Tipe Asesi ───────────────────────────────────────────────
             _asesiTypeSelector(),
 
             const SizedBox(height: 12),
@@ -616,15 +651,19 @@ class FormApl01 extends StatelessWidget {
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
+                                color: Colors.white, strokeWidth: 2),
+                          )
                         : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Selanjutnya',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600)),
+                              Text(
+                                'Selanjutnya',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               SizedBox(width: 8),
                               Icon(Icons.arrow_forward_rounded,
                                   color: Colors.white, size: 18),
