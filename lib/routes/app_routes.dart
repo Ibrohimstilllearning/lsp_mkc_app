@@ -96,9 +96,15 @@ class AppRoutes {
     ),
     GetPage(
       name: AppPages.apl02,
-      page: () => FormApl02(registrationId: Get.arguments as int? ?? 0),
+      page: () {
+        final args = (Get.arguments is Map<String, dynamic>)
+            ? Get.arguments as Map<String, dynamic>
+            : <String, dynamic>{};
+        final registrationId = args['registrationId'] as int? ?? 0;
+        return FormApl02(registrationId: registrationId);
+      },
       binding: BindingsBuilder(() {
-        Get.put(Apl02Controller());
+        Get.put(Apl02Controller(), tag: 'apl02');
       }),
     ),
     GetPage(

@@ -21,20 +21,10 @@ class DokumenItem {
 // Master document list
 // Master document list
 const List<DokumenItem> masterDocument = [
-  DokumenItem(key: 'ijazah', label: 'Photocopy Ijazah Min. SMA/SMK Sederajat'),
-  DokumenItem(
-    key: 'sertifikat_pelatihan',
-    label: 'Photocopy Sertifikat Pelatihan Kompetensi Tenaga Administrasi Kewirausahaan',
-    keterangan: 'Tergantung pada jenis skema',
-  ),
-  DokumenItem(
-    key: 'surat_pengalaman_kerja',
-    label: 'Surat Pengalaman Kerja Minimal 2 Tahun',
-    keterangan: 'Di bidang tenaga Administrasi',
-  ),
+  DokumenItem(key: 'ijazah', label: 'Photocopy Ijazah SMA/SMK Sederajat'),
   DokumenItem(key: 'pas_foto', label: 'Pas Foto 3x4'),
-  DokumenItem(key: 'portofolio', label: 'Portofolio'),
-  DokumenItem(key: 'ktp/kk', label: 'Photocopy KTP / Kartu Keluarga (KK)'),
+  DokumenItem(key: 'ktp/kk', label: 'Photocopy KTP/KK'),
+  DokumenItem(key: 'sertifikat_d3', label: 'Sertifikat D3'),
 ];
 
 class DocumentController extends GetxController {
