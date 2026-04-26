@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'document_controller.dart';
-import 'document_page.dart';
+import 'package:lsp_mkc_app/pages/document_controller.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class ProfileDocumentSection extends StatelessWidget {
   const ProfileDocumentSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final DocumentController c = Get.put(DocumentController());
+    // [FIX] pakai find() bukan put() di dalam build()
+    // put() di dalam build() bikin controller dibuat ulang setiap rebuild
+    // find() ambil controller yang udah ada dari routes binding
+    final DocumentController c = Get.find<DocumentController>();
+
     return GestureDetector(
-      onTap: () => Get.to(() => DocumentPage()),
+      // [FIX] pakai toNamed() bukan to()
+      // toNamed() pakai routes binding yang udah setup controller nya
+      onTap: () => Get.toNamed(AppPages.document),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
@@ -54,13 +59,12 @@ class ProfileDocumentSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  // Document badge
                   Obx(() {
                     final count = c.uploadedDocs.length;
                     return Text(
                       count == 0
                           ? 'Belum ada dokumen yang diupload'
-                          : '$count dari ${masterDocument.length}',
+                          : '$count dari ${masterDocument.length} dokumen',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 12,
                         color: count == 0
@@ -75,7 +79,6 @@ class ProfileDocumentSection extends StatelessWidget {
             Obx(() {
               final count = c.uploadedDocs.length;
               final total = masterDocument.length;
-
               return Column(
                 children: [
                   Text(
