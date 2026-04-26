@@ -197,11 +197,17 @@ class _HomeTab extends StatelessWidget {
     // Stack supaya tombol fixed bisa ditaruh di atas konten
     return Stack(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            // ── Header ──
+        RefreshIndicator(
+          color: const Color(0xFF4CAF50),
+          onRefresh: () async {
+            await pengajuanController.fetchPengajuan();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Header ──
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
               child: Row(
@@ -312,11 +318,10 @@ class _HomeTab extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ── Konten Pengajuan ──
-            Expanded(
-              child: Obx(() {
-                if (pengajuanController.isLoading.value) {
-                  return _SkeletonList();
-                }
+            Obx(() {
+              if (pengajuanController.isLoading.value) {
+                return _SkeletonList();
+              }
                 if (pengajuanController.hasError.value) {
                   return _ErrorState(
                       onRetry: pengajuanController.fetchPengajuan);
@@ -327,14 +332,15 @@ class _HomeTab extends StatelessWidget {
                 return _PengajuanList(
                     controller: pengajuanController);
               }),
-            ),
 
             // padding bawah supaya konten ga ketutup tombol fixed
             const SizedBox(height: 80),
           ],
         ),
+      ),
+    ),
 
-        // ── Tombol Fixed di Bawah ──
+    // ── Tombol Fixed di Bawah ──
         Positioned(
           bottom: 0,
           left: 0,
@@ -466,6 +472,8 @@ class _SkeletonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemCount: 3,
       itemBuilder: (_, __) => Container(
@@ -518,6 +526,8 @@ class _PengajuanList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemCount: controller.pengajuanList.length,
       itemBuilder: (context, index) {
