@@ -69,7 +69,6 @@ class RiwayatPage extends GetView<RiwayatController> {
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Row(
                 children: [
-                  // Search bar
                   Expanded(
                     child: TextField(
                       controller: controller.searchController,
@@ -112,7 +111,6 @@ class RiwayatPage extends GetView<RiwayatController> {
 
                   const SizedBox(width: 8),
 
-                  // Filter button
                   Obx(() {
                     final hasFilter = controller.selectedSkema.isNotEmpty ||
                         !controller.sortTerbaru.value;
@@ -236,7 +234,7 @@ class RiwayatPage extends GetView<RiwayatController> {
   }
 
   void _showFilterDropdown(BuildContext context) {
-    showMenu<Never>(
+    showMenu(
       context: context,
       position: RelativeRect.fromLTRB(
         MediaQuery.of(context).size.width - 220,
@@ -245,9 +243,8 @@ class RiwayatPage extends GetView<RiwayatController> {
         0,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      items: <PopupMenuEntry<Never>>[
-        // Header
-        PopupMenuItem<Never>(
+      items: <PopupMenuEntry<String>>[ 
+        PopupMenuItem<String>(
           enabled: false,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Row(
@@ -281,8 +278,7 @@ class RiwayatPage extends GetView<RiwayatController> {
 
         const PopupMenuDivider(),
 
-        // Sort Terbaru
-        PopupMenuItem<Never>(
+        PopupMenuItem<String>(
           enabled: false,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Obx(() => CheckboxListTile(
@@ -301,8 +297,7 @@ class RiwayatPage extends GetView<RiwayatController> {
 
         const PopupMenuDivider(),
 
-        // Label Skema
-        PopupMenuItem<Never>(
+        PopupMenuItem<String>(
           enabled: false,
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
           child: const Text(
@@ -315,9 +310,8 @@ class RiwayatPage extends GetView<RiwayatController> {
           ),
         ),
 
-        // List skema
-        ...controller.availableSkema.map<PopupMenuEntry<Never>>((skema) =>
-          PopupMenuItem<Never>(
+        ...controller.availableSkema.map<PopupMenuEntry<String>>((skema) =>
+          PopupMenuItem<String>(
             enabled: false,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Obx(() => CheckboxListTile(
@@ -541,6 +535,7 @@ class _RiwayatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Info Skema ──
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Row(
@@ -609,12 +604,152 @@ class _RiwayatCard extends StatelessWidget {
 
           const Divider(height: 1, color: Color(0xFFF3F4F6)),
 
+          // ── Status Form ──
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               children: item.forms
+                  .where((form) {
+                    if (form.code == 'AK.04') {
+                      return form.status != 'draft' &&
+                          form.status.isNotEmpty;
+                    }
+                    return true;
+                  })
                   .map((form) => _FormStatusRow(form: form))
                   .toList(),
+            ),
+          ),
+
+          const Divider(height: 1, color: Color(0xFFF3F4F6)),
+
+          // ── Dokumen ──
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Text(
+              'Dokumen',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF9CA3AF),
+              ),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: Column(
+              children: item.forms.map((form) {
+                // TODO: ganti logika ini dengan data dari API
+                // sementara approved = tersedia, lainnya = tidak tersedia
+                final bool tersedia = form.status == 'approved';
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        tersedia
+                            ? Icons.file_present_rounded
+                            : Icons.file_copy_outlined,
+                        size: 16,
+                        color: tersedia
+                            ? const Color(0xFF4CAF50)
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          form.label,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF374151),
+                          ),
+                        ),
+                      ),
+                      tersedia
+                          ? GestureDetector(
+                              onTap: () {
+                                // TODO: implement download dokumen
+                                Get.snackbar(
+                                  'Info',
+                                  'Fitur download segera tersedia',
+                                  backgroundColor: const Color(0xFF4CAF50),
+                                  colorText: Colors.white,
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              },
+                              child: const Text(
+                                'Download',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF4CAF50),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                          : const Text(
+                              'Tidak Tersedia',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF9CA3AF),
+                              ),
+                            ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          const Divider(height: 1, color: Color(0xFFF3F4F6)),
+
+          // ── Tombol Download Sertifikat Digital ──
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4CAF50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                icon: const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+                label: const Text(
+                  'Download Sertifikat Digital',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onPressed: () {
+                  // TODO: implement download sertifikat digital
+                  Get.snackbar(
+                    'Info',
+                    'Fitur download sertifikat digital segera tersedia',
+                    backgroundColor: const Color(0xFF4CAF50),
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              ),
             ),
           ),
         ],
