@@ -112,8 +112,11 @@ class DocumentController extends GetxController {
       final url = Uri.parse('${ApiEndpoints.baseUrl}/profile/documents/upload');
 
       //Send as multipart cz upload file
+      final headers = ApiEndpoints.authHeaders(token);
+      headers.remove('Content-Type');
+
       final request = http.MultipartRequest('POST', url)
-        ..headers.addAll(ApiEndpoints.authHeaders(token))
+        ..headers.addAll(headers)
         ..fields['document_type'] = key
         ..files.add(await http.MultipartFile.fromPath('file', file.path!));
 
@@ -135,14 +138,18 @@ class DocumentController extends GetxController {
 
         _showSuccess('Dokumen Berhasil Diupload');
       } else {
-        final json = jsonDecode(response.body);
-        _showError(json['metadata']?['message'] ?? 'Gagal Mengupload Dokumen');
+        String msg = 'Gagal Mengupload (${response.statusCode})';
+        try {
+          final json = jsonDecode(response.body);
+          msg = json['metadata']?['message'] ?? json['message'] ?? msg;
+        } catch (_) {
+          msg = 'Server Error ${response.statusCode}: ${response.body}';
+        }
+        _showError(msg);
       }
     } catch (e) {
-      // Jika endpoint belum ada, simpan lokal dulu (mode offline/dev)
-      final file2 = await _pickFile();
       debugPrint('uploadDokumenFromProfile error: $e');
-      _showError('Endpoint belum tersedia, hubungi developer backend');
+      _showError('Gagal terkoneksi atau membaca file: $e');
     } finally {
       loadingDocs.remove(key);
     }
@@ -165,8 +172,11 @@ class DocumentController extends GetxController {
         '${ApiEndpoints.baseUrl}/apl01/documents/upload',
       ); // endpoint not exist
 
+      final headers = ApiEndpoints.authHeaders(token);
+      headers.remove('Content-Type');
+
       final request = http.MultipartRequest('POST', url)
-        ..headers.addAll(ApiEndpoints.authHeaders(token))
+        ..headers.addAll(headers)
         ..fields['document_type'] = key
         ..files.add(await http.MultipartFile.fromPath('file', file.path!));
 
@@ -186,12 +196,18 @@ class DocumentController extends GetxController {
 
         _showSuccess('Dokumen Berhasil Diupload');
       } else {
-        final json = jsonDecode(response.body);
-        _showError(json['metadata']?['message'] ?? 'Gagal Upload Dokumen');
+        String msg = 'Gagal Mengupload (${response.statusCode})';
+        try {
+          final json = jsonDecode(response.body);
+          msg = json['metadata']?['message'] ?? json['message'] ?? msg;
+        } catch (_) {
+          msg = 'Server Error ${response.statusCode}: ${response.body}';
+        }
+        _showError(msg);
       }
     } catch (e) {
       debugPrint('uploadDokumenFromApl01 error: $e');
-      _showError('Endpoint not Available, call backend dev');
+      _showError('Gagal terkoneksi atau membaca file: $e');
     } finally {
       loadingDocs.remove(key);
     }
