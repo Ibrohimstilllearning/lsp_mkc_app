@@ -306,10 +306,10 @@ class Apl02Controller extends GetxController {
     final listId = doc.listId;
     uploadingListIds.add(listId);
 
-    bool success;
+    String? errorMessage;
     if (doc.portfolioId != null) {
       // Dokumen sudah ada entri portfolio, cukup update file-nya
-      success = await _provider.uploadPortfolioDocument(
+      errorMessage = await _provider.uploadPortfolioDocument(
         registrationId: regId,
         portfolioId: doc.portfolioId!,
         listId: listId,
@@ -317,7 +317,7 @@ class Apl02Controller extends GetxController {
       );
     } else {
       // Dokumen belum pernah diupload — buat entri baru
-      success = await _provider.uploadNewDocument(
+      errorMessage = await _provider.uploadNewDocument(
         registrationId: regId,
         listId: listId,
         file: file.files.single,
@@ -326,7 +326,7 @@ class Apl02Controller extends GetxController {
 
     uploadingListIds.remove(listId);
 
-    if (success) {
+    if (errorMessage == null) {
       Get.snackbar(
         'Berhasil',
         'Dokumen berhasil diupload',
@@ -339,7 +339,7 @@ class Apl02Controller extends GetxController {
     } else {
       Get.snackbar(
         'Gagal',
-        'Gagal mengupload dokumen. Coba lagi.',
+        'Gagal mengupload dokumen\n$errorMessage',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
