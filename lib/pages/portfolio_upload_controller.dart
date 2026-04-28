@@ -100,10 +100,10 @@ class PortfolioUploadController extends GetxController {
     final listId = doc.listId;
     uploadingListIds.add(listId);
 
-    bool success;
+    String? errorMessage;
     if (doc.documentProfileId != null) {
       // Update
-      success = await _provider.uploadPortfolioDocument(
+      errorMessage = await _provider.uploadPortfolioDocument(
         registrationId: 0, // Profile upload doesn't strictly need registrationId if backend supports it
         portfolioId: doc.documentProfileId!,
         listId: listId,
@@ -111,7 +111,7 @@ class PortfolioUploadController extends GetxController {
       );
     } else {
       // New
-      success = await _provider.uploadNewDocument(
+      errorMessage = await _provider.uploadNewDocument(
         registrationId: 0, // Pass 0 or null if it's a global profile upload
         listId: listId,
         file: file.files.single,
@@ -120,7 +120,7 @@ class PortfolioUploadController extends GetxController {
 
     uploadingListIds.remove(listId);
 
-    if (success) {
+    if (errorMessage == null) {
       Get.snackbar(
         'Berhasil',
         'Dokumen berhasil diupload ke Profile',
@@ -134,7 +134,7 @@ class PortfolioUploadController extends GetxController {
     } else {
       Get.snackbar(
         'Gagal',
-        'Gagal mengupload dokumen. Coba lagi.',
+        'Gagal mengupload dokumen\n$errorMessage',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

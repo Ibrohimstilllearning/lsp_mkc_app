@@ -292,7 +292,7 @@ class ResponseProvider {
   }
 
   /// Upload dokumen (update file yang sudah ada — punya document_profile_id)
-  Future<bool> uploadPortfolioDocument({
+  Future<String?> uploadPortfolioDocument({
     required int registrationId,
     required int portfolioId,
     required int listId,
@@ -300,13 +300,16 @@ class ResponseProvider {
   }) async {
     try {
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null) return 'Token tidak ditemukan';
 
       final url = Uri.parse('$baseUrl/documents/$portfolioId');
       print('[APL02] Upload update (profile_id=$portfolioId) → POST(PUT) $url');
 
+      final headers = ApiEndpoints.authHeaders(token);
+      headers.remove('Content-Type');
+
       final request = http.MultipartRequest('POST', url)
-        ..headers.addAll(ApiEndpoints.authHeaders(token))
+        ..headers.addAll(headers)
         ..fields['_method'] = 'PUT'
         ..fields['documents[0][list_id]'] = listId.toString()
         ..files.add(await http.MultipartFile.fromPath('documents[0][file]', file.path!));
@@ -320,29 +323,34 @@ class ResponseProvider {
       print('[APL02] Upload Status: ${response.statusCode}');
       print('[APL02] Upload Body: ${response.body}');
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      return (response.statusCode == 200 || response.statusCode == 201) 
+          ? null 
+          : 'Server Error: ${response.statusCode}\nBody: ${response.body}';
     } catch (e) {
       print('[APL02] Upload Error: $e');
-      return false;
+      return 'Gagal membaca file atau koneksi: $e';
     }
   }
 
   /// Upload dokumen BARU (belum pernah diupload — pakai document_list_id)
   /// Endpoint: POST /document-profiles
-  Future<bool> uploadNewDocument({
+  Future<String?> uploadNewDocument({
     required int registrationId,
     required int listId,
     required PlatformFile file,
   }) async {
     try {
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null) return 'Token tidak ditemukan';
 
       final url = Uri.parse('$baseUrl/documents');
       print('[APL02] Upload NEW (list_id=$listId) → $url');
 
+      final headers = ApiEndpoints.authHeaders(token);
+      headers.remove('Content-Type');
+
       final request = http.MultipartRequest('POST', url)
-        ..headers.addAll(ApiEndpoints.authHeaders(token))
+        ..headers.addAll(headers)
         ..fields['documents[0][list_id]'] = listId.toString()
         ..files.add(await http.MultipartFile.fromPath('documents[0][file]', file.path!));
       
@@ -355,10 +363,12 @@ class ResponseProvider {
       print('[APL02] Upload New Status: ${response.statusCode}');
       print('[APL02] Upload New Body: ${response.body}');
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      return (response.statusCode == 200 || response.statusCode == 201) 
+          ? null 
+          : 'Server Error: ${response.statusCode}\nBody: ${response.body}';
     } catch (e) {
       print('[APL02] Upload New Error: $e');
-      return false;
+      return 'Gagal membaca file atau koneksi: $e';
     }
   }
 }
