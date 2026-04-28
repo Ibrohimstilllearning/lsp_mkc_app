@@ -328,25 +328,24 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
         final fileName =
             _docC.uploadedDocs[profileKey]?['file_name'] ?? 'document';
 
-        if (docId.isEmpty) {
-          Get.snackbar(
-            'Gagal',
-            'ID dokumen tidak ditemukan',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
-            margin: const EdgeInsets.all(16),
-          );
-          if (mounted) setState(() => _isLoading = false);
-          return;
-        }
+        print('[DEBUG STREAM] docId: $docId');
+        print('[DEBUG STREAM] token: $token');
 
         final streamUrl = Uri.parse(
           '${ApiEndpoints.baseUrl}/documents/$docId/stream',
         );
+        print('[DEBUG STREAM] url: $streamUrl');
+
         final fileResponse = await http.get(
           streamUrl,
           headers: ApiEndpoints.authHeaders(token!),
+        );
+
+        print('[DEBUG STREAM] status: ${fileResponse.statusCode}');
+        print('[DEBUG STREAM] bytes length: ${fileResponse.bodyBytes.length}');
+        print('[DEBUG STREAM] body: ${fileResponse.body}');
+        print(
+          '[DEBUG STREAM] content-type: ${fileResponse.headers['content-type']}',
         );
 
         if (fileResponse.statusCode == 200) {
@@ -369,6 +368,41 @@ class _FormApl01Bagian3State extends State<FormApl01Bagian3> {
           if (mounted) setState(() => _isLoading = false);
           return;
         }
+      } else {
+        // ✅ TAMBAHKAN INI — upload file baru
+        final file = _uploadedFiles[reqId];
+        if (file == null) {
+          Get.snackbar(
+            'Belum Lengkap',
+            'Silakan unggah file terlebih dahulu',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(16),
+          );
+          if (mounted) setState(() => _isLoading = false);
+          return;
+        }
+        if (!await file.exists()) {
+          Get.snackbar(
+            'Gagal',
+            'File tidak ditemukan, silakan unggah ulang.',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(16),
+          );
+          if (mounted) setState(() => _isLoading = false);
+          return;
+        }
+        final bytes = await file.readAsBytes();
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'evidence[0][file]',
+            bytes,
+            filename: file.path.split('/').last,
+          ),
+        );
       }
 
       print('[APL01 Bagian 3] URL: $url');
