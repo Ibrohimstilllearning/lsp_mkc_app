@@ -77,18 +77,22 @@ class DocumentController extends GetxController {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        final data = json['response'] as Map<String, dynamic>?;
+        final List<dynamic> raw = json is List 
+            ? json 
+            : (json['response'] ?? json['data'] ?? []);
 
-        if (data != null) {
-          data.forEach((key, value) {
-            if (value != null) {
+        for (var item in raw) {
+          if (item is Map<String, dynamic>) {
+            final listId = item['document_list_id'] as int?;
+            if (listId != null) {
+              final key = _getKeyFromListId(listId);
               uploadedDocs[key] = {
-                'file_name': value['file_name']?.toString() ?? '',
-                'file_url': value['file_url']?.toString() ?? '',
-                'source': 'profile', // mark the document source is from profile
+                'file_name': item['file_name']?.toString() ?? '',
+                'file_url': item['file_url']?.toString() ?? '',
+                'source': 'profile',
               };
             }
-          });
+          }
         }
       }
     } catch (e) {
@@ -96,7 +100,27 @@ class DocumentController extends GetxController {
     }
   }
 
-  // POST  /profile/documents/upload
+  int _getListIdFromKey(String key) {
+    switch (key) {
+      case 'pas_foto': return 1;
+      case 'ktp/kk': return 2;
+      case 'ijazah': return 3;
+      case 'sertifikat_d3': return 4;
+      default: return 0;
+    }
+  }
+
+  String _getKeyFromListId(int id) {
+    switch (id) {
+      case 1: return 'pas_foto';
+      case 2: return 'ktp/kk';
+      case 3: return 'ijazah';
+      case 4: return 'sertifikat_d3';
+      default: return 'unknown_$id';
+    }
+  }
+
+  // POST  /profile/documents/upload (dialihkan ke /documents)
   // Upload dokumen dari halaman Profile
 
   Future<void> uploadDokumenFromProfil(String key) async {
@@ -109,7 +133,8 @@ class DocumentController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/profile/documents/upload');
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/documents');
+      final listId = _getListIdFromKey(key);
 
       //Send as multipart cz upload file
       final headers = ApiEndpoints.authHeaders(token);
@@ -117,8 +142,8 @@ class DocumentController extends GetxController {
 
       final request = http.MultipartRequest('POST', url)
         ..headers.addAll(headers)
-        ..fields['document_type'] = key
-        ..files.add(await http.MultipartFile.fromPath('file', file.path!));
+        ..fields['documents[0][list_id]'] = listId.toString()
+        ..files.add(await http.MultipartFile.fromPath('documents[0][file]', file.path!));
 
       final stream = await request.send();
       final response = await http.Response.fromStream(stream);
@@ -126,9 +151,14 @@ class DocumentController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final json = jsonDecode(response.body);
 
-        // Expected response:
-        // { "response": { "file_name": "...", "file_url": "..." } }
-        final data = json['response'] as Map<String, dynamic>;
+        Map<String, dynamic>? data;
+        final List<dynamic> raw = json is List 
+            ? json 
+            : (json['response'] ?? json['data'] ?? []);
+            
+        if (raw.isNotEmpty && raw[0] is Map) {
+          data = raw[0] as Map<String, dynamic>;
+        }
 
         uploadedDocs[key] = {
           'file_name': data?['file_name']?.toString() ?? file.name,
@@ -169,23 +199,32 @@ class DocumentController extends GetxController {
       final token = prefs.getString('token') ?? '';
 
       final url = Uri.parse(
-        '${ApiEndpoints.baseUrl}/apl01/documents/upload',
-      ); // endpoint not exist
+        '${ApiEndpoints.baseUrl}/documents',
+      ); // fallback /documents
+      final listId = _getListIdFromKey(key);
 
       final headers = ApiEndpoints.authHeaders(token);
       headers.remove('Content-Type');
 
       final request = http.MultipartRequest('POST', url)
         ..headers.addAll(headers)
-        ..fields['document_type'] = key
-        ..files.add(await http.MultipartFile.fromPath('file', file.path!));
+        ..fields['documents[0][list_id]'] = listId.toString()
+        ..files.add(await http.MultipartFile.fromPath('documents[0][file]', file.path!));
 
       final stream = await request.send();
       final response = await http.Response.fromStream(stream);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final json = jsonDecode(response.body);
-        final data = json['response'] as Map<String, dynamic>?;
+        Map<String, dynamic>? data;
+        
+        final List<dynamic> raw = json is List 
+            ? json 
+            : (json['response'] ?? json['data'] ?? []);
+            
+        if (raw.isNotEmpty && raw[0] is Map) {
+          data = raw[0] as Map<String, dynamic>;
+        }
 
         // ✅ Sync ke uploadedDocs → otomatis tersedia di Profile juga
         uploadedDocs[key] = {
