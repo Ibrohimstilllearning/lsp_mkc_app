@@ -280,8 +280,8 @@ class ProfilController extends GetxController {
         headers: await _headers,
         body: jsonEncode({
           'current_password': currentPassword,
-          'password': newPassword,
-          'password_confirmation': confirmPassword,
+          'new_password': newPassword,
+          'new_password_confirmation': confirmPassword,
         }),
       );
       print('=== CHANGE PASSWORD STATUS: ${response.statusCode}');

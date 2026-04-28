@@ -68,7 +68,7 @@ class DocumentController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/profile/documents');
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/documents');
 
       final response = await http.get(
         url,
@@ -83,14 +83,21 @@ class DocumentController extends GetxController {
 
         for (var item in raw) {
           if (item is Map<String, dynamic>) {
-            final listId = item['document_list_id'] as int?;
-            if (listId != null) {
+            final listId = int.tryParse(item['document_list_id']?.toString() ?? '') ??
+                int.tryParse(item['list_id']?.toString() ?? '') ??
+                int.tryParse(item['document_list']?['id']?.toString() ?? '');
+                
+            if (listId != null && listId > 0) {
               final key = _getKeyFromListId(listId);
-              uploadedDocs[key] = {
-                'file_name': item['file_name']?.toString() ?? '',
-                'file_url': item['file_url']?.toString() ?? '',
-                'source': 'profile',
-              };
+              // HANYA ambil dokumen yang memang master document profil (1,2,3,4)
+              if (!key.startsWith('unknown_')) {
+                uploadedDocs[key] = {
+                  'id': item['id']?.toString() ?? '',
+                  'file_name': item['file_name']?.toString() ?? '',
+                  'file_url': item['file_url']?.toString() ?? item['upload_document']?.toString() ?? '',
+                  'source': 'profile',
+                };
+              }
             }
           }
         }
@@ -161,6 +168,7 @@ class DocumentController extends GetxController {
         }
 
         uploadedDocs[key] = {
+          'id': data?['id']?.toString() ?? '',
           'file_name': data?['file_name']?.toString() ?? file.name,
           'file_url': data?['file_url']?.toString() ?? '',
           'source': 'profile',
@@ -228,8 +236,9 @@ class DocumentController extends GetxController {
 
         // ✅ Sync ke uploadedDocs → otomatis tersedia di Profile juga
         uploadedDocs[key] = {
+          'id': data?['id']?.toString() ?? '',
           'file_name': data?['file_name']?.toString() ?? file.name,
-          'file_url': data?['fole_url']?.toString() ?? '',
+          'file_url': data?['file_url']?.toString() ?? '',
           'source': 'apl01',
         };
 
@@ -258,20 +267,32 @@ class DocumentController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
+      final docId = uploadedDocs[key]?['id'] ?? '';
+      
+      if (docId.isEmpty) {
+        _showError('Gagal: ID Dokumen tidak ditemukan di sistem');
+        return;
+      }
+
       final url = Uri.parse(
-        '${ApiEndpoints.baseUrl}/profile/documents/$key',
-      ); // endpoint belum ada
+        '${ApiEndpoints.baseUrl}/documents/$docId',
+      );
 
       final response = await http.delete(
         url,
         headers: ApiEndpoints.authHeaders(token),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 204) {
         uploadedDocs.remove(key);
         _showSuccess('Dokumen berhasil dihapus');
       } else {
-        _showError('Gagal menghapus dokumen');
+        String msg = 'Gagal menghapus dokumen (${response.statusCode})';
+        try {
+          final json = jsonDecode(response.body);
+          msg = json['metadata']?['message'] ?? json['message'] ?? msg;
+        } catch (_) {}
+        _showError(msg);
       }
     } catch (e) {
       // Silent remove di UI jika endpoint belum ada (mode dev)
