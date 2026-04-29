@@ -1,25 +1,21 @@
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
+
 import 'package:http/http.dart' as http;
-import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
+import 'package:lsp_mkc_app/utils/api_endpoints.dart';
+import 'package:lsp_mkc_app/utils/api_helper.dart';
 
 class ResetController extends GetxController {
   var isLoading = false.obs;
   var step = 1.obs;
-
   var email = ''.obs;
   var otp = ''.obs;
   var resetToken = ''.obs;
 
-  // ─────────────────────────────────────
-  // Step 1 - POST /api/forgot-password
-  // ─────────────────────────────────────
   Future<void> sendForgotPassword(String emailInput) async {
     if (emailInput.isEmpty) {
-      Get.snackbar('Gagal', 'Email tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.showErrorDialog('Email tidak boleh kosong');
       return;
     }
 
@@ -33,41 +29,23 @@ class ResetController extends GetxController {
         body: jsonEncode({'email': emailInput}),
       );
 
-      final data = jsonDecode(response.body);
-      print('=== FORGOT PASSWORD: ${response.statusCode} ${response.body}');
-
-      if (response.statusCode == 200) {
+      final data = ApiHelper.handleResponse(response);
+      if (data != null) {
         step.value = 2;
-        Get.snackbar(
-          'Berhasil',
+        ApiHelper.showSuccess(
           data['metadata']?['message'] ?? 'Kode OTP telah dikirim ke email kamu',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF3E8E41),
-          colorText: const Color(0xFFFFFFFF),
-        );
-      } else {
-        Get.snackbar(
-          'Gagal',
-          data['message'] ?? 'Email tidak ditemukan',
-          snackPosition: SnackPosition.BOTTOM,
         );
       }
     } catch (e) {
-      print('=== FORGOT PASSWORD ERROR: $e');
-      Get.snackbar('Error', 'Tidak dapat terhubung ke server',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.handleException(e);
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ─────────────────────────────────────
-  // Step 2 - POST /api/verify-otp
-  // ─────────────────────────────────────
   Future<void> verifyOtp(String otpInput) async {
     if (otpInput.isEmpty) {
-      Get.snackbar('Gagal', 'Kode OTP tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.showErrorDialog('Kode OTP tidak boleh kosong');
       return;
     }
 
@@ -84,58 +62,35 @@ class ResetController extends GetxController {
         }),
       );
 
-      final data = jsonDecode(response.body);
-      print('=== VERIFY OTP: ${response.statusCode} ${response.body}');
-
-      if (response.statusCode == 200) {
-        // Simpan reset_token dari response
+      final data = ApiHelper.handleResponse(response);
+      if (data != null) {
         resetToken.value = data['response']?['reset_token'] ?? '';
-        print('=== RESET TOKEN: ${resetToken.value}');
-
         step.value = 3;
-        Get.snackbar(
-          'Berhasil',
+        ApiHelper.showSuccess(
           data['metadata']?['message'] ?? 'OTP valid, silakan masukkan password baru',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF3E8E41),
-          colorText: const Color(0xFFFFFFFF),
-        );
-      } else {
-        Get.snackbar(
-          'Gagal',
-          data['message'] ?? 'Kode OTP salah atau sudah kadaluarsa',
-          snackPosition: SnackPosition.BOTTOM,
         );
       }
     } catch (e) {
-      print('=== VERIFY OTP ERROR: $e');
-      Get.snackbar('Error', 'Tidak dapat terhubung ke server',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.handleException(e);
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ─────────────────────────────────────
-  // Step 3 - POST /api/reset-password
-  // ─────────────────────────────────────
   Future<void> resetPassword({
     required String newPassword,
     required String confirmPassword,
   }) async {
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      Get.snackbar('Gagal', 'Password tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.showErrorDialog('Password tidak boleh kosong');
       return;
     }
     if (newPassword.length < 8) {
-      Get.snackbar('Gagal', 'Password minimal 8 karakter',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.showErrorDialog('Password minimal 8 karakter');
       return;
     }
     if (newPassword != confirmPassword) {
-      Get.snackbar('Gagal', 'Konfirmasi password tidak cocok',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.showErrorDialog('Konfirmasi password tidak cocok');
       return;
     }
 
@@ -153,29 +108,15 @@ class ResetController extends GetxController {
         }),
       );
 
-      final data = jsonDecode(response.body);
-      print('=== RESET PASSWORD: ${response.statusCode} ${response.body}');
-
-      if (response.statusCode == 200) {
-        Get.snackbar(
-          'Berhasil',
+      final data = ApiHelper.handleResponse(response);
+      if (data != null) {
+        ApiHelper.showSuccess(
           data['metadata']?['message'] ?? 'Password berhasil diubah, silakan login',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF3E8E41),
-          colorText: const Color(0xFFFFFFFF),
         );
         Get.offAllNamed(AppPages.login);
-      } else {
-        Get.snackbar(
-          'Gagal',
-          data['message'] ?? 'Gagal mengubah password',
-          snackPosition: SnackPosition.BOTTOM,
-        );
       }
     } catch (e) {
-      print('=== RESET PASSWORD ERROR: $e');
-      Get.snackbar('Error', 'Tidak dapat terhubung ke server',
-          snackPosition: SnackPosition.BOTTOM);
+      ApiHelper.handleException(e);
     } finally {
       isLoading.value = false;
     }
