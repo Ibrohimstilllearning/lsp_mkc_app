@@ -116,12 +116,7 @@ class RiwayatController extends GetxController {
             .toList();
 
         riwayatList.assignAll(
-          allItems.where((item) {
-            final apl01 = item.forms.firstWhereOrNull(
-              (f) => f.code == 'APL.01',
-            );
-            return apl01?.status == 'approved';
-          }).toList(),
+          allItems.where((item) => !item.isActive).toList(),
         );
       } else {
         hasError.value = true;

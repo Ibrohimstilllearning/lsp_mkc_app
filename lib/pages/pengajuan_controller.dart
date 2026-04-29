@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 
 class RegistrationForm {
@@ -47,17 +48,41 @@ class RegistrationItem {
         schemeId: int.tryParse(json['scheme_id']?.toString() ?? '') ?? int.tryParse(json['scheme']?['id']?.toString() ?? '') ?? 0,
         schemeName: json['scheme_name'] ?? json['scheme']?['name'] ?? '-',
         schemeCode: json['scheme_code'] ?? json['scheme']?['code'] ?? '-',
-        createdAt: json['created_at'] ?? '',
+        createdAt: _formatDate(json['created_at']),
         forms: (json['forms'] as List<dynamic>? ?? [])
             .map((f) => RegistrationForm.fromJson(f))
             .toList(),
       );
+
+  static String _formatDate(String? dt) {
+    if (dt == null || dt.isEmpty) return '-';
+    try {
+      final parsed = DateTime.parse(dt).toLocal();
+      return DateFormat('dd MMM yyyy HH:mm').format(parsed);
+    } catch (_) {
+      return dt; // fallback ke string asli jika gagal parse
+    }
+  }
+
+  bool get isActive {
+    if (forms.isEmpty) return true; // Asumsikan baru dibuat dan belum ada form
+    return forms.any((f) => 
+        f.status == 'draft' || 
+        f.status == 'not_started' || 
+        f.status == 'pending' || 
+        f.status == 'submitted');
+  }
 }
 
 class PengajuanController extends GetxController {
   final isLoading = true.obs;
   final hasError = false.obs;
   final pengajuanList = <RegistrationItem>[].obs;
+
+  bool get hasActiveRegistration {
+    // Karena list pengajuan sekarang BANYA memuat pengajuan aktif, cek apakah kosong atau tidak
+    return pengajuanList.isNotEmpty;
+  }
 
   @override
   void onInit() {
@@ -94,9 +119,10 @@ class PengajuanController extends GetxController {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         final List data = json['response'] ?? [];
-        pengajuanList.assignAll(
-          data.map((e) => RegistrationItem.fromJson(e)).toList(),
-        );
+        final allItems = data.map((e) => RegistrationItem.fromJson(e)).toList();
+        
+        // HANYA ambil yang masih aktif / belum kelar
+        pengajuanList.assignAll(allItems.where((item) => item.isActive).toList());
       } else {
         hasError.value = true;
       }

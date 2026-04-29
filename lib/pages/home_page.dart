@@ -5,6 +5,7 @@ import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/pengajuan_controller.dart';
 import 'package:lsp_mkc_app/pages/riwayat_page.dart';
 import 'package:lsp_mkc_app/pages/profil_page.dart';
+import 'package:lsp_mkc_app/pages/registration_scheme_list_page.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class HomePage extends GetView<HomeController> {
@@ -98,73 +99,6 @@ class _HomeTab extends StatelessWidget {
     required this.controller,
   });
 
-  void _showFormDialog() {
-    Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Pilih Form',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF111827),
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Pilih form yang ingin diisi:',
-              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
-            ),
-            const SizedBox(height: 16),
-            _formButton(
-              label: 'FR.APL.01 — Permohonan Sertifikasi',
-              onTap: () {
-                Get.back();
-                Get.toNamed(AppPages.apl01);
-              },
-            ),
-            const SizedBox(height: 8),
-            _formButton(
-              label: 'FR.APL.02 — Asesmen Mandiri',
-              onTap: () async {
-                Get.back();
-                await goToFormApl02();
-              },
-            ),
-            const SizedBox(height: 8),
-            _formButton(
-              label: 'FR.AK.04 — Banding Asesmen',
-              onTap: () {
-                Get.back();
-                Get.toNamed(AppPages.ak04);
-              },
-            ),
-            const SizedBox(height: 8),
-            _formButton(
-              label: 'FR.AK.07 — Ceklis Penyesuaian',
-              onTap: () {
-                Get.back();
-                Get.toNamed(AppPages.ak07);
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(
-              'Batal',
-              style: TextStyle(color: Color(0xFF9CA3AF)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _formButton({required String label, required VoidCallback onTap}) {
     return SizedBox(
@@ -334,52 +268,57 @@ class _HomeTab extends StatelessWidget {
               }),
 
             // padding bawah supaya konten ga ketutup tombol fixed
-            const SizedBox(height: 80),
+            Obx(() => SizedBox(height: pengajuanController.hasActiveRegistration ? 20 : 80)),
           ],
         ),
       ),
     ),
 
     // ── Tombol Fixed di Bawah ──
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () => _showFormDialog(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3E8E41),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+        Obx(() {
+          if (pengajuanController.isLoading.value) return const SizedBox.shrink();
+          if (pengajuanController.hasActiveRegistration) return const SizedBox.shrink();
+
+          return Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
                   ),
-                ),
-                child: const Text(
-                  "Mulai Proses Sertifikasi",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                ],
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Get.to(() => const RegistrationSchemeListPage()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3E8E41),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Mulai Proses Sertifikasi",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
+import 'package:lsp_mkc_app/utils/api_error_handler.dart';
 
 class FormApl01Controller extends GetxController {
   // ─── BAGIAN 1: Data Pribadi & Pekerjaan ───────────────────────────────────
@@ -26,6 +27,15 @@ class FormApl01Controller extends GetxController {
   final asesiType = 'pribadi'.obs;
 
   int? registrationId;
+  int? selectedSchemeId;
+
+  @override
+  void onInit() {
+    super.onInit();
+    if (Get.arguments != null && Get.arguments['selectedScheme'] != null) {
+      selectedSchemeId = Get.arguments['selectedScheme'].id;
+    }
+  }
 
   // ─── BAGIAN 2: Data Sertifikasi ───────────────────────────────────────────
   final tujuanAsesmen = <String>[].obs;
@@ -61,9 +71,9 @@ class FormApl01Controller extends GetxController {
 
   void _showError(String message) {
     Get.snackbar(
-      'Gagal',
+      'Informasi',
       message,
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.red.shade600,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(16),
@@ -200,27 +210,13 @@ class FormApl01Controller extends GetxController {
         return true;
       }
 
-      final bodyStr = response.body.trim();
-      if (bodyStr.isEmpty) {
-        _showError('Server error (${response.statusCode}), coba lagi nanti');
-        return false;
-      }
-      try {
-        final json = jsonDecode(bodyStr);
-        _showError(
-          json['message'] ??
-              json['metadata']?['message'] ??
-              'Terjadi kesalahan (${response.statusCode})',
-        );
-      } catch (_) {
-        _showError('Server error (${response.statusCode}), coba lagi nanti');
-      }
+      ApiErrorHandler.handleError(response: response, defaultFallback: 'Data gagal disimpan');
       return false;
     } catch (e, stackTrace) {
       print('[APL01 Bagian 1] Error type: ${e.runtimeType}');
       print('[APL01 Bagian 1] Error detail: $e');
       print('[APL01 Bagian 1] StackTrace: $stackTrace');
-      _showError('Terjadi kesalahan koneksi, coba lagi');
+      ApiErrorHandler.showNetworkError(e);
       return false;
     } finally {
       isLoadingBagian1.value = false;
@@ -243,7 +239,7 @@ class FormApl01Controller extends GetxController {
       final body = {
         'registration_id': registrationId,
         'certification_purpose': tujuanAsesmen.first,
-        'scheme_id': 1,
+        'scheme_id': selectedSchemeId ?? 1,
       };
 
       final response = await http.post(
@@ -261,32 +257,13 @@ class FormApl01Controller extends GetxController {
         return true;
       }
 
-      if (response.statusCode == 500) {
-        _showError('Server sedang bermasalah, hubungi administrator');
-        return false;
-      }
-
-      final bodyStr = response.body.trim();
-      if (bodyStr.isEmpty) {
-        _showError('Server error (${response.statusCode}), coba lagi nanti');
-        return false;
-      }
-      try {
-        final json = jsonDecode(bodyStr);
-        _showError(
-          json['message'] ??
-              json['metadata']?['message'] ??
-              'Terjadi kesalahan (${response.statusCode})',
-        );
-      } catch (_) {
-        _showError('Server error (${response.statusCode}), coba lagi nanti');
-      }
+      ApiErrorHandler.handleError(response: response, defaultFallback: 'Data gagal disimpan');
       return false;
     } catch (e, stackTrace) {
       print('[APL01 Bagian 2] Error type: ${e.runtimeType}');
       print('[APL01 Bagian 2] Error detail: $e');
       print('[APL01 Bagian 2] StackTrace: $stackTrace');
-      _showError('Terjadi kesalahan: $e');
+      ApiErrorHandler.showNetworkError(e);
       return false;
     } finally {
       isLoadingBagian2.value = false;
@@ -315,27 +292,13 @@ class FormApl01Controller extends GetxController {
         return true;
       }
 
-      final bodyStr = response.body.trim();
-      if (bodyStr.isEmpty) {
-        _showError('Server error (${response.statusCode}), coba lagi nanti');
-        return false;
-      }
-      try {
-        final json = jsonDecode(bodyStr);
-        _showError(
-          json['message'] ??
-              json['metadata']?['message'] ??
-              'Terjadi kesalahan (${response.statusCode})',
-        );
-      } catch (_) {
-        _showError('Server error (${response.statusCode}), coba lagi nanti');
-      }
+      ApiErrorHandler.handleError(response: response, defaultFallback: 'Gagal mengirim form');
       return false;
     } catch (e, stackTrace) {
       print('[APL01 Bagian 3] Error type: ${e.runtimeType}');
       print('[APL01 Bagian 3] Error detail: $e');
       print('[APL01 Bagian 3] StackTrace: $stackTrace');
-      _showError('Terjadi kesalahan koneksi, coba lagi');
+      ApiErrorHandler.showNetworkError(e);
       return false;
     } finally {
       isLoadingBagian3.value = false;
