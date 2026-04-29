@@ -32,6 +32,7 @@ class RegistrationItem {
   final String schemeName;
   final String schemeCode;
   final String createdAt;
+  final String? finalResult; // Tambahan untuk validasi
   final List<RegistrationForm> forms;
 
   RegistrationItem({
@@ -40,6 +41,7 @@ class RegistrationItem {
     required this.schemeName,
     required this.schemeCode,
     required this.createdAt,
+    this.finalResult,
     required this.forms,
   });
 
@@ -52,6 +54,7 @@ class RegistrationItem {
         schemeName: json['scheme_name'] ?? json['scheme']?['name'] ?? '-',
         schemeCode: json['scheme_code'] ?? json['scheme']?['code'] ?? '-',
         createdAt: _formatDate(json['created_at']),
+        finalResult: json['final_result']?.toString(),
         forms: (json['forms'] as List<dynamic>? ?? [])
             .map((f) => RegistrationForm.fromJson(f))
             .toList(),
@@ -68,12 +71,8 @@ class RegistrationItem {
   }
 
   bool get isActive {
-    if (forms.isEmpty) return true; // Asumsikan baru dibuat dan belum ada form
-    return forms.any((f) => 
-        f.status == 'draft' || 
-        f.status == 'not_started' || 
-        f.status == 'pending' || 
-        f.status == 'submitted');
+    // Sesuai instruksi backend: jika final_result belum terisi berarti regis masih berjalan
+    return finalResult == null || finalResult!.trim().isEmpty;
   }
 }
 
@@ -109,9 +108,10 @@ class PengajuanController extends GetxController {
       final data = ApiHelper.handleResponse(response);
       if (data != null) {
         final List list = data['response'] ?? [];
-        pengajuanList.assignAll(
-          list.map((e) => RegistrationItem.fromJson(e)).toList(),
-        );
+        final allItems = list.map((e) => RegistrationItem.fromJson(e)).toList();
+        
+        // HANYA ambil yang masih aktif / belum kelar (final_result belum ada)
+        pengajuanList.assignAll(allItems.where((item) => item.isActive).toList());
       } else {
         hasError.value = true;
       }

@@ -9,6 +9,7 @@ import 'package:lsp_mkc_app/pages/forms/apl02/model/submit.dart';
 import 'package:lsp_mkc_app/pages/forms/apl02/providers/response_provider.dart';
 import 'package:lsp_mkc_app/pages/pengajuan_controller.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
+import 'package:lsp_mkc_app/utils/api_error_handler.dart';
 
 class Apl02Controller extends GetxController {
   final ResponseProvider _provider = ResponseProvider();
@@ -410,11 +411,15 @@ class Apl02Controller extends GetxController {
       _showMissingDocsDialog(result.message ?? 'Dokumen wajib belum diunggah');
     } else {
       Get.snackbar(
-        'Gagal',
+        'Informasi', // diganti dari Gagal agar konsisten
         result.message ?? 'Terjadi kesalahan saat menyimpan. Coba lagi.',
-        backgroundColor: Colors.red[400],
+        backgroundColor: Colors.red.shade600,
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        duration: const Duration(seconds: 4),
       );
     }
 

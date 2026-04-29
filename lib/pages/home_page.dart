@@ -552,12 +552,25 @@ class _RegistrationCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              children: item.forms
-                  .map((form) => _FormRow(
-                        form: form,
-                        registrationId: item.registrationId,
-                      ))
-                  .toList(),
+              children: () {
+                // Logika: Tampilkan form satu per satu (sekuensial).
+                // Form berikutnya HANYA muncul jika form saat ini sudah 'approved' atau 'paid'.
+                final visibleForms = <RegistrationForm>[];
+                for (int i = 0; i < item.forms.length; i++) {
+                  final form = item.forms[i];
+                  visibleForms.add(form);
+                  
+                  // Jika form ini belum selesai/disetujui, JANGAN tampilkan form d bawahnya
+                  if (form.status != 'approved' && form.status != 'paid') {
+                    break;
+                  }
+                }
+
+                return visibleForms.map((form) => _FormRow(
+                      form: form,
+                      registrationId: item.registrationId,
+                    )).toList();
+              }(),
             ),
           ),
         ],

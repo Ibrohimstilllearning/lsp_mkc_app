@@ -118,10 +118,17 @@ class ResponseProvider {
       }
 
       // Other errors
+      String serverMsg = 'Server error ${response.statusCode}';
+      try {
+        final errJson = jsonDecode(response.body);
+        serverMsg = errJson['message'] ??
+            errJson['metadata']?['message'] ??
+            serverMsg;
+      } catch (_) {}
+      
       return Apl02SubmitResult(
         success: false,
-        message: metadata?['message'] ??
-            'Server error ${response.statusCode}',
+        message: serverMsg,
       );
     } catch (e) {
       print('[APL02] POST Error: $e');
