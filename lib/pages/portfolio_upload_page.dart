@@ -28,7 +28,7 @@ class _PortfolioUploadPageState extends State<PortfolioUploadPage> {
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         title: Text(
-          'Upload Portfolio',
+          'Unggah Portofolio',
           style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -73,7 +73,7 @@ class _PortfolioUploadPageState extends State<PortfolioUploadPage> {
                     ),
                     onPressed: () => c.fetchPortfolios(widget.scheme),
                     icon: const Icon(Icons.refresh, color: Colors.white),
-                    label: const Text('Refresh', style: TextStyle(color: Colors.white)),
+                    label: const Text('Muat Ulang', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -133,7 +133,7 @@ class _PortfolioUploadPageState extends State<PortfolioUploadPage> {
                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                  children: [
                    Text(
-                     'Progress Upload',
+                     'Progres Unggahan',
                      style: GoogleFonts.plusJakartaSans(
                        fontSize: 14,
                        fontWeight: FontWeight.bold,
@@ -259,13 +259,13 @@ class _PortfolioUploadPageState extends State<PortfolioUploadPage> {
                                   minimumSize: const Size(60, 32),
                                   elevation: 0,
                                 ),
-                                onPressed: () {
+                                onPressed: isUploading ? null : () {
                                   c.uploadEvidence(doc).then((_) {
                                     c.fetchPortfolios(widget.scheme);
                                   });
                                 },
                                 child: Text(
-                                  isUploaded ? 'Update' : 'Upload',
+                                  isUploaded ? 'Perbarui' : 'Unggah',
                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                                 ),
                               ),
