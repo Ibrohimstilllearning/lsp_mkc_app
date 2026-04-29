@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
+import 'package:lsp_mkc_app/utils/api_helper.dart';
 
 class RegistrationForm {
   final String code;
@@ -44,8 +45,10 @@ class RegistrationItem {
 
   factory RegistrationItem.fromJson(Map<String, dynamic> json) =>
       RegistrationItem(
-        registrationId: int.tryParse(json['registration_id']?.toString() ?? '') ?? int.tryParse(json['id']?.toString() ?? '') ?? 0,
-        schemeId: int.tryParse(json['scheme_id']?.toString() ?? '') ?? int.tryParse(json['scheme']?['id']?.toString() ?? '') ?? 0,
+        registrationId: int.tryParse(json['registration_id']?.toString() ?? '') ??
+            int.tryParse(json['id']?.toString() ?? '') ?? 0,
+        schemeId: int.tryParse(json['scheme_id']?.toString() ?? '') ??
+            int.tryParse(json['scheme']?['id']?.toString() ?? '') ?? 0,
         schemeName: json['scheme_name'] ?? json['scheme']?['name'] ?? '-',
         schemeCode: json['scheme_code'] ?? json['scheme']?['code'] ?? '-',
         createdAt: _formatDate(json['created_at']),
@@ -98,36 +101,22 @@ class PengajuanController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final url =
-          Uri.parse('${ApiEndpoints.baseUrl}/registrations');
-
-      debugPrint('[PENGAJUAN] URL: $url');
-
       final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-          'ngrok-skip-browser-warning': 'true',
-        },
+        Uri.parse('${ApiEndpoints.baseUrl}/registrations'),
+        headers: ApiEndpoints.authHeaders(token),
       );
 
-      debugPrint('[PENGAJUAN] Status: ${response.statusCode}');
-      debugPrint('[PENGAJUAN] Body  : ${response.body}');
-
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        final List data = json['response'] ?? [];
-        final allItems = data.map((e) => RegistrationItem.fromJson(e)).toList();
-        
-        // HANYA ambil yang masih aktif / belum kelar
-        pengajuanList.assignAll(allItems.where((item) => item.isActive).toList());
+      final data = ApiHelper.handleResponse(response);
+      if (data != null) {
+        final List list = data['response'] ?? [];
+        pengajuanList.assignAll(
+          list.map((e) => RegistrationItem.fromJson(e)).toList(),
+        );
       } else {
         hasError.value = true;
       }
     } catch (e) {
-      debugPrint('[PENGAJUAN] Error: $e');
+      ApiHelper.handleException(e);
       hasError.value = true;
     } finally {
       isLoading.value = false;
