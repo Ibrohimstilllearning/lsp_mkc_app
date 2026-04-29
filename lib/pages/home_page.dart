@@ -5,6 +5,7 @@ import 'package:lsp_mkc_app/pages/home_controller.dart';
 import 'package:lsp_mkc_app/pages/pengajuan_controller.dart';
 import 'package:lsp_mkc_app/pages/riwayat_page.dart';
 import 'package:lsp_mkc_app/pages/profil_page.dart';
+import 'package:lsp_mkc_app/pages/registration_scheme_list_page.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class HomePage extends GetView<HomeController> {
@@ -98,73 +99,6 @@ class _HomeTab extends StatelessWidget {
     required this.controller,
   });
 
-  void _showFormDialog() {
-    Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Pilih Form',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF111827),
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Pilih form yang ingin diisi:',
-              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
-            ),
-            const SizedBox(height: 16),
-            _formButton(
-              label: 'FR.APL.01 — Permohonan Sertifikasi',
-              onTap: () {
-                Get.back();
-                Get.toNamed(AppPages.apl01);
-              },
-            ),
-            const SizedBox(height: 8),
-            _formButton(
-              label: 'FR.APL.02 — Asesmen Mandiri',
-              onTap: () async {
-                Get.back();
-                await goToFormApl02();
-              },
-            ),
-            const SizedBox(height: 8),
-            _formButton(
-              label: 'FR.AK.04 — Banding Asesmen',
-              onTap: () {
-                Get.back();
-                Get.toNamed(AppPages.ak04);
-              },
-            ),
-            const SizedBox(height: 8),
-            _formButton(
-              label: 'FR.AK.07 — Ceklis Penyesuaian',
-              onTap: () {
-                Get.back();
-                Get.toNamed(AppPages.ak07);
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(
-              'Batal',
-              style: TextStyle(color: Color(0xFF9CA3AF)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _formButton({required String label, required VoidCallback onTap}) {
     return SizedBox(
@@ -334,52 +268,57 @@ class _HomeTab extends StatelessWidget {
               }),
 
             // padding bawah supaya konten ga ketutup tombol fixed
-            const SizedBox(height: 80),
+            Obx(() => SizedBox(height: pengajuanController.hasActiveRegistration ? 20 : 80)),
           ],
         ),
       ),
     ),
 
     // ── Tombol Fixed di Bawah ──
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () => _showFormDialog(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3E8E41),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+        Obx(() {
+          if (pengajuanController.isLoading.value) return const SizedBox.shrink();
+          if (pengajuanController.hasActiveRegistration) return const SizedBox.shrink();
+
+          return Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
                   ),
-                ),
-                child: const Text(
-                  "Mulai Proses Sertifikasi",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                ],
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Get.to(() => const RegistrationSchemeListPage()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3E8E41),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Mulai Proses Sertifikasi",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
@@ -543,6 +482,57 @@ class _RegistrationCard extends StatelessWidget {
   final RegistrationItem item;
   const _RegistrationCard({required this.item});
 
+  bool get _canCancel {
+    return !item.forms.any((f) =>
+        f.status == 'submitted' ||
+        f.status == 'approved' ||
+        f.status == 'paid' ||
+        f.status == 'pending');
+  }
+
+  void _showCancelDialog(BuildContext context) {
+    final controller = Get.find<PengajuanController>();
+
+    Get.dialog(
+      Obx(() => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Batalkan Pengajuan?',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          'Yakin ingin membatalkan "${item.schemeName}"?\n\nTindakan ini tidak dapat dibatalkan.',
+          style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: controller.isCancelling.value ? null : () => Get.back(),
+            child: const Text('Tidak'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: controller.isCancelling.value
+                ? null
+                : () {
+                    Get.back();
+                    controller.cancelRegistration(item.registrationId);
+                  },
+            child: controller.isCancelling.value
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text('Ya, Batalkan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -551,15 +541,13 @@ class _RegistrationCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header card (sama seperti sebelumnya)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Row(
@@ -572,55 +560,79 @@ class _RegistrationCard extends StatelessWidget {
                     color: const Color(0xFFE8F5E9),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.workspace_premium_outlined,
-                      size: 20, color: Color(0xFF4CAF50)),
+                  child: const Icon(Icons.workspace_premium_outlined, size: 20, color: Color(0xFF4CAF50)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item.schemeName,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF111827))),
+                      Text(item.schemeName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
                       const SizedBox(height: 2),
-                      Text(item.schemeCode,
-                          style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF9CA3AF))),
+                      Text(item.schemeCode, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                     ],
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Diajukan',
-                        style: TextStyle(
-                            fontSize: 10, color: Color(0xFF9CA3AF))),
-                    Text(item.createdAt,
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF6B7280))),
+                    const Text('Diajukan', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
+                    Text(item.createdAt, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF6B7280))),
                   ],
                 ),
               ],
             ),
           ),
+
           const Divider(height: 1, color: Color(0xFFF3F4F6)),
+
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              children: item.forms
-                  .map((form) => _FormRow(
-                        form: form,
-                        registrationId: item.registrationId,
-                      ))
-                  .toList(),
+              children: () {
+                // Logika: Tampilkan form satu per satu (sekuensial).
+                // Form berikutnya HANYA muncul jika form saat ini sudah 'approved' atau 'paid'.
+                final visibleForms = <RegistrationForm>[];
+                for (int i = 0; i < item.forms.length; i++) {
+                  final form = item.forms[i];
+                  visibleForms.add(form);
+                  
+                  // Jika form ini belum selesai/disetujui, JANGAN tampilkan form d bawahnya
+                  if (form.status != 'approved' && form.status != 'paid') {
+                    break;
+                  }
+                }
+
+                return visibleForms.map((form) => _FormRow(
+                      form: form,
+                      registrationId: item.registrationId,
+                    )).toList();
+              }(),
             ),
           ),
+
+          if (_canCancel) ...[
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFEF4444)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  icon: const Icon(Icons.cancel_outlined, color: Color(0xFFEF4444), size: 16),
+                  label: const Text(
+                    'Batalkan Pengajuan',
+                    style: TextStyle(color: Color(0xFFEF4444), fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                  onPressed: () => _showCancelDialog(context),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
