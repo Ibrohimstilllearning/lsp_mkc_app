@@ -270,4 +270,3 @@ class _PortfolioPerSkmaSectionState extends State<_PortfolioPerSkemaSection> {
     );
   }
 }
-
