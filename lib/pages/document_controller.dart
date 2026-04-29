@@ -16,7 +16,7 @@ class DokumenItem {
   const DokumenItem({required this.key, required this.label, this.keterangan});
 }
 
-// ─── Master Document List ─────────────────────────────────────────────────────
+// ─── Master document list ─────────────────────────────────────────────────────
 const List<DokumenItem> masterDocument = [
   DokumenItem(key: 'ijazah', label: 'Photocopy Ijazah Min. SMA/SMK Sederajat'),
   DokumenItem(
@@ -34,7 +34,7 @@ const List<DokumenItem> masterDocument = [
   DokumenItem(key: 'ktp/kk', label: 'Photocopy KTP / Kartu Keluarga (KK)'),
 ];
 
-// ─── Mapping list_id → key ────────────────────────────────────────────────────
+// ─── Mapping ──────────────────────────────────────────────────────────────────
 const listIdToKey = {
   1: 'ktp/kk',
   2: 'pas_foto',
@@ -59,7 +59,6 @@ class DocumentController extends GetxController {
       <String, Map<String, String>>{}.obs;
 
   final RxSet<String> loadingDocs = <String>{}.obs;
-
   final RxSet<String> selectedKeys = <String>{}.obs;
 
   @override
@@ -95,21 +94,22 @@ class DocumentController extends GetxController {
       debugPrint('[DOC] GET /documents body: ${response.body}');
 
       if (response.body.isEmpty) return;
-      if (response.statusCode != 200) return;
 
-      final json = jsonDecode(response.body);
-      final list = json['response'] as List<dynamic>? ?? [];
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final list = json['response'] as List<dynamic>;
 
-      for (final item in list) {
-        final listId = item['list_id'] as int?;
-        final key = listIdToKey[listId];
-        if (key != null) {
-          uploadedDocs[key] = {
-            'id': item['id']?.toString() ?? '',
-            'file_name': item['document_title']?.toString() ?? '',
-            'file_url': item['file_url']?.toString() ?? '',
-            'source': 'profile',
-          };
+        for (final item in list) {
+          final listId = item['list_id'] as int?;
+          final key = listIdToKey[listId];
+          if (key != null) {
+            uploadedDocs[key] = {
+              'id':        item['id']?.toString() ?? '',
+              'file_name': item['document_title']?.toString() ?? '',
+              'file_url':  item['file_url']?.toString() ?? '',
+              'source':    'profile',
+            };
+          }
         }
       }
     } catch (e) {
@@ -117,17 +117,7 @@ class DocumentController extends GetxController {
     }
   }
 
-  // ─── Pick File ────────────────────────────────────────────────────────────
-  Future<PlatformFile?> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-      withData: true,
-    );
-    return result?.files.single;
-  }
-
-  // ─── POST /document-profiles (dari Profile) ───────────────────────────────
+  // ─── POST /document-profiles ──────────────────────────────────────────────
   Future<void> uploadDokumenFromProfil(String key) async {
     final file = await _pickFile();
     if (file == null) return;
@@ -152,13 +142,15 @@ class DocumentController extends GetxController {
       final url = Uri.parse('${ApiEndpoints.baseUrl}/document-profiles');
       final request = http.MultipartRequest('POST', url);
 
-      final headers = Map<String, String>.from(ApiEndpoints.authHeaders(token));
+      final rawHeaders = ApiEndpoints.authHeaders(token);
+      final headers = Map<String, String>.from(rawHeaders);
       headers.remove('Content-Type');
       request.headers.addAll(headers);
 
       request.fields['documents[0][list_id]'] = listId.toString();
 
-      final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+      final ioFile = File(file.path!);
+      final bytes = await ioFile.readAsBytes();
       request.files.add(http.MultipartFile.fromBytes(
         'documents[0][file]',
         bytes,
@@ -177,16 +169,24 @@ class DocumentController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final json = jsonDecode(response.body);
-        final List responseList = json['response'] ?? [];
-        final data = responseList.isNotEmpty
-            ? responseList[0] as Map<String, dynamic>
-            : <String, dynamic>{};
+
+        Map<String, dynamic>? data;
+        final raw = json['response'];
+        if (raw is Map<String, dynamic>) {
+          data = raw;
+        } else if (raw is List && raw.isNotEmpty) {
+          data = raw.first as Map<String, dynamic>?;
+        }
 
         uploadedDocs[key] = {
-          'file_name': file.name,
-          'file_url': data['upload_document']?.toString() ?? '',
-          'source': 'profile',
+          'id':        data?['id']?.toString() ?? '',
+          'file_name': data?['file_name']?.toString() ?? file.name,
+          'file_url':  data?['file_url']?.toString() ?? '',
+          'source':    'profile',
         };
+
+        // Refresh dari server agar id & file_url ter-update
+        await fetchDokumenFromProfile();
 
         _showSuccess('Dokumen berhasil diupload');
       } else {
@@ -205,16 +205,10 @@ class DocumentController extends GetxController {
     }
   }
 
-  // ─── POST /document-profiles (dari APL01) ─────────────────────────────────
+  // ─── POST /apl01/documents/upload ────────────────────────────────────────
   Future<void> uploadDokumenFromApl01(String key) async {
     final file = await _pickFile();
     if (file == null) return;
-
-    final listId = keyToListId[key];
-    if (listId == null) {
-      _showError('Jenis dokumen tidak dikenali');
-      return;
-    }
 
     if (file.size > 2 * 1024 * 1024) {
       _showError('Ukuran file maksimal 2MB');
@@ -227,18 +221,20 @@ class DocumentController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/document-profiles');
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/apl01/documents/upload');
       final request = http.MultipartRequest('POST', url);
 
-      final headers = Map<String, String>.from(ApiEndpoints.authHeaders(token));
+      final rawHeaders = ApiEndpoints.authHeaders(token);
+      final headers = Map<String, String>.from(rawHeaders);
       headers.remove('Content-Type');
       request.headers.addAll(headers);
 
-      request.fields['documents[0][list_id]'] = listId.toString();
+      request.fields['document_type'] = key;
 
-      final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+      final ioFile = File(file.path!);
+      final bytes = await ioFile.readAsBytes();
       request.files.add(http.MultipartFile.fromBytes(
-        'documents[0][file]',
+        'file',
         bytes,
         filename: file.name,
       ));
@@ -253,15 +249,20 @@ class DocumentController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final json = jsonDecode(response.body);
-        final List responseList = json['response'] ?? [];
-        final data = responseList.isNotEmpty
-            ? responseList[0] as Map<String, dynamic>
-            : <String, dynamic>{};
+
+        Map<String, dynamic>? data;
+        final raw = json['response'];
+        if (raw is Map<String, dynamic>) {
+          data = raw;
+        } else if (raw is List && raw.isNotEmpty) {
+          data = raw.first as Map<String, dynamic>?;
+        }
 
         uploadedDocs[key] = {
-          'file_name': file.name,
-          'file_url': data['upload_document']?.toString() ?? '',
-          'source': 'apl01',
+          'id':        data?['id']?.toString() ?? '',
+          'file_name': data?['file_name']?.toString() ?? file.name,
+          'file_url':  data?['file_url']?.toString() ?? '',
+          'source':    'apl01',
         };
 
         _showSuccess('Dokumen berhasil diupload');
@@ -281,94 +282,31 @@ class DocumentController extends GetxController {
     }
   }
 
-  // ─── PUT /document-profiles/{userId} ─────────────────────────────────────
-  Future<void> updateDokumen(String key, int userId) async {
-    final file = await _pickFile();
-    if (file == null) return;
-
-    final listId = keyToListId[key];
-    if (listId == null) {
-      _showError('Jenis dokumen tidak dikenali');
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      _showError('Ukuran file maksimal 2MB');
-      return;
-    }
-
-    loadingDocs.add(key);
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token') ?? '';
-
-      final url = Uri.parse(
-          '${ApiEndpoints.baseUrl}/document-profiles/$userId');
-      final request = http.MultipartRequest('PUT', url);
-
-      final headers = Map<String, String>.from(ApiEndpoints.authHeaders(token));
-      headers.remove('Content-Type');
-      request.headers.addAll(headers);
-
-      request.fields['documents[0][list_id]'] = listId.toString();
-
-      final bytes = file.bytes ?? await File(file.path!).readAsBytes();
-      request.files.add(http.MultipartFile.fromBytes(
-        'documents[0][file]',
-        bytes,
-        filename: file.name,
-      ));
-
-      final stream = await request.send();
-      final response = await http.Response.fromStream(stream);
-
-      debugPrint('[DOC] PUT update status: ${response.statusCode}');
-      debugPrint('[DOC] PUT update body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        uploadedDocs[key] = {
-          'file_name': file.name,
-          'file_url': '',
-          'source': 'profile',
-        };
-        _showSuccess('Dokumen berhasil diperbarui');
-      } else {
-        final json = jsonDecode(response.body);
-        _showError(
-          json['metadata']?['message'] ??
-              json['message'] ??
-              'Gagal memperbarui dokumen',
-        );
-      }
-    } catch (e) {
-      debugPrint('[DOC] updateDokumen error: $e');
-      _showError('Gagal update, coba lagi');
-    } finally {
-      loadingDocs.remove(key);
-    }
-  }
-
-  // ─── DELETE /profile/documents/{key} ─────────────────────────────────────
+  // ─── DELETE /documents/{id} ───────────────────────────────────────────────
   Future<void> deleteDokumen(String key) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/profile/documents/$key');
+      final docId = uploadedDocs[key]?['id'] ?? '';
+
+      if (docId.isEmpty) {
+        _showError('Gagal: ID dokumen tidak ditemukan');
+        return;
+      }
+
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/documents/$docId');
       final response = await http.delete(
         url,
         headers: ApiEndpoints.authHeaders(token),
       );
 
       debugPrint('[DOC] DELETE status: ${response.statusCode}');
-      debugPrint('[DOC] DELETE body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 204) {
         uploadedDocs.remove(key);
         _showSuccess('Dokumen berhasil dihapus');
       } else {
-        // Silent remove di UI kalau endpoint belum ada
         uploadedDocs.remove(key);
         debugPrint('[DOC] deleteDokumen: endpoint mungkin belum ada');
       }
@@ -378,22 +316,39 @@ class DocumentController extends GetxController {
     }
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
+  // ─── Helper: pick file ────────────────────────────────────────────────────
+  Future<PlatformFile?> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      withData: false,
+      withReadStream: false,
+    );
+    return result?.files.single;
+  }
+
+  // ─── Helper: snackbar ─────────────────────────────────────────────────────
   void _showSuccess(String msg) {
-    Get.snackbar('Berhasil', msg,
-        backgroundColor: const Color(0xFF4CAF50),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 10);
+    Get.snackbar(
+      'Berhasil',
+      msg,
+      backgroundColor: const Color(0xFF4CAF50),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 10,
+    );
   }
 
   void _showError(String msg) {
-    Get.snackbar('Gagal', msg,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 10);
+    Get.snackbar(
+      'Gagal',
+      msg,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 10,
+    );
   }
 }

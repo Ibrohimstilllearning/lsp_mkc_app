@@ -26,6 +26,7 @@ class RegistrationForm {
 
 class RegistrationItem {
   final int registrationId;
+  final int schemeId;
   final String schemeName;
   final String schemeCode;
   final String createdAt;
@@ -33,6 +34,7 @@ class RegistrationItem {
 
   RegistrationItem({
     required this.registrationId,
+    required this.schemeId,
     required this.schemeName,
     required this.schemeCode,
     required this.createdAt,
@@ -41,9 +43,10 @@ class RegistrationItem {
 
   factory RegistrationItem.fromJson(Map<String, dynamic> json) =>
       RegistrationItem(
-        registrationId: json['registration_id'] ?? 0,
-        schemeName: json['scheme_name'] ?? '-',
-        schemeCode: json['scheme_code'] ?? '-',
+        registrationId: int.tryParse(json['registration_id']?.toString() ?? '') ?? int.tryParse(json['id']?.toString() ?? '') ?? 0,
+        schemeId: int.tryParse(json['scheme_id']?.toString() ?? '') ?? int.tryParse(json['scheme']?['id']?.toString() ?? '') ?? 0,
+        schemeName: json['scheme_name'] ?? json['scheme']?['name'] ?? '-',
+        schemeCode: json['scheme_code'] ?? json['scheme']?['code'] ?? '-',
         createdAt: json['created_at'] ?? '',
         forms: (json['forms'] as List<dynamic>? ?? [])
             .map((f) => RegistrationForm.fromJson(f))
