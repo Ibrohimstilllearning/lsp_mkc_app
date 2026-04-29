@@ -62,6 +62,8 @@ class PengajuanController extends GetxController {
   final hasError = false.obs;
   final pengajuanList = <RegistrationItem>[].obs;
 
+  final isCancelling = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -81,6 +83,9 @@ class PengajuanController extends GetxController {
         headers: ApiEndpoints.authHeaders(token),
       );
 
+      debugPrint('[PENGAJUAN] Status: ${response.statusCode}');
+      debugPrint('[PENGAJUAN] Body  : ${response.body}');
+
       final data = ApiHelper.handleResponse(response);
       if (data != null) {
         final List list = data['response'] ?? [];
@@ -95,6 +100,41 @@ class PengajuanController extends GetxController {
       hasError.value = true;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// CANCEL REGISTRATION (Saat ini backend belum support)
+  Future<void> cancelRegistration(int registrationId) async {
+    if (isCancelling.value) return;
+
+    try {
+      isCancelling.value = true;
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      final response = await http.delete(
+        Uri.parse('${ApiEndpoints.baseUrl}/registrations/$registrationId'),
+        headers: ApiEndpoints.authHeaders(token),
+      );
+
+      debugPrint('[CANCEL] Status: ${response.statusCode}');
+      debugPrint('[CANCEL] Body  : ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        pengajuanList.removeWhere((e) => e.registrationId == registrationId);
+        ApiHelper.showSuccess('Pengajuan berhasil dibatalkan');
+      } else if (response.statusCode == 404) {
+        ApiHelper.showError('Fitur batal pengajuan belum diaktifkan oleh backend.\nID: $registrationId');
+        // Refresh list agar data tetap up-to-date
+        await fetchPengajuan();
+      } else {
+        ApiHelper.handleResponse(response); // akan muncul error message dari ApiHelper
+      }
+    } catch (e) {
+      ApiHelper.handleException(e);
+    } finally {
+      isCancelling.value = false;
     }
   }
 }

@@ -543,6 +543,57 @@ class _RegistrationCard extends StatelessWidget {
   final RegistrationItem item;
   const _RegistrationCard({required this.item});
 
+  bool get _canCancel {
+    return !item.forms.any((f) =>
+        f.status == 'submitted' ||
+        f.status == 'approved' ||
+        f.status == 'paid' ||
+        f.status == 'pending');
+  }
+
+  void _showCancelDialog(BuildContext context) {
+    final controller = Get.find<PengajuanController>();
+
+    Get.dialog(
+      Obx(() => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Batalkan Pengajuan?',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          'Yakin ingin membatalkan "${item.schemeName}"?\n\nTindakan ini tidak dapat dibatalkan.',
+          style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: controller.isCancelling.value ? null : () => Get.back(),
+            child: const Text('Tidak'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: controller.isCancelling.value
+                ? null
+                : () {
+                    Get.back();
+                    controller.cancelRegistration(item.registrationId);
+                  },
+            child: controller.isCancelling.value
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text('Ya, Batalkan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -551,15 +602,13 @@ class _RegistrationCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header card (sama seperti sebelumnya)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Row(
@@ -572,55 +621,63 @@ class _RegistrationCard extends StatelessWidget {
                     color: const Color(0xFFE8F5E9),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.workspace_premium_outlined,
-                      size: 20, color: Color(0xFF4CAF50)),
+                  child: const Icon(Icons.workspace_premium_outlined, size: 20, color: Color(0xFF4CAF50)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item.schemeName,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF111827))),
+                      Text(item.schemeName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
                       const SizedBox(height: 2),
-                      Text(item.schemeCode,
-                          style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF9CA3AF))),
+                      Text(item.schemeCode, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                     ],
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Diajukan',
-                        style: TextStyle(
-                            fontSize: 10, color: Color(0xFF9CA3AF))),
-                    Text(item.createdAt,
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF6B7280))),
+                    const Text('Diajukan', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
+                    Text(item.createdAt, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF6B7280))),
                   ],
                 ),
               ],
             ),
           ),
+
           const Divider(height: 1, color: Color(0xFFF3F4F6)),
+
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               children: item.forms
-                  .map((form) => _FormRow(
-                        form: form,
-                        registrationId: item.registrationId,
-                      ))
+                  .map((form) => _FormRow(form: form, registrationId: item.registrationId))
                   .toList(),
             ),
           ),
+
+          if (_canCancel) ...[
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFEF4444)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  icon: const Icon(Icons.cancel_outlined, color: Color(0xFFEF4444), size: 16),
+                  label: const Text(
+                    'Batalkan Pengajuan',
+                    style: TextStyle(color: Color(0xFFEF4444), fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                  onPressed: () => _showCancelDialog(context),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
