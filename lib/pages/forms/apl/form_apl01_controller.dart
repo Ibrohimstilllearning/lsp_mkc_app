@@ -6,8 +6,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:lsp_mkc_app/utils/api_error_handler.dart';
 
+<<<<<<< HEAD
 // ✅ Map nama pendidikan → education_id (sesuaikan ID dengan data backend)
 const Map<String, int> educationIdMap = {'SMK': 1, 'S1': 2};
+=======
+class EducationOption {
+  final int id;
+  final String name;
+  EducationOption({required this.id, required this.name});
+  factory EducationOption.fromJson(Map<String, dynamic> json) =>
+      EducationOption(id: json['id'], name: json['title'] ?? '');
+}
+>>>>>>> fa851aee07189e56c65188bb354f737ea1536690
 
 class FormApl01Controller extends GetxController {
   // ─── BAGIAN 1: Data Pribadi & Pekerjaan ───────────────────────────────────
@@ -17,8 +27,15 @@ class FormApl01Controller extends GetxController {
   final alamatController = TextEditingController();
   final kodePosController = TextEditingController();
   final noHpController = TextEditingController();
+<<<<<<< HEAD
   final pendidikanController =
       TextEditingController(); // menyimpan label (nama)
+=======
+  // Education dropdown
+  final educationList = <EducationOption>[].obs;
+  final selectedEducationId = Rxn<int>();
+  final isLoadingEducation = false.obs;
+>>>>>>> fa851aee07189e56c65188bb354f737ea1536690
   final namaInstitusiController = TextEditingController();
 
   final institusiController = TextEditingController();
@@ -41,6 +58,34 @@ class FormApl01Controller extends GetxController {
     super.onInit();
     if (Get.arguments != null && Get.arguments['selectedScheme'] != null) {
       selectedSchemeId = Get.arguments['selectedScheme'].id;
+    }
+    fetchEducationOptions();
+  }
+
+  // ─── Fetch Master Education ───────────────────────────────────────────────
+  Future<void> fetchEducationOptions() async {
+    isLoadingEducation.value = true;
+    try {
+      final token = await _getToken();
+      final response = await http.get(
+        Uri.parse('${ApiEndpoints.baseUrl}/master-education'),
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
+      );
+      print('[APL01] Education status: ${response.statusCode}');
+      print('[APL01] Education body: ${response.body}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final list = data['response'] ?? data['data'] ?? [];
+        educationList.value = (list as List)
+            .map((e) => EducationOption.fromJson(e))
+            .toList();
+      }
+    } catch (e) {
+      print('[APL01] Education fetch error: $e');
+    } finally {
+      isLoadingEducation.value = false;
     }
   }
 
@@ -146,11 +191,16 @@ class FormApl01Controller extends GetxController {
         if (user['phone_number'] != null) {
           noHpController.text = user['phone_number'];
         }
+<<<<<<< HEAD
 
         // ✅ Load pendidikan dari profil → set label + ID sekaligus
         if (user['education_qualifications'] != null) {
           final label = user['education_qualifications'].toString();
           setPendidikan(label);
+=======
+        if (user['education_id'] != null) {
+          selectedEducationId.value = int.tryParse(user['education_id'].toString());
+>>>>>>> fa851aee07189e56c65188bb354f737ea1536690
         }
 
         if (user['company_name'] != null) {
@@ -182,6 +232,7 @@ class FormApl01Controller extends GetxController {
       _showError('Nama harus diisi');
       return false;
     }
+<<<<<<< HEAD
 
     // ✅ Validasi pendidikan dipilih
     if (educationId.value == null) {
@@ -189,6 +240,12 @@ class FormApl01Controller extends GetxController {
       return false;
     }
 
+=======
+    if (selectedEducationId.value == null) {
+      _showError('Kualifikasi pendidikan harus dipilih');
+      return false;
+    }
+>>>>>>> fa851aee07189e56c65188bb354f737ea1536690
     isLoadingBagian1.value = true;
     try {
       final token = await _getToken();
@@ -199,10 +256,14 @@ class FormApl01Controller extends GetxController {
         'address': alamatController.text.trim(),
         'home_postal_code': kodePosController.text.trim(),
         'phone_number': noHpController.text.trim(),
+<<<<<<< HEAD
 
         // ✅ FIX: kirim education_id (int) bukan education_qualifications (string)
         'education_id': educationId.value,
 
+=======
+        'education_id': selectedEducationId.value,
+>>>>>>> fa851aee07189e56c65188bb354f737ea1536690
         'company_name': institusiController.text.trim(),
         'job_title': jabatanController.text.trim(),
         'company_address': alamatKantorController.text.trim(),
@@ -353,7 +414,6 @@ class FormApl01Controller extends GetxController {
     alamatController.dispose();
     kodePosController.dispose();
     noHpController.dispose();
-    pendidikanController.dispose();
     namaInstitusiController.dispose();
     institusiController.dispose();
     jabatanController.dispose();

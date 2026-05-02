@@ -20,7 +20,9 @@ class VerifyController extends GetxController {
   void onInit() {
     super.onInit();
     _startCountdown();
-    _startCheckingVerification();
+    _loginToGetToken().then((_) {
+      _startCheckingVerification();
+    });
   }
 
   @override
@@ -33,6 +35,14 @@ class VerifyController extends GetxController {
   Future<void> _loginToGetToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+
+      // [FIX] cek dulu kalau token udah ada
+      final existingToken = prefs.getString('token');
+      if (existingToken != null && existingToken.isNotEmpty) {
+        _token = existingToken;
+        return;
+      }
+
       final email = prefs.getString('temp_email');
       final password = prefs.getString('temp_password');
 
@@ -57,9 +67,11 @@ class VerifyController extends GetxController {
         final json = jsonDecode(bodyStr);
         _token = json['token'];
         if (_token != null) {
-          final prefs = await SharedPreferences.getInstance();
           await prefs.setString('token', _token!);
         }
+      } else if (response.statusCode == 403) {
+        // Email belum diverifikasi - normal, tunggu user verifikasi
+        print('Email belum diverifikasi, tunggu verifikasi dulu');
       }
     } catch (e) {
       print('Auto login error: $e');
@@ -80,17 +92,23 @@ class VerifyController extends GetxController {
     });
   }
 
-  // cek tiap 10 detik, hanya kalau token sudah ada
   void _startCheckingVerification() {
-    _checkTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_token != null) {
-        await _checkVerificationStatus();
-      }
+    // cek langsung sekali dulu
+    _checkVerificationStatus();
+
+    // lanjut cek tiap 5 detik
+    _checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      await _checkVerificationStatus();
     });
   }
 
   Future<void> _checkVerificationStatus() async {
-    if (_token == null) return;
+    // [FIX] kalau token null, coba login dulu
+    if (_token == null) {
+      await _loginToGetToken();
+      if (_token == null) return;
+    }
+
     try {
       final url = Uri.parse(
         ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.userPoint,
@@ -113,7 +131,11 @@ class VerifyController extends GetxController {
           await _redirectToHome();
         }
       } else if (response.statusCode == 401) {
+        // Token expired, reset dan coba login ulang
         _token = null;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+        await _loginToGetToken();
       }
     } catch (e) {
       print('Check verify error: $e');
@@ -128,7 +150,6 @@ class VerifyController extends GetxController {
     if (_token != null) {
       await _redirectToHome();
     } else {
-      // login gagal, arahkan ke login manual
       Get.offAllNamed(AppPages.login);
     }
   }
@@ -149,35 +170,51 @@ class VerifyController extends GetxController {
   Future<void> resendVerification() async {
     if (!canResend.value) return;
 
-    if (_token == null) {
-      await _loginToGetToken();
-    }
-
-    if (_token == null) {
-      Get.snackbar(
-        'Gagal',
-        'Tidak dapat mengirim ulang, coba lagi nanti',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 10,
-      );
-      return;
-    }
-
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final email = prefs.getString('temp_email') ?? '';
+
+      if (email.isEmpty) {
+        Get.snackbar(
+          'Gagal',
+          'Email tidak ditemukan, silakan daftar ulang',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 10,
+        );
+        return;
+      }
+
       final url = Uri.parse(
         ApiEndpoints.baseUrl + ApiEndpoints.authEndPoints.resendVerifyPoint,
       );
+
+      // [FIX] pakai API-KEY bukan Bearer token
       final response = await http.post(
         url,
-        headers: ApiEndpoints.authHeaders(_token!),
+        headers: ApiEndpoints.headers,
+        body: jsonEncode({'email': email}),
       );
+
       print('Resend status: ${response.statusCode}');
       print('Resend body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final json = jsonDecode(response.body);
+        final message = json['metadata']?['message'] ?? '';
+
+        // [FIX] kalau server bilang udah terverifikasi, coba redirect
+        if (message.toLowerCase().contains('sudah terverifikasi')) {
+          // coba login ulang karena mungkin udah verified
+          await _loginToGetToken();
+          if (_token != null) {
+            await _checkVerificationStatus();
+          }
+          return;
+        }
+
         Get.snackbar(
           'Berhasil',
           'Link verifikasi telah dikirim ulang, cek email Anda',
@@ -189,9 +226,10 @@ class VerifyController extends GetxController {
         );
         _startCountdown();
       } else {
+        final json = jsonDecode(response.body);
         Get.snackbar(
           'Gagal',
-          'Gagal mengirim ulang, coba lagi',
+          json['metadata']?['message'] ?? 'Gagal mengirim ulang, coba lagi',
           backgroundColor: Colors.red,
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
