@@ -193,53 +193,53 @@ class _HomeTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEDF7ED),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF3E8E41).withOpacity(0.3),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2E7D32), Color(0xFF4CAF50)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF4CAF50).withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 60,
-                      height: 60,
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(
-                          'assets/serviceunavailable.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "LSP MKC ONLINE APP",
+                            "Sertifikasi BNSP",
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              color: Colors.black87,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Platform sertifikasi kompetensi resmi yang terakreditasi BNSP.",
+                            "Tingkatkan kompetensi Anda melalui sertifikasi resmi.",
                             style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.9),
                             ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
                         ],
                       ),
@@ -331,22 +331,33 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/serviceunavailable.png',
-            width: 180,
-            height: 150,
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            "Belum ada pengajuan\npending, buat satu?",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 13),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.only(top: 40, bottom: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFDCFCE7), width: 8),
+              ),
+              child: const Icon(Icons.note_add_rounded, size: 48, color: Color(0xFF4CAF50)),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Belum Ada Pengajuan",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF111827)),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Mulai langkah sertifikasi Anda dengan\nmembuat pengajuan baru.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF6B7280), fontSize: 13, height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -567,9 +578,37 @@ class _RegistrationCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item.schemeName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
-                      const SizedBox(height: 2),
-                      Text(item.schemeCode, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(item.schemeName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F5E9),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.play_circle_fill_rounded, size: 10, color: Color(0xFF4CAF50)),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Sedang Berlangsung',
+                                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF4CAF50)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(item.schemeCode, style: const TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
+                        ],
+                      ),
                     ],
                   ),
                 ),

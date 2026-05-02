@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:lsp_mkc_app/pages/document_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
 import 'package:lsp_mkc_app/pages/profil_controller.dart';
+import 'package:lsp_mkc_app/pages/pengajuan_controller.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -809,7 +810,10 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
             color: Color(0xFF111827),
             size: 18,
           ),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            Get.find<PengajuanController>().fetchPengajuan();
+            Get.offAllNamed(AppPages.home);
+          },
         ),
         title: const Text(
           'FR.APL.01',

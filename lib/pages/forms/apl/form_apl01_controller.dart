@@ -6,6 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:lsp_mkc_app/utils/api_error_handler.dart';
 
+class EducationOption {
+  final int id;
+  final String name;
+  EducationOption({required this.id, required this.name});
+  factory EducationOption.fromJson(Map<String, dynamic> json) =>
+      EducationOption(id: json['id'], name: json['title'] ?? '');
+}
+
 class FormApl01Controller extends GetxController {
   // ─── BAGIAN 1: Data Pribadi & Pekerjaan ───────────────────────────────────
   final namaController = TextEditingController();
@@ -14,7 +22,10 @@ class FormApl01Controller extends GetxController {
   final alamatController = TextEditingController();
   final kodePosController = TextEditingController();
   final noHpController = TextEditingController();
-  final pendidikanController = TextEditingController();
+  // Education dropdown
+  final educationList = <EducationOption>[].obs;
+  final selectedEducationId = Rxn<int>();
+  final isLoadingEducation = false.obs;
   final namaInstitusiController = TextEditingController();
 
   final institusiController = TextEditingController();
@@ -34,6 +45,34 @@ class FormApl01Controller extends GetxController {
     super.onInit();
     if (Get.arguments != null && Get.arguments['selectedScheme'] != null) {
       selectedSchemeId = Get.arguments['selectedScheme'].id;
+    }
+    fetchEducationOptions();
+  }
+
+  // ─── Fetch Master Education ───────────────────────────────────────────────
+  Future<void> fetchEducationOptions() async {
+    isLoadingEducation.value = true;
+    try {
+      final token = await _getToken();
+      final response = await http.get(
+        Uri.parse('${ApiEndpoints.baseUrl}/master-education'),
+        headers: token != null
+            ? ApiEndpoints.authHeaders(token)
+            : ApiEndpoints.headers,
+      );
+      print('[APL01] Education status: ${response.statusCode}');
+      print('[APL01] Education body: ${response.body}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final list = data['response'] ?? data['data'] ?? [];
+        educationList.value = (list as List)
+            .map((e) => EducationOption.fromJson(e))
+            .toList();
+      }
+    } catch (e) {
+      print('[APL01] Education fetch error: $e');
+    } finally {
+      isLoadingEducation.value = false;
     }
   }
 
@@ -134,8 +173,8 @@ class FormApl01Controller extends GetxController {
         if (user['phone_number'] != null) {
           noHpController.text = user['phone_number'];
         }
-        if (user['education_qualifications'] != null) {
-          pendidikanController.text = user['education_qualifications'];
+        if (user['education_id'] != null) {
+          selectedEducationId.value = int.tryParse(user['education_id'].toString());
         }
         if (user['company_name'] != null) {
           institusiController.text = user['company_name'];
@@ -166,6 +205,10 @@ class FormApl01Controller extends GetxController {
       _showError('Nama harus diisi');
       return false;
     }
+    if (selectedEducationId.value == null) {
+      _showError('Kualifikasi pendidikan harus dipilih');
+      return false;
+    }
     isLoadingBagian1.value = true;
     try {
       final token = await _getToken();
@@ -176,7 +219,7 @@ class FormApl01Controller extends GetxController {
         'address': alamatController.text.trim(),
         'home_postal_code': kodePosController.text.trim(),
         'phone_number': noHpController.text.trim(),
-        'education_qualifications': pendidikanController.text.trim(),
+        'education_id': selectedEducationId.value,
         'company_name': institusiController.text.trim(),
         'job_title': jabatanController.text.trim(),
         'company_address': alamatKantorController.text.trim(),
@@ -313,7 +356,6 @@ class FormApl01Controller extends GetxController {
     alamatController.dispose();
     kodePosController.dispose();
     noHpController.dispose();
-    pendidikanController.dispose();
     namaInstitusiController.dispose();
     institusiController.dispose();
     jabatanController.dispose();

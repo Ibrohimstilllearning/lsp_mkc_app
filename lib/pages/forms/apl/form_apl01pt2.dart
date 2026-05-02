@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt3.dart';
+import 'package:lsp_mkc_app/pages/pengajuan_controller.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class FormApl01Bagian2 extends StatelessWidget {
   final FormApl01Controller c = Get.find<FormApl01Controller>();
@@ -140,7 +142,10 @@ class FormApl01Bagian2 extends StatelessWidget {
             color: Color(0xFF111827),
             size: 18,
           ),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            Get.find<PengajuanController>().fetchPengajuan();
+            Get.offAllNamed(AppPages.home);
+          },
         ),
         title: const Text(
           "FR.APL.01",

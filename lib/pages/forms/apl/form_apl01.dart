@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01pt2.dart';
+import 'package:lsp_mkc_app/pages/pengajuan_controller.dart';
+import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class FormApl01 extends StatefulWidget {
   const FormApl01({super.key});
@@ -379,7 +381,10 @@ class _FormApl01State extends State<FormApl01> {
             color: Color(0xFF111827),
             size: 18,
           ),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            Get.find<PengajuanController>().fetchPengajuan();
+            Get.offAllNamed(AppPages.home);
+          },
         ),
         title: const Text(
           'FR.APL.01',
@@ -567,10 +572,86 @@ class _FormApl01State extends State<FormApl01> {
                     type: TextInputType.phone,
                     hint: '08xxxxxxxxxx',
                   ),
-                  _buildField(
-                    label: 'Kualifikasi Pendidikan',
-                    controller: c.pendidikanController,
-                    hint: 'SMA / D3 / S1 / dll',
+                  // ── Kualifikasi Pendidikan (dropdown dari master_education) ──
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Kualifikasi Pendidikan',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Obx(() {
+                          if (c.isLoadingEducation.value) {
+                            return Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF9FAFB),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFFE5E7EB)),
+                              ),
+                              child: const Center(
+                                child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF4CAF50),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return DropdownButtonFormField<int>(
+                            value: c.selectedEducationId.value,
+                            isExpanded: true,
+                            decoration: InputDecoration(
+                              hintText: 'Pilih kualifikasi pendidikan',
+                              hintStyle: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFFD1D5DB),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFFF9FAFB),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF4CAF50),
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                            items: c.educationList
+                                .map((edu) => DropdownMenuItem<int>(
+                                      value: edu.id,
+                                      child: Text(
+                                        edu.name,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF111827),
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (val) => c.selectedEducationId.value = val,
+                          );
+                        }),
+                      ],
+                    ),
                   ),
                 ],
               ),
