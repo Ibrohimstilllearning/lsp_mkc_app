@@ -27,8 +27,8 @@ import 'package:lsp_mkc_app/pages/onboarding_page.dart';
 import 'package:lsp_mkc_app/pages/pengajuan_controller.dart';
 import 'package:lsp_mkc_app/pages/profil_controller.dart';
 import 'package:lsp_mkc_app/pages/riwayat_controller.dart';
-import 'package:lsp_mkc_app/pages/document_controller.dart'; // ← TAMBAH
-import 'package:lsp_mkc_app/pages/document_page.dart';       // ← TAMBAH
+import 'package:lsp_mkc_app/pages/document_controller.dart';
+import 'package:lsp_mkc_app/pages/document_page.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
 
 class AppRoutes {
@@ -77,7 +77,7 @@ class AppRoutes {
         Get.lazyPut(() => PengajuanController());
         Get.lazyPut(() => RiwayatController());
         Get.lazyPut(() => ProfilController());
-        Get.lazyPut(() => DocumentController()); // ← TAMBAH
+        Get.lazyPut(() => DocumentController());
       }),
     ),
     GetPage(
@@ -87,13 +87,27 @@ class AppRoutes {
         Get.put(ResetController());
       }),
     ),
+
+    // ✅ FIX: baca arguments di binding, set selectedSchemeId setelah controller dibuat
     GetPage(
       name: AppPages.apl01,
-      page: () => FormApl01(),
+      page: () => const FormApl01(),
       binding: BindingsBuilder(() {
-        Get.put(FormApl01Controller());
+        // ✅ Buat controller dulu
+        final controller = Get.put(FormApl01Controller());
+
+        // ✅ Baca arguments DI SINI — saat binding jalan, arguments sudah tersedia
+        final args = Get.arguments;
+        if (args != null && args is Map<String, dynamic>) {
+          final scheme = args['selectedScheme'];
+          if (scheme != null) {
+            controller.selectedSchemeId = scheme.id as int?;
+            print('[APL01] selectedSchemeId dari binding: ${controller.selectedSchemeId}');
+          }
+        }
       }),
     ),
+
     GetPage(
       name: AppPages.apl02,
       page: () {
@@ -132,8 +146,6 @@ class AppRoutes {
         Get.put(FormAk07Controller());
       }),
     ),
-
-    // ← TAMBAH document page
     GetPage(
       name: AppPages.document,
       page: () => const DocumentPage(),

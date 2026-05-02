@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'document_controller.dart';
 import 'document_page.dart';
 import 'portfolio_scheme_list_page.dart';
+
 class ProfileDocumentSection extends StatelessWidget {
   const ProfileDocumentSection({super.key});
 
@@ -12,7 +13,7 @@ class ProfileDocumentSection extends StatelessWidget {
     final DocumentController c = Get.put(DocumentController());
     return Column(
       children: [
-        // ── Dokumen Saya (existing) ──
+        // ── Dokumen Saya ──
         GestureDetector(
           onTap: () => Get.to(() => const DocumentPage()),
           child: Container(
@@ -56,13 +57,19 @@ class ProfileDocumentSection extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 3),
-                      // Document badge
                       Obx(() {
-                        final count = c.uploadedDocs.length;
+                        // ✅ FIX: hitung hanya key yang ada di masterDocument
+                        final validKeys =
+                            masterDocument.map((d) => d.key).toSet();
+                        final count = c.uploadedDocs.keys
+                            .where((k) => validKeys.contains(k))
+                            .length;
+                        final total = masterDocument.length;
+
                         return Text(
                           count == 0
                               ? 'Belum ada dokumen yang diupload'
-                              : '$count dari ${masterDocument.length}',
+                              : '$count dari $total dokumen',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12,
                             color: count == 0
@@ -75,7 +82,12 @@ class ProfileDocumentSection extends StatelessWidget {
                   ),
                 ),
                 Obx(() {
-                  final count = c.uploadedDocs.length;
+                  // ✅ FIX: sama — hitung dari validKeys saja
+                  final validKeys =
+                      masterDocument.map((d) => d.key).toSet();
+                  final count = c.uploadedDocs.keys
+                      .where((k) => validKeys.contains(k))
+                      .length;
                   final total = masterDocument.length;
 
                   return Column(
@@ -92,7 +104,10 @@ class ProfileDocumentSection extends StatelessWidget {
                       SizedBox(
                         width: 40,
                         child: LinearProgressIndicator(
-                          value: total > 0 ? count / total : 0,
+                          // ✅ FIX: value tidak akan pernah melebihi 1.0
+                          value: total > 0
+                              ? (count / total).clamp(0.0, 1.0)
+                              : 0,
                           backgroundColor: Colors.grey[200],
                           color: const Color(0xFF009447),
                           borderRadius: BorderRadius.circular(4),
@@ -119,7 +134,7 @@ class ProfileDocumentSection extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// Portfolio Per Skema Section — fetched from APL02 data
+// Portfolio Per Skema Section
 // ══════════════════════════════════════════════════════════════════════
 class _PortfolioPerSkemaSection extends StatefulWidget {
   @override
@@ -147,7 +162,6 @@ class _PortfolioPerSkmaSectionState extends State<_PortfolioPerSkemaSection> {
       ),
       child: Column(
         children: [
-          // Header — tap to expand
           InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () => setState(() => _isExpanded = !_isExpanded),
@@ -193,17 +207,12 @@ class _PortfolioPerSkmaSectionState extends State<_PortfolioPerSkemaSection> {
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 200),
-                    child: const Icon(
-                      Icons.expand_more,
-                      color: Colors.grey,
-                    ),
+                    child: const Icon(Icons.expand_more, color: Colors.grey),
                   ),
                 ],
               ),
             ),
           ),
-
-          // Expanded content — info text
           if (_isExpanded)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -249,10 +258,7 @@ class _PortfolioPerSkmaSectionState extends State<_PortfolioPerSkemaSection> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      onPressed: () {
-                        // Navigate to the scheme list page
-                        Get.to(() => const PortfolioSchemeListPage());
-                      },
+                      onPressed: () => Get.to(() => const PortfolioSchemeListPage()),
                       icon: const Icon(Icons.list_alt, size: 18),
                       label: Text(
                         'Pilih Skema',

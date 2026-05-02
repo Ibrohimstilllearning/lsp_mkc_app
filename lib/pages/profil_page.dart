@@ -34,13 +34,9 @@ class ProfilPage extends GetView<ProfilController> {
             children: [
               const SizedBox(height: 24),
 
-              // ─────────────────────────────────────
-              // Header: foto + nama + email
-              // Rata tengah, tanpa card/container
-              // ─────────────────────────────────────
+              // ─── Header: foto + nama + email ───
               Column(
                 children: [
-                  // Avatar lingkaran abu-abu
                   CircleAvatar(
                     radius: 48,
                     backgroundColor: Colors.grey.shade300,
@@ -48,17 +44,10 @@ class ProfilPage extends GetView<ProfilController> {
                         ? NetworkImage(controller.photoUrl.value)
                         : null,
                     child: controller.photoUrl.value.isEmpty
-                        ? Icon(
-                            Icons.person,
-                            size: 48,
-                            color: Colors.grey.shade500,
-                          )
+                        ? Icon(Icons.person, size: 48, color: Colors.grey.shade500)
                         : null,
                   ),
-
                   const SizedBox(height: 12),
-
-                  // Nama
                   Obx(
                     () => Text(
                       controller.displayName.value.isEmpty
@@ -71,19 +60,13 @@ class ProfilPage extends GetView<ProfilController> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 2),
-
-                  // Email — abu-abu kecil
                   Obx(
                     () => Text(
                       controller.email.value.isEmpty
                           ? 'useremail@gmail23.com'
                           : controller.email.value,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                     ),
                   ),
                 ],
@@ -91,19 +74,7 @@ class ProfilPage extends GetView<ProfilController> {
 
               const SizedBox(height: 28),
 
-              // ─────────────────────────────────────
-              // Label "Menu"
-              // ─────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.only(left: 20, bottom: 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                ),
-              ),
-
-              // ─────────────────────────────────────
-              // Daftar Menu — semua dalam 1 card putih
-              // ─────────────────────────────────────
+              // ─── Daftar Menu ───
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
@@ -112,7 +83,7 @@ class ProfilPage extends GetView<ProfilController> {
                 ),
                 child: Column(
                   children: [
-                    // ── Bar 1: Ubah Nama ──
+                    // ── Ubah Nama ──
                     _MenuItem(
                       icon: Icons.grid_view_rounded,
                       label: 'Ubah Nama',
@@ -127,23 +98,7 @@ class ProfilPage extends GetView<ProfilController> {
 
                     _Divider(),
 
-                    // ── Bar 3: Ubah Email ──
-                    _MenuItem(
-                      icon: Icons.chrome_reader_mode_outlined,
-                      label: 'Ubah Email',
-                      subtitleObs: controller.email,
-                      onTap: () => _showEditSheet(
-                        title: 'Ubah Email',
-                        hint: 'Masukkan email baru',
-                        initialValue: controller.email.value,
-                        keyboardType: TextInputType.emailAddress,
-                        onSave: (v) => controller.updateEmail(v),
-                      ),
-                    ),
-
-                    _Divider(),
-
-                    // ── Bar 4: Ubah Password ──
+                    // ── Ubah Password ──
                     _MenuItem(
                       icon: Icons.crop_square_outlined,
                       label: 'Ubah Password',
@@ -153,12 +108,13 @@ class ProfilPage extends GetView<ProfilController> {
 
                     _Divider(),
 
-                    // ── Bar 5: Info Akun (read-only, tidak ada onTap) ──
+                    // ── Info Akun (read-only) ──
                     _MenuItem(
                       icon: Icons.notifications_outlined,
                       label: 'Info Akun',
                       subtitleObs: controller.role,
                     ),
+
                     ProfileDocumentSection(),
                   ],
                 ),
@@ -172,9 +128,7 @@ class ProfilPage extends GetView<ProfilController> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Bottom sheet edit 1 field
-  // ─────────────────────────────────────────────────────────────
+  // ─── Bottom sheet edit 1 field ────────────────────────────────────────────
   void _showEditSheet({
     required String title,
     required String hint,
@@ -202,10 +156,9 @@ class ProfilPage extends GetView<ProfilController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _SheetHandle(),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
             TextField(
               controller: textCtrl,
@@ -221,9 +174,7 @@ class ProfilPage extends GetView<ProfilController> {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
+                    horizontal: 16, vertical: 14),
               ),
             ),
             const SizedBox(height: 16),
@@ -238,25 +189,19 @@ class ProfilPage extends GetView<ProfilController> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3E8E41),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   child: controller.isSaving.value
                       ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
+                              color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text(
-                          'Simpan',
+                      : const Text('Simpan',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
                 ),
               ),
             ),
@@ -268,9 +213,7 @@ class ProfilPage extends GetView<ProfilController> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Bottom sheet password (3 field)
-  // ─────────────────────────────────────────────────────────────
+  // ─── Bottom sheet password ────────────────────────────────────────────────
   void _showPasswordSheet() {
     final currentCtrl = TextEditingController();
     final newCtrl = TextEditingController();
@@ -297,10 +240,9 @@ class ProfilPage extends GetView<ProfilController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _SheetHandle(),
-              const Text(
-                'Ubah Password',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
+              const Text('Ubah Password',
+                  style:
+                      TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               _PasswordField(
                 label: 'Password Lama',
@@ -331,32 +273,26 @@ class ProfilPage extends GetView<ProfilController> {
                     onPressed: controller.isSaving.value
                         ? null
                         : () => controller.updatePassword(
-                            currentPassword: currentCtrl.text.trim(),
-                            newPassword: newCtrl.text.trim(),
-                            confirmPassword: confirmCtrl.text.trim(),
-                          ),
+                              currentPassword: currentCtrl.text.trim(),
+                              newPassword: newCtrl.text.trim(),
+                              confirmPassword: confirmCtrl.text.trim(),
+                            ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF3E8E41),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                     child: controller.isSaving.value
                         ? const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
+                                color: Colors.white, strokeWidth: 2),
                           )
-                        : const Text(
-                            'Simpan Password',
+                        : const Text('Simpan Password',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700)),
                   ),
                 ),
               ),
@@ -374,15 +310,12 @@ class ProfilPage extends GetView<ProfilController> {
 // WIDGET HELPER
 // ════════════════════════════════════════════════════════════
 
-// ── _MenuItem ──
-// Satu baris menu — icon kotak abu-abu + label + subtitle
-// Mengikuti gaya desain di gambar: icon dalam box, teks di kanan
 class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final RxString? subtitleObs; // nilai reaktif (update otomatis)
-  final String subtitle; // nilai statis (untuk password)
-  final VoidCallback? onTap; // null = read-only
+  final RxString? subtitleObs;
+  final String subtitle;
+  final VoidCallback? onTap;
 
   const _MenuItem({
     required this.icon,
@@ -395,16 +328,12 @@ class _MenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      // InkWell → area yang bisa diklik dengan efek ripple
       onTap: onTap,
-      // borderRadius agar ripple mengikuti sudut container
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            // ── Icon Box ──
-            // Kotak abu-abu dengan icon di dalamnya (sesuai desain)
             Container(
               width: 40,
               height: 40,
@@ -412,57 +341,40 @@ class _MenuItem extends StatelessWidget {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
-                size: 20,
-                // Read-only = abu, editable = hitam
-                color: onTap == null ? Colors.grey.shade400 : Colors.black54,
-              ),
+              child: Icon(icon, size: 20,
+                  color: onTap == null
+                      ? Colors.grey.shade400
+                      : Colors.black54),
             ),
-
             const SizedBox(width: 14),
-
-            // ── Teks (Label + Subtitle) ──
             Expanded(
-              // Expanded → ambil sisa ruang horizontal yang tersedia
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  // Tampilkan subtitle jika ada
+                  Text(label,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
                   if (subtitleObs != null)
-                    Obx(
-                      () => Text(
-                        subtitleObs!.value.isEmpty ? '-' : subtitleObs!.value,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    )
+                    Obx(() => Text(
+                          subtitleObs!.value.isEmpty
+                              ? '-'
+                              : subtitleObs!.value,
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey.shade500),
+                          overflow: TextOverflow.ellipsis,
+                        ))
                   else if (subtitle.isNotEmpty)
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
+                    Text(subtitle,
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey.shade500)),
                 ],
               ),
             ),
-
-            // Chevron hanya untuk item editable
             if (onTap != null)
-              Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
+              Icon(Icons.chevron_right,
+                  color: Colors.grey.shade400, size: 20),
           ],
         ),
       ),
@@ -470,35 +382,32 @@ class _MenuItem extends StatelessWidget {
   }
 }
 
-// ── _Divider ──
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Divider(
-    height: 1,
-    thickness: 1,
-    color: Colors.grey.shade100,
-    indent: 70, // mulai setelah icon box (40px + 16px padding + 14px gap)
-    endIndent: 16,
-  );
+        height: 1,
+        thickness: 1,
+        color: Colors.grey.shade100,
+        indent: 70,
+        endIndent: 16,
+      );
 }
 
-// ── _SheetHandle ──
 class _SheetHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
-    child: Container(
-      width: 40,
-      height: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(2),
-      ),
-    ),
-  );
+        child: Container(
+          width: 40,
+          height: 4,
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      );
 }
 
-// ── _PasswordField ──
 class _PasswordField extends StatelessWidget {
   final String label;
   final String hint;
@@ -517,7 +426,8 @@ class _PasswordField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(label,
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 6),
         Obx(
           () => TextField(
@@ -532,13 +442,11 @@ class _PasswordField extends StatelessWidget {
                 borderSide: BorderSide.none,
               ),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
+                  horizontal: 16, vertical: 14),
               suffixIcon: IconButton(
-                icon: Icon(
-                  hideObs.value ? Icons.visibility_off : Icons.visibility,
-                ),
+                icon: Icon(hideObs.value
+                    ? Icons.visibility_off
+                    : Icons.visibility),
                 onPressed: () => hideObs.value = !hideObs.value,
               ),
             ),

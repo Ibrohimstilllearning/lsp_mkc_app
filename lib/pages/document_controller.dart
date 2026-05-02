@@ -16,41 +16,33 @@ class DokumenItem {
   const DokumenItem({required this.key, required this.label, this.keterangan});
 }
 
-// ─── Master document list ─────────────────────────────────────────────────────
+// ─── Master document list (hanya 4 jenis sesuai revisi) ──────────────────────
 const List<DokumenItem> masterDocument = [
-  DokumenItem(key: 'ijazah', label: 'Photocopy Ijazah Min. SMA/SMK Sederajat'),
-  DokumenItem(
-    key: 'sertifikat_pelatihan',
-    label: 'Photocopy Sertifikat Pelatihan Kompetensi Tenaga Administrasi Kewirausahaan',
-    keterangan: 'Tergantung pada jenis skema',
-  ),
-  DokumenItem(
-    key: 'surat_pengalaman_kerja',
-    label: 'Surat Pengalaman Kerja Minimal 2 Tahun',
-    keterangan: 'Di bidang tenaga Administrasi',
-  ),
-  DokumenItem(key: 'pas_foto', label: 'Pas Foto 3x4'),
-  DokumenItem(key: 'portofolio', label: 'Portofolio'),
-  DokumenItem(key: 'ktp/kk', label: 'Photocopy KTP / Kartu Keluarga (KK)'),
+  DokumenItem(key: 'ijazah',        label: 'Photocopy Ijazah SMA/SMK Sederajat'),
+  DokumenItem(key: 'pas_foto',      label: 'Pas Foto 3x4'),
+  DokumenItem(key: 'ktp/kk',        label: 'Photocopy KTP/KK'),
+  DokumenItem(key: 'sertifikat_d3', label: 'Sertifikat D3'),
 ];
 
-// ─── Mapping ──────────────────────────────────────────────────────────────────
+// ─── Mapping list_id ↔ key ───────────────────────────────────────────────────
 const listIdToKey = {
-  1: 'ktp/kk',
-  2: 'pas_foto',
-  3: 'ijazah',
-  5: 'sertifikat_pelatihan',
-  16: 'surat_pengalaman_kerja',
+  1:   'ktp/kk',
+  2:   'pas_foto',
+  3:   'ijazah',
+  4:   'sertifikat_d3',
+  5:   'sertifikat_pelatihan',
+  16:  'surat_pengalaman_kerja',
   605: 'portofolio',
 };
 
 const keyToListId = {
-  'ktp/kk': 1,
-  'pas_foto': 2,
-  'ijazah': 3,
-  'sertifikat_pelatihan': 5,
+  'ktp/kk':                 1,
+  'pas_foto':               2,
+  'ijazah':                 3,
+  'sertifikat_d3':          4,
+  'sertifikat_pelatihan':   5,
   'surat_pengalaman_kerja': 16,
-  'portofolio': 605,
+  'portofolio':             605,
 };
 
 // ─── Controller ───────────────────────────────────────────────────────────────
@@ -91,25 +83,23 @@ class DocumentController extends GetxController {
       );
 
       debugPrint('[DOC] GET /documents status: ${response.statusCode}');
-      debugPrint('[DOC] GET /documents body: ${response.body}');
 
       if (response.body.isEmpty) return;
+      if (response.statusCode != 200) return;
 
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        final list = json['response'] as List<dynamic>;
+      final json = jsonDecode(response.body);
+      final list = json['response'] as List<dynamic>;
 
-        for (final item in list) {
-          final listId = item['list_id'] as int?;
-          final key = listIdToKey[listId];
-          if (key != null) {
-            uploadedDocs[key] = {
-              'id':        item['id']?.toString() ?? '',
-              'file_name': item['document_title']?.toString() ?? '',
-              'file_url':  item['file_url']?.toString() ?? '',
-              'source':    'profile',
-            };
-          }
+      for (final item in list) {
+        final listId = item['list_id'] as int?;
+        final key = listIdToKey[listId];
+        if (key != null) {
+          uploadedDocs[key] = {
+            'id':        item['id']?.toString() ?? '',
+            'file_name': item['document_title']?.toString() ?? '',
+            'file_url':  item['file_url']?.toString() ?? '',
+            'source':    'profile',
+          };
         }
       }
     } catch (e) {
@@ -139,16 +129,20 @@ class DocumentController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/document-profiles');
+      // ✅ Endpoint yang benar
+      final url = Uri.parse('${ApiEndpoints.baseUrl}/documents');
       final request = http.MultipartRequest('POST', url);
 
+      // ✅ Hapus Content-Type agar boundary multipart di-set otomatis
       final rawHeaders = ApiEndpoints.authHeaders(token);
       final headers = Map<String, String>.from(rawHeaders);
       headers.remove('Content-Type');
       request.headers.addAll(headers);
 
+      // ✅ Format array sesuai yang diterima backend (verified dari Postman)
       request.fields['documents[0][list_id]'] = listId.toString();
 
+      // ✅ Baca bytes agar tidak kena _Namespace error di iOS/Android
       final ioFile = File(file.path!);
       final bytes = await ioFile.readAsBytes();
       request.files.add(http.MultipartFile.fromBytes(
@@ -157,37 +151,18 @@ class DocumentController extends GetxController {
         filename: file.name,
       ));
 
-      debugPrint('[DOC] POST upload URL: $url');
-      debugPrint('[DOC] POST upload list_id: $listId');
-      debugPrint('[DOC] POST upload file: ${file.name}');
+      debugPrint('[DOC] POST /document-profiles url: $url');
+      debugPrint('[DOC] POST /document-profiles list_id: $listId, file: ${file.name}');
 
       final stream = await request.send();
       final response = await http.Response.fromStream(stream);
 
-      debugPrint('[DOC] POST upload status: ${response.statusCode}');
-      debugPrint('[DOC] POST upload body: ${response.body}');
+      debugPrint('[DOC] POST /document-profiles status: ${response.statusCode}');
+      debugPrint('[DOC] POST /document-profiles body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final json = jsonDecode(response.body);
-
-        Map<String, dynamic>? data;
-        final raw = json['response'];
-        if (raw is Map<String, dynamic>) {
-          data = raw;
-        } else if (raw is List && raw.isNotEmpty) {
-          data = raw.first as Map<String, dynamic>?;
-        }
-
-        uploadedDocs[key] = {
-          'id':        data?['id']?.toString() ?? '',
-          'file_name': data?['file_name']?.toString() ?? file.name,
-          'file_url':  data?['file_url']?.toString() ?? '',
-          'source':    'profile',
-        };
-
-        // Refresh dari server agar id & file_url ter-update
+        // Refresh dari server agar id & file_url ter-update dengan benar
         await fetchDokumenFromProfile();
-
         _showSuccess('Dokumen berhasil diupload');
       } else {
         final json = jsonDecode(response.body);
@@ -210,6 +185,12 @@ class DocumentController extends GetxController {
     final file = await _pickFile();
     if (file == null) return;
 
+    final listId = keyToListId[key];
+    if (listId == null) {
+      _showError('Jenis dokumen tidak dikenali');
+      return;
+    }
+
     if (file.size > 2 * 1024 * 1024) {
       _showError('Ukuran file maksimal 2MB');
       return;
@@ -229,12 +210,12 @@ class DocumentController extends GetxController {
       headers.remove('Content-Type');
       request.headers.addAll(headers);
 
-      request.fields['document_type'] = key;
+      request.fields['documents[0][list_id]'] = listId.toString();
 
       final ioFile = File(file.path!);
       final bytes = await ioFile.readAsBytes();
       request.files.add(http.MultipartFile.fromBytes(
-        'file',
+        'documents[0][file]',
         bytes,
         filename: file.name,
       ));
@@ -248,23 +229,8 @@ class DocumentController extends GetxController {
       debugPrint('[DOC] APL01 upload body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final json = jsonDecode(response.body);
-
-        Map<String, dynamic>? data;
-        final raw = json['response'];
-        if (raw is Map<String, dynamic>) {
-          data = raw;
-        } else if (raw is List && raw.isNotEmpty) {
-          data = raw.first as Map<String, dynamic>?;
-        }
-
-        uploadedDocs[key] = {
-          'id':        data?['id']?.toString() ?? '',
-          'file_name': data?['file_name']?.toString() ?? file.name,
-          'file_url':  data?['file_url']?.toString() ?? '',
-          'source':    'apl01',
-        };
-
+        // Sync ke uploadedDocs agar tersedia di Profile juga
+        await fetchDokumenFromProfile();
         _showSuccess('Dokumen berhasil diupload');
       } else {
         final json = jsonDecode(response.body);
@@ -289,9 +255,8 @@ class DocumentController extends GetxController {
       final token = prefs.getString('token') ?? '';
 
       final docId = uploadedDocs[key]?['id'] ?? '';
-
       if (docId.isEmpty) {
-        _showError('Gagal: ID dokumen tidak ditemukan');
+        uploadedDocs.remove(key);
         return;
       }
 
@@ -307,8 +272,9 @@ class DocumentController extends GetxController {
         uploadedDocs.remove(key);
         _showSuccess('Dokumen berhasil dihapus');
       } else {
+        // Silent remove di UI jika endpoint belum ada
         uploadedDocs.remove(key);
-        debugPrint('[DOC] deleteDokumen: endpoint mungkin belum ada');
+        debugPrint('[DOC] deleteDokumen: silent remove');
       }
     } catch (e) {
       uploadedDocs.remove(key);
@@ -351,4 +317,4 @@ class DocumentController extends GetxController {
       borderRadius: 10,
     );
   }
-}
+} 

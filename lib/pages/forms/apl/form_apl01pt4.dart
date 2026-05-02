@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:lsp_mkc_app/pages/document_controller.dart';
 import 'package:lsp_mkc_app/pages/forms/apl/form_apl01_controller.dart';
-import 'package:lsp_mkc_app/pages/profil_controller.dart';
 import 'package:lsp_mkc_app/routes/app_pages.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,16 +28,16 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
     return Get.put(DocumentController());
   }
 
-  ProfilController get _profilC {
-    if (Get.isRegistered<ProfilController>())
-      return Get.find<ProfilController>();
-    return Get.put(ProfilController());
-  }
-
   // ─── State upload manual ──────────────────────────────────────────────────
   File? _pasFotoFile;
   File? _ktpFile;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _docC.fetchDokumenFromProfile();
+  }
 
   // ─── Config ───────────────────────────────────────────────────────────────
   static const int _pasFotoReqId = 3;
@@ -46,18 +45,14 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
   static const int _ktpReqId = 4;
   static const int _ktpListId = 2;
 
-  // ─── Cek apakah dokumen tersedia dari profil ──────────────────────────────
-  bool get _pasFotoFromProfil {
-    final hasPhoto = _profilC.photoUrl.value.isNotEmpty;
-    final hasDoc =
-        (_docC.uploadedDocs['pas_foto']?['file_url'] ?? '').isNotEmpty;
-    return hasPhoto || hasDoc;
-  }
+  // ─── Cek dokumen dari profil ──────────────────────────────────────────────
+  bool get _pasFotoFromProfil =>
+      (_docC.uploadedDocs['pas_foto']?['file_url'] ?? '').isNotEmpty;
 
   bool get _ktpFromProfil =>
       (_docC.uploadedDocs['ktp/kk']?['file_url'] ?? '').isNotEmpty;
 
-  // ─── Cek apakah dokumen siap (dari profil atau upload manual) ────────────
+  // ─── Cek apakah dokumen siap ──────────────────────────────────────────────
   bool get _pasFotoReady => _pasFotoFromProfil || _pasFotoFile != null;
   bool get _ktpReady => _ktpFromProfil || _ktpFile != null;
 
@@ -242,16 +237,21 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
 
       request.fields['registration_id'] = (c.registrationId ?? '').toString();
 
+      print('[DEBUG] uploadedDocs: ${_docC.uploadedDocs}');
+      print('[DEBUG] pas_foto entry: ${_docC.uploadedDocs['pas_foto']}');
+      print('[DEBUG] pas_foto id: ${_docC.uploadedDocs['pas_foto']?['id']}');
+      print('[DEBUG] ktp entry: ${_docC.uploadedDocs['ktp/kk']}');
+
       int index = 0;
 
-      // ── Pas Foto (kirim jika ready) ───────────────────────────────────────
-      // ── Pas Foto (kirim jika ready) ───────────────────────────────────────────
+      // ── Pas Foto ──────────────────────────────────────────────────────────
       if (_pasFotoReady) {
         request.fields['evidence[$index][requirement_id]'] = _pasFotoReqId
             .toString();
         request.fields['evidence[$index][list_id]'] = _pasFotoListId.toString();
 
         if (_pasFotoFile != null) {
+          // Upload file baru
           if (!await _pasFotoFile!.exists()) {
             _showFileNotFound();
             return;
@@ -265,50 +265,61 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
             ),
           );
         } else {
-          // ✅ Download dari /documents/{id}/stream
+          // Dari profil — download via stream
           final docId = _docC.uploadedDocs['pas_foto']?['id'] ?? '';
+          if (docId.isEmpty) {
+            Get.snackbar(
+              'Gagal',
+              'Dokumen Pas Foto tidak ditemukan di profil',
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP,
+              margin: const EdgeInsets.all(16),
+            );
+            if (mounted) setState(() => _isLoading = false);
+            return;
+          }
           final fileName =
               _docC.uploadedDocs['pas_foto']?['file_name'] ?? 'pas_foto';
-          if (docId.isNotEmpty) {
-            final streamUrl = Uri.parse(
-              '${ApiEndpoints.baseUrl}/documents/$docId/stream',
+          final streamUrl = Uri.parse(
+            '${ApiEndpoints.baseUrl}/documents/$docId/stream',
+          );
+          final fileResp = await http.get(
+            streamUrl,
+            headers: ApiEndpoints.authHeaders(token!),
+          );
+          if (fileResp.statusCode == 200) {
+            request.files.add(
+              http.MultipartFile.fromBytes(
+                'evidence[$index][file]',
+                fileResp.bodyBytes,
+                filename: fileName,
+              ),
             );
-            final fileResp = await http.get(
-              streamUrl,
-              headers: ApiEndpoints.authHeaders(token!),
+          } else {
+            Get.snackbar(
+              'Gagal',
+              'Gagal mengambil Pas Foto dari profil',
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP,
+              margin: const EdgeInsets.all(16),
             );
-            if (fileResp.statusCode == 200) {
-              request.files.add(
-                http.MultipartFile.fromBytes(
-                  'evidence[$index][file]',
-                  fileResp.bodyBytes,
-                  filename: fileName,
-                ),
-              );
-            } else {
-              Get.snackbar(
-                'Gagal',
-                'Gagal mengambil Pas Foto dari profil',
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-                snackPosition: SnackPosition.TOP,
-                margin: const EdgeInsets.all(16),
-              );
-              if (mounted) setState(() => _isLoading = false);
-              return;
-            }
+            if (mounted) setState(() => _isLoading = false);
+            return;
           }
         }
         index++;
       }
 
-      // ── KTP (kirim jika ready) ────────────────────────────────────────────────
+      // ── KTP ───────────────────────────────────────────────────────────────
       if (_ktpReady) {
         request.fields['evidence[$index][requirement_id]'] = _ktpReqId
             .toString();
         request.fields['evidence[$index][list_id]'] = _ktpListId.toString();
 
         if (_ktpFile != null) {
+          // Upload file baru
           if (!await _ktpFile!.exists()) {
             _showFileNotFound();
             return;
@@ -322,37 +333,47 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
             ),
           );
         } else {
-          // ✅ Download dari /documents/{id}/stream
+          // Dari profil — download via stream
           final docId = _docC.uploadedDocs['ktp/kk']?['id'] ?? '';
+          if (docId.isEmpty) {
+            Get.snackbar(
+              'Gagal',
+              'Dokumen KTP tidak ditemukan di profil',
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP,
+              margin: const EdgeInsets.all(16),
+            );
+            if (mounted) setState(() => _isLoading = false);
+            return;
+          }
           final fileName = _docC.uploadedDocs['ktp/kk']?['file_name'] ?? 'ktp';
-          if (docId.isNotEmpty) {
-            final streamUrl = Uri.parse(
-              '${ApiEndpoints.baseUrl}/documents/$docId/stream',
+          final streamUrl = Uri.parse(
+            '${ApiEndpoints.baseUrl}/documents/$docId/stream',
+          );
+          final fileResp = await http.get(
+            streamUrl,
+            headers: ApiEndpoints.authHeaders(token!),
+          );
+          if (fileResp.statusCode == 200) {
+            request.files.add(
+              http.MultipartFile.fromBytes(
+                'evidence[$index][file]',
+                fileResp.bodyBytes,
+                filename: fileName,
+              ),
             );
-            final fileResp = await http.get(
-              streamUrl,
-              headers: ApiEndpoints.authHeaders(token!),
+          } else {
+            Get.snackbar(
+              'Gagal',
+              'Gagal mengambil KTP dari profil',
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP,
+              margin: const EdgeInsets.all(16),
             );
-            if (fileResp.statusCode == 200) {
-              request.files.add(
-                http.MultipartFile.fromBytes(
-                  'evidence[$index][file]',
-                  fileResp.bodyBytes,
-                  filename: fileName,
-                ),
-              );
-            } else {
-              Get.snackbar(
-                'Gagal',
-                'Gagal mengambil KTP dari profil',
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-                snackPosition: SnackPosition.TOP,
-                margin: const EdgeInsets.all(16),
-              );
-              if (mounted) setState(() => _isLoading = false);
-              return;
-            }
+            if (mounted) setState(() => _isLoading = false);
+            return;
           }
         }
         index++;
@@ -526,9 +547,9 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
     required String label,
     required String desc,
     required IconData icon,
-    required bool fromProfil, // apakah ada di profil
-    required bool ready, // apakah siap dikirim
-    required String? profilLabel, // nama file dari profil
+    required bool fromProfil,
+    required bool ready,
+    required String? profilLabel,
     required File? uploadFile,
     required VoidCallback onPickFile,
     required VoidCallback onDeleteFile,
@@ -553,7 +574,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header ────────────────────────────────────────────────────────
+          // Header
           Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -613,7 +634,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
             ),
           ),
 
-          // ── Status dokumen dari profil ─────────────────────────────────────
+          // Status dari profil
           if (fromProfil && uploadFile == null)
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
@@ -667,7 +688,43 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
               ),
             ),
 
-          // ── Preview file upload ───────────────────────────────────────────
+          // Warning kalau tidak ada di profil dan belum upload
+          if (!fromProfil && uploadFile == null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFDE68A)),
+                ),
+                child: const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 14,
+                      color: Color(0xFFD97706),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Dokumen belum tersedia di profil. '
+                        'Silakan upload dokumen ini.',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF92400E),
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Preview file upload
           if (uploadFile != null) ...[
             if (isImage)
               Padding(
@@ -718,7 +775,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
               ),
           ],
 
-          // ── Tombol upload/ganti/hapus ─────────────────────────────────────
+          // Tombol upload
           Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -829,7 +886,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // ── Progress ───────────────────────────────────────────────────
+            // Progress
             _card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -901,7 +958,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
               ),
             ),
 
-            // ── Info minimal 1 dokumen ────────────────────────────────────
+            // Info
             Container(
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(14),
@@ -934,7 +991,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
               ),
             ),
 
-            // ── Dokumen Cards ──────────────────────────────────────────────
+            // Dokumen Cards
             _card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -945,7 +1002,6 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
                     Icons.folder_open_outlined,
                   ),
 
-                  // ── Pas Foto ───────────────────────────────────────────────
                   Obx(
                     () => _dokumenCard(
                       label: 'Pas Foto 3×4',
@@ -953,18 +1009,13 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
                       icon: Icons.portrait_outlined,
                       fromProfil: _pasFotoFromProfil,
                       ready: _pasFotoReady,
-                      profilLabel:
-                          _docC.uploadedDocs['pas_foto']?['file_name'] ??
-                          (_profilC.photoUrl.value.isNotEmpty
-                              ? 'Foto Profil'
-                              : null),
+                      profilLabel: _docC.uploadedDocs['pas_foto']?['file_name'],
                       uploadFile: _pasFotoFile,
                       onPickFile: _pickPasFoto,
                       onDeleteFile: () => setState(() => _pasFotoFile = null),
                     ),
                   ),
 
-                  // ── KTP ────────────────────────────────────────────────────
                   Obx(
                     () => _dokumenCard(
                       label: 'KTP',
@@ -982,7 +1033,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
               ),
             ),
 
-            // ── Info LSP ───────────────────────────────────────────────────
+            // Info LSP
             Container(
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(14),
@@ -1017,7 +1068,7 @@ class _FormApl01Bagian4State extends State<FormApl01Bagian4> {
 
             const SizedBox(height: 12),
 
-            // ── Navigasi ───────────────────────────────────────────────────
+            // Navigasi
             Row(
               children: [
                 Expanded(

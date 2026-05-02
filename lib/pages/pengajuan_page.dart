@@ -23,16 +23,22 @@ class PengajuanPage extends GetView<PengajuanController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Pengajuan Saya',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF111827))),
+                        Text(
+                          'Pengajuan Saya',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
                         SizedBox(height: 2),
-                        Text('Monitor status form yang kamu ajukan',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF6B7280))),
+                        Text(
+                          'Monitor status form yang kamu ajukan',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -44,11 +50,13 @@ class PengajuanPage extends GetView<PengajuanController> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                            color: const Color(0xFFE5E7EB)),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
                       ),
-                      child: const Icon(Icons.refresh_rounded,
-                          size: 18, color: Color(0xFF4CAF50)),
+                      child: const Icon(
+                        Icons.refresh_rounded,
+                        size: 18,
+                        color: Color(0xFF4CAF50),
+                      ),
                     ),
                   ),
                 ],
@@ -62,8 +70,7 @@ class PengajuanPage extends GetView<PengajuanController> {
                   return _SkeletonList();
                 }
                 if (controller.hasError.value) {
-                  return _ErrorState(
-                      onRetry: controller.fetchPengajuan);
+                  return _ErrorState(onRetry: controller.fetchPengajuan);
                 }
                 if (controller.pengajuanList.isEmpty) {
                   return const _EmptyState();
@@ -98,9 +105,10 @@ class _EmptyState extends StatelessWidget {
           const Text(
             'Belum ada pengajuan',
             style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF111827)),
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF111827),
+            ),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -133,31 +141,44 @@ class _ErrorState extends StatelessWidget {
                 color: Color(0xFFFFEDED),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.wifi_off_rounded,
-                  size: 30, color: Color(0xFFEF4444)),
+              child: const Icon(
+                Icons.wifi_off_rounded,
+                size: 30,
+                color: Color(0xFFEF4444),
+              ),
             ),
             const SizedBox(height: 16),
-            const Text('Gagal memuat data',
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF111827))),
+            const Text(
+              'Gagal memuat data',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF111827),
+              ),
+            ),
             const SizedBox(height: 4),
-            const Text('Periksa koneksi dan coba lagi',
-                style:
-                    TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+            const Text(
+              'Periksa koneksi dan coba lagi',
+              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4CAF50),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 elevation: 0,
               ),
-              icon: const Icon(Icons.refresh_rounded,
-                  color: Colors.white, size: 16),
-              label: const Text('Coba Lagi',
-                  style: TextStyle(color: Colors.white)),
+              icon: const Icon(
+                Icons.refresh_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+              label: const Text(
+                'Coba Lagi',
+                style: TextStyle(color: Colors.white),
+              ),
               onPressed: onRetry,
             ),
           ],
@@ -185,30 +206,36 @@ class _SkeletonList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-                height: 14,
-                width: 180,
-                decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
-                    borderRadius: BorderRadius.circular(6))),
+              height: 14,
+              width: 180,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5E7EB),
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
             const SizedBox(height: 8),
             Container(
-                height: 11,
-                width: 100,
-                decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(6))),
+              height: 11,
+              width: 100,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
             const SizedBox(height: 16),
             ...List.generate(
-                3,
-                (_) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                              color: const Color(0xFFF9FAFB),
-                              borderRadius:
-                                  BorderRadius.circular(8))),
-                    )),
+              3,
+              (_) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -248,9 +275,10 @@ class _RegistrationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -269,40 +297,50 @@ class _RegistrationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
-                      Icons.workspace_premium_outlined,
-                      size: 20,
-                      color: Color(0xFF4CAF50)),
+                    Icons.workspace_premium_outlined,
+                    size: 20,
+                    color: Color(0xFF4CAF50),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item.schemeName,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF111827))),
+                      Text(
+                        item.schemeName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text(item.schemeCode,
-                          style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF9CA3AF))),
+                      Text(
+                        item.schemeCode,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Diajukan',
-                        style: TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF9CA3AF))),
-                    Text(item.createdAt,
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF6B7280))),
+                    const Text(
+                      'Diajukan',
+                      style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF)),
+                    ),
+                    Text(
+                      item.createdAt,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -313,10 +351,12 @@ class _RegistrationCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Column(
               children: item.forms
-                  .map((form) => _FormRow(
-                        form: form,
-                        registrationId: item.registrationId,
-                      ))
+                  .map(
+                    (form) => _FormRow(
+                      form: form,
+                      registrationId: item.registrationId,
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -333,7 +373,7 @@ class _FormRow extends StatelessWidget {
   const _FormRow({required this.form, required this.registrationId});
 
   _StatusConfig _getConfig(String status) {
-    switch (status) {
+    switch (status.toLowerCase().trim()) {
       case 'approved':
         return _StatusConfig(
           label: 'Disetujui',
@@ -342,6 +382,7 @@ class _FormRow extends StatelessWidget {
           icon: Icons.check_circle_rounded,
         );
       case 'pending':
+      case 'menunggu':
         return _StatusConfig(
           label: 'Menunggu',
           color: const Color(0xFFF59E0B),
@@ -349,6 +390,7 @@ class _FormRow extends StatelessWidget {
           icon: Icons.access_time_rounded,
         );
       case 'rejected':
+      case 'ditolak':
         return _StatusConfig(
           label: 'Ditolak',
           color: const Color(0xFFEF4444),
@@ -369,12 +411,19 @@ class _FormRow extends StatelessWidget {
           bg: const Color(0xFFE8F5E9),
           icon: Icons.payments_rounded,
         );
-      default:
+      case 'draft':
         return _StatusConfig(
           label: 'Belum Diisi',
           color: const Color(0xFF9CA3AF),
           bg: const Color(0xFFF3F4F6),
           icon: Icons.edit_outlined,
+        );
+      default:
+        return _StatusConfig(
+          label: status.isNotEmpty ? status : 'Dalam Proses',
+          color: const Color(0xFF6B7280),
+          bg: const Color(0xFFF3F4F6),
+          icon: Icons.info_outline_rounded,
         );
     }
   }
@@ -394,23 +443,26 @@ class _FormRow extends StatelessWidget {
     }
   }
 
-  bool _canNavigate(String status) => status == 'draft';
+  bool _canNavigate(String status) {
+    return status == 'draft';
+  }
 
   @override
   Widget build(BuildContext context) {
     final config = _getConfig(form.status);
     final route = _getRoute(form.code);
-    final canNav = _canNavigate(form.status) && route != null;
+    final canNav = form.status == 'draft' && route != null;
 
     return GestureDetector(
       onTap: canNav
-          ? () => Get.toNamed(route!,
-              arguments: {'registrationId': registrationId})
+          ? () => Get.toNamed(
+              route!,
+              arguments: {'registrationId': registrationId},
+            )
           : null,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(
-            horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(10),
@@ -419,27 +471,29 @@ class _FormRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: const Color(0xFFE8F5E9),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Text(form.code,
-                  style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF4CAF50))),
+              child: Text(
+                form.code,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF4CAF50),
+                ),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(form.label,
-                  style: const TextStyle(
-                      fontSize: 12, color: Color(0xFF374151))),
+              child: Text(
+                form.label,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF374151)),
+              ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: config.bg,
                 borderRadius: BorderRadius.circular(20),
@@ -449,18 +503,24 @@ class _FormRow extends StatelessWidget {
                 children: [
                   Icon(config.icon, size: 11, color: config.color),
                   const SizedBox(width: 4),
-                  Text(config.label,
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: config.color)),
+                  Text(
+                    config.label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: config.color,
+                    ),
+                  ),
                 ],
               ),
             ),
             if (canNav) ...[
               const SizedBox(width: 6),
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 10, color: Color(0xFF9CA3AF)),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 10,
+                color: Color(0xFF9CA3AF),
+              ),
             ],
           ],
         ),

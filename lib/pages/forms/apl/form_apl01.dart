@@ -22,6 +22,7 @@ class _FormApl01State extends State<FormApl01> {
       c.loadFromProfile();
       if (mounted && c.pendidikanController.text.isNotEmpty) {
         setState(() => _selectedPendidikan = c.pendidikanController.text);
+        c.setPendidikan(c.pendidikanController.text);
       }
     });
   }
@@ -582,7 +583,7 @@ class _FormApl01State extends State<FormApl01> {
                         ),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          value: _selectedPendidikan,
+                          initialValue: _selectedPendidikan,
                           hint: const Text(
                             'Pilih Kualifikasi Pendidikan',
                             style: TextStyle(
@@ -590,33 +591,24 @@ class _FormApl01State extends State<FormApl01> {
                               color: Color(0xFFD1D5DB),
                             ),
                           ),
-                          items:
-                              [
-                                    'SMA / SMK Sederajat',
-                                    'D1',
-                                    'D2',
-                                    'D3',
-                                    'S1 / D4',
-                                    'S2',
-                                    'S3',
-                                  ]
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(
-                                        e,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xFF111827),
-                                        ),
-                                      ),
+                          items: ['SMK', 'S1']
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(
+                                    e,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF111827),
                                     ),
-                                  )
-                                  .toList(),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                           onChanged: (val) {
                             if (val != null) {
                               setState(() => _selectedPendidikan = val);
-                              c.pendidikanController.text = val;
+                              c.setPendidikan(val);
                             }
                           },
                           decoration: InputDecoration(

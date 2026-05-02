@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lsp_mkc_app/utils/api_endpoints.dart';
 import 'package:lsp_mkc_app/utils/api_error_handler.dart';
 
+// ✅ Map nama pendidikan → education_id (sesuaikan ID dengan data backend)
+const Map<String, int> educationIdMap = {'SMK': 1, 'S1': 2};
+
 class FormApl01Controller extends GetxController {
   // ─── BAGIAN 1: Data Pribadi & Pekerjaan ───────────────────────────────────
   final namaController = TextEditingController();
@@ -14,7 +17,8 @@ class FormApl01Controller extends GetxController {
   final alamatController = TextEditingController();
   final kodePosController = TextEditingController();
   final noHpController = TextEditingController();
-  final pendidikanController = TextEditingController();
+  final pendidikanController =
+      TextEditingController(); // menyimpan label (nama)
   final namaInstitusiController = TextEditingController();
 
   final institusiController = TextEditingController();
@@ -25,6 +29,9 @@ class FormApl01Controller extends GetxController {
 
   final jenisKelamin = 'male'.obs;
   final asesiType = 'pribadi'.obs;
+
+  // ✅ Simpan education_id yang dipilih user
+  final RxnInt educationId = RxnInt();
 
   int? registrationId;
   int? selectedSchemeId;
@@ -37,7 +44,13 @@ class FormApl01Controller extends GetxController {
     }
   }
 
-  // ─── BAGIAN 2: Data Sertifikasi ───────────────────────────────────────────
+  // ✅ Helper: set pendidikan dari label → otomatis update educationId
+  void setPendidikan(String label) {
+    pendidikanController.text = label;
+    educationId.value = educationIdMap[label];
+  }
+
+  // ─── BAGIAN 2 ─────────────────────────────────────────────────────────────
   final tujuanAsesmen = <String>[].obs;
 
   void selectTujuan(String value) {
@@ -45,7 +58,7 @@ class FormApl01Controller extends GetxController {
     tujuanAsesmen.add(value);
   }
 
-  // ─── BAGIAN 3: Bukti Kelengkapan ─────────────────────────────────────────
+  // ─── BAGIAN 3 ─────────────────────────────────────────────────────────────
   final buktiStatus = <String, String>{
     'bukti_dasar_1': '',
     'bukti_dasar_2': '',
@@ -57,13 +70,13 @@ class FormApl01Controller extends GetxController {
     buktiStatus[key] = buktiStatus[key] == status ? '' : status;
   }
 
-  // ─── Loading States ──────────────────────────────────────────────────────
+  // ─── Loading States ───────────────────────────────────────────────────────
   final isLoadingBagian1 = false.obs;
   final isLoadingBagian2 = false.obs;
   final isLoadingBagian3 = false.obs;
-  final isLoadingProfile = false.obs; // ✅ tambah
+  final isLoadingProfile = false.obs;
 
-  // ─── Helpers ─────────────────────────────────────────────────────────────
+  // ─── Helpers ──────────────────────────────────────────────────────────────
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -112,7 +125,6 @@ class FormApl01Controller extends GetxController {
         final data = jsonDecode(response.body);
         final user = data['response'] ?? data['data'] ?? data;
 
-        // ✅ Isi field yang tersedia dari profil
         if (user['name'] != null && user['name'].toString().isNotEmpty) {
           namaController.text = user['name'];
         }
@@ -134,9 +146,13 @@ class FormApl01Controller extends GetxController {
         if (user['phone_number'] != null) {
           noHpController.text = user['phone_number'];
         }
+
+        // ✅ Load pendidikan dari profil → set label + ID sekaligus
         if (user['education_qualifications'] != null) {
-          pendidikanController.text = user['education_qualifications'];
+          final label = user['education_qualifications'].toString();
+          setPendidikan(label);
         }
+
         if (user['company_name'] != null) {
           institusiController.text = user['company_name'];
         }
@@ -166,6 +182,13 @@ class FormApl01Controller extends GetxController {
       _showError('Nama harus diisi');
       return false;
     }
+
+    // ✅ Validasi pendidikan dipilih
+    if (educationId.value == null) {
+      _showError('Kualifikasi pendidikan harus dipilih');
+      return false;
+    }
+
     isLoadingBagian1.value = true;
     try {
       final token = await _getToken();
@@ -176,7 +199,10 @@ class FormApl01Controller extends GetxController {
         'address': alamatController.text.trim(),
         'home_postal_code': kodePosController.text.trim(),
         'phone_number': noHpController.text.trim(),
-        'education_qualifications': pendidikanController.text.trim(),
+
+        // ✅ FIX: kirim education_id (int) bukan education_qualifications (string)
+        'education_id': educationId.value,
+
         'company_name': institusiController.text.trim(),
         'job_title': jabatanController.text.trim(),
         'company_address': alamatKantorController.text.trim(),
@@ -186,6 +212,7 @@ class FormApl01Controller extends GetxController {
         'institution_name': namaInstitusiController.text.trim(),
       };
 
+      print('[DEBUG] education_id: ${educationId.value}');
       print('[DEBUG] asesi_type: ${asesiType.value}');
       print('[DEBUG] full body: $body');
 
@@ -210,7 +237,10 @@ class FormApl01Controller extends GetxController {
         return true;
       }
 
-      ApiErrorHandler.handleError(response: response, defaultFallback: 'Data gagal disimpan');
+      ApiErrorHandler.handleError(
+        response: response,
+        defaultFallback: 'Data gagal disimpan',
+      );
       return false;
     } catch (e, stackTrace) {
       print('[APL01 Bagian 1] Error type: ${e.runtimeType}');
@@ -235,6 +265,11 @@ class FormApl01Controller extends GetxController {
 
       print('[APL01 Bagian 2] tujuanAsesmen: $tujuanAsesmen');
       print('[APL01 Bagian 2] registrationId: $registrationId');
+      print('[APL01 Bagian 2] selectedSchemeId: $selectedSchemeId');
+      print(
+        '[APL01 Bagian 2] scheme_id yang dikirim: ${selectedSchemeId ?? 1}',
+      );
+      print('[APL01 Bagian 2] registration_id: $registrationId');
 
       final body = {
         'registration_id': registrationId,
@@ -242,6 +277,7 @@ class FormApl01Controller extends GetxController {
         'scheme_id': selectedSchemeId ?? 1,
       };
 
+      print('[APL01 Bagian 2] body: $body');
       final response = await http.post(
         Uri.parse('${ApiEndpoints.baseUrl}/apl01/data-sertifikasi'),
         body: jsonEncode(body),
@@ -253,11 +289,12 @@ class FormApl01Controller extends GetxController {
       print('[APL01 Bagian 2] Status: ${response.statusCode}');
       print('[APL01 Bagian 2] Body: ${response.body}');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return true;
-      }
+      if (response.statusCode == 200 || response.statusCode == 201) return true;
 
-      ApiErrorHandler.handleError(response: response, defaultFallback: 'Data gagal disimpan');
+      ApiErrorHandler.handleError(
+        response: response,
+        defaultFallback: 'Data gagal disimpan',
+      );
       return false;
     } catch (e, stackTrace) {
       print('[APL01 Bagian 2] Error type: ${e.runtimeType}');
@@ -292,7 +329,10 @@ class FormApl01Controller extends GetxController {
         return true;
       }
 
-      ApiErrorHandler.handleError(response: response, defaultFallback: 'Gagal mengirim form');
+      ApiErrorHandler.handleError(
+        response: response,
+        defaultFallback: 'Gagal mengirim form',
+      );
       return false;
     } catch (e, stackTrace) {
       print('[APL01 Bagian 3] Error type: ${e.runtimeType}');

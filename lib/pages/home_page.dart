@@ -713,7 +713,6 @@ class _FormRow extends StatelessWidget {
   bool _canNavigate(String status) =>
       status == 'draft' ||
       status == 'not_started' ||
-      status == 'pending' ||
       status == 'rejected';
 
   @override
